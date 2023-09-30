@@ -1,0 +1,37 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "dev",
+			"path": "packages/render",
+			"problemMatcher": [],
+			"label": "npm: dev - packages/render",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"group": "build",
+			}
+		},
+		{
+			"type": "npm",
+			"script": "start",
+			"path": "packages/main",
+			"problemMatcher": [],
+			"label": "npm: start - packages/main",
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"group": "build",
+			}
+		},
+		{
+			"label": "tasks: dev",
+			"group": "build",
+			"dependsOn": [
+				"npm: start - packages/main",
+				"npm: dev - packages/render"
+			]
+		}
+	]
+}

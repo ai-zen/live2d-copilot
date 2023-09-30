@@ -1,0 +1,37 @@
+{
+  "name": "live2d-copilot-main",
+  "productName": "Live2D Copilot",
+  "version": "1.0.0",
+  "description": "AI Desktop Pet APP",
+  "main": "dist/main.js",
+  "scripts": {
+    "build:dev": "node ./scripts/build.mjs --mode development",
+    "build:pre": "node ./scripts/build.mjs --mode prerelease",
+    "build": "node ./scripts/build.mjs --mode production",
+    "start": "npm run build:dev && electron-forge start",
+    "start:pre": "npm run build:pre && electron-forge start",
+    "package": "npm run build && electron-forge package",
+    "make": "npm run build && electron-forge make"
+  },
+  "author": {
+    "name": "LZQCN",
+    "email": "by.lzq@qq.com"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@electron-forge/cli": "^6.4.2",
+    "@electron-forge/maker-deb": "^6.4.2",
+    "@electron-forge/maker-rpm": "^6.4.2",
+    "@electron-forge/maker-squirrel": "^6.4.2",
+    "@electron-forge/maker-zip": "^6.4.2",
+    "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
+    "@types/mime": "^3.0.2",
+    "@types/node": "^20.8.0",
+    "electron": "^26.2.4",
+    "electron-squirrel-startup": "^1.0.0",
+    "esbuild": "^0.19.4",
+    "mime": "^3.0.0",
+    "typescript": "^5.2.2",
+    "web-message-rpc": "^1.0.4"
+  }
+}
