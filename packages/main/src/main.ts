@@ -1,8 +1,9 @@
 import { app, BrowserWindow } from "electron";
-import path from "node:path";
-import { useStaticServeOrigin } from "./composables/useStaticServeOrigin";
-import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
 import { useAppProtocol } from "./composables/useAppProtocol";
+import { useStaticServeOrigin } from "./composables/useStaticServeOrigin";
+import { live2DModelManager } from "./modules/Live2DModelsManager";
+import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
+import { createLoadingWindow } from "./windows/createLoadingWindow";
 
 async function main() {
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -19,9 +20,15 @@ async function main() {
   // This method will be called when Electron has finished
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
-  app.on("ready", () => {
+  app.on("ready", async () => {
+    // Create Loading.
+    createLoadingWindow(staticServeOrigin);
+
     // Handle app protocol.
     handleAppProtocol();
+
+    // Release Live2D Models Files to UserData.
+    await live2DModelManager.releaseFilesToUserData();
 
     // Create the Desktop Pet Window.
     createDesktopPetWindow(staticServeOrigin);

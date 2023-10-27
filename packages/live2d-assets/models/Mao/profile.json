@@ -1,0 +1,18 @@
+{
+    "Version": 1,
+    "Model3": "Mao.model3.json",
+    "Title": "虹色Mao",
+    "Preview": "preview.png",
+    "CreateTime": 1687551638064,
+    "Skins": [],
+    "AzureTTS": {
+        "VoiceName": "zh-CN-XiaoyiNeural"
+    },
+    "ChatGPT": {
+        "RoleName": "虹色Mao",
+        "SystemMessage": "你是一个AI助手，用户称呼你为虹色Mao，你的回答尽可能简洁，每次只回答一句话，不知道就说不知道。"
+    },
+    "Motions": {
+        "RandomIdleMotionInterval": 0
+    }
+}
