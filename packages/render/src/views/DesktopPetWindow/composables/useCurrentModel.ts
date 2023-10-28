@@ -77,7 +77,7 @@ export function useCurrentModel({
     // Calculate the offset of mouse movement and update the model position.
     const offsetX = ev.clientX - beginEv.clientX;
     const offsetY = ev.clientY - beginEv.clientY;
-    modelMatrix.translateX(beginTranslateX + offsetX * 0.0014);
+    modelMatrix.translateX(beginTranslateX + offsetX * 0.0014); // TODO: Change this bad code.
     modelMatrix.translateY(beginTranslateY + -offsetY * 0.0014);
   }
 
