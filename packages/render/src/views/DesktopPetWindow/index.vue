@@ -24,6 +24,7 @@ const delegateRef = shallowRef<LAppDelegate | null>(null);
 const { loadCurrentModel } = useCurrentModel({
   winApi,
   managerRef,
+  delegateRef,
 });
 
 async function onLive2DMounted(

@@ -2,6 +2,7 @@ import {
   LAppLive2DManagerModule,
   LAppModelModule,
   LAppProfileModule,
+  LAppDelegateModule,
 } from "@ai-zen/live2d-vue";
 import type { CallRecord } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { ShallowRef, onMounted, onUnmounted, ref, shallowRef } from "vue";
@@ -19,9 +20,11 @@ import { toLocalURI } from "../../../utils/toLocalURI";
 export function useCurrentModel({
   winApi,
   managerRef,
+  delegateRef,
 }: {
   winApi: CallRecord;
   managerRef: ShallowRef<LAppLive2DManagerModule.LAppLive2DManager | null>;
+  delegateRef: ShallowRef<LAppDelegateModule.LAppDelegate | null>;
 }) {
   // Reference to the current model.
   const currentModelRef = shallowRef<LAppModelModule.LAppModel | null>(null);
@@ -74,11 +77,17 @@ export function useCurrentModel({
     if (!beginEv) return;
     const modelMatrix = currentModelRef.value?.getModelMatrix();
     if (!modelMatrix) return;
+    const view = delegateRef.value?._view;
+    if (!view) return;
     // Calculate the offset of mouse movement and update the model position.
-    const offsetX = ev.clientX - beginEv.clientX;
-    const offsetY = ev.clientY - beginEv.clientY;
-    modelMatrix.translateX(beginTranslateX + offsetX * 0.0014); // TODO: Change this bad code.
-    modelMatrix.translateY(beginTranslateY + -offsetY * 0.0014);
+    const eventViewX = view.transformViewX(ev.clientX * devicePixelRatio);
+    const eventViewY = view.transformViewY(ev.clientY * devicePixelRatio);
+    const beginViewX = view.transformViewX(beginEv.clientX * devicePixelRatio);
+    const beginViewY = view.transformViewY(beginEv.clientY * devicePixelRatio);
+    const offsetX = eventViewX - beginViewX;
+    const offsetY = eventViewY - beginViewY;
+    modelMatrix.translateX(beginTranslateX + offsetX);
+    modelMatrix.translateY(beginTranslateY + offsetY);
   }
 
   // Event handling function for mouse up.
