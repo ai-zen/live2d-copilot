@@ -23,12 +23,14 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
     {
       show: false,
       name: "desktop-pet-window",
-      width: DEFAULT_WIDTH,
-      height: DEFAULT_HEIGHT,
+      // width: DEFAULT_WIDTH,
+      // height: DEFAULT_HEIGHT,
       frame: false,
       transparent: true,
       resizable: false,
       hasShadow: false,
+      fullscreen: true,
+      movable: false,
     }
   );
 
@@ -70,10 +72,10 @@ function preload(win: BrowserWindowEx) {
       return live2DModelManager.getCurrent();
     },
 
-    /**
-     * Enable window movement for web contents.
-     */
-    ...useWindowMove(win),
+    // /**
+    //  * Enable window movement for web contents.
+    //  */
+    // ...useWindowMove(win),
   });
 
   return {
