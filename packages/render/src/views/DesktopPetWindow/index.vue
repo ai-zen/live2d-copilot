@@ -33,6 +33,7 @@ async function onLive2DMounted(
 ) {
   managerRef.value = manager;
   delegateRef.value = delegate;
+  manager._enabledDrag = false;
   await loadCurrentModel(); // Load the current Live2D model
   winApi.closeLoadingWindow(); // Close the loading window
 }

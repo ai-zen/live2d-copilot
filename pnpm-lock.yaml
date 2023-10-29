@@ -61,8 +61,8 @@ importers:
   packages/render:
     dependencies:
       '@ai-zen/live2d-vue':
-        specifier: ^1.0.10
-        version: 1.0.10(vue@3.3.4)
+        specifier: ^1.0.11
+        version: 1.0.11(vue@3.3.4)
       vue:
         specifier: ^3.3.4
         version: 3.3.4
@@ -97,8 +97,8 @@ packages:
   /@ai-zen/event-bus@1.0.1:
     resolution: {integrity: sha512-toCOVAMFKR5e5pavc6fG/7HrBJmcSovFq+pAtzjc8gIK9/1rKRGz9sDG1CJtEWC7fLaR0AHAfBCH5zz7zQIROA==}
 
-  /@ai-zen/live2d-app@1.0.3:
-    resolution: {integrity: sha512-Oi94T7Vtcpw4KoWWPRJpECGKkvBTy2IJi4m7xyML7vKT7QmCUGySBKH+T0suLIbhUR5FMTicili+Voh9xVOTmA==}
+  /@ai-zen/live2d-app@1.0.4:
+    resolution: {integrity: sha512-3NUTsfQo7YM3+DQDOBN8U6C8RyiNSAE55hL9PiBsR0CyVlx9hJWxZbDkizoL72AmUa7Kk0zc8rzTDNztbelqbA==}
     dependencies:
       '@ai-zen/event-bus': 1.0.1
       '@ai-zen/live2d-framework': 1.0.2
@@ -113,12 +113,12 @@ packages:
     resolution: {integrity: sha512-7rQDZ6U6eewGnQjlNX4Rn8WhUob4KbBD4YdtZ81DvaWeBQ3HP1+ZuCVbyw4enjvKp1T3kNPJj3ohNUXWuA84Bg==}
     dev: false
 
-  /@ai-zen/live2d-vue@1.0.10(vue@3.3.4):
-    resolution: {integrity: sha512-mE4rw/f6uuzyqoL/Ps03M1hTG7VueLQd7kn1neuHEZ1DaY65XCDLrSjxjtl70wfK48nLFroDT8rQhcsCskT7Ow==}
+  /@ai-zen/live2d-vue@1.0.11(vue@3.3.4):
+    resolution: {integrity: sha512-gY178E8XJ5M0erEA4r7CTwBCvJ527HN8iPY9g4VhJ5WWJXTOmvjw4DXGGRk9w5hUXtlH2UefLVj0ltDADRdd3A==}
     peerDependencies:
       vue: ^3.3.4
     dependencies:
-      '@ai-zen/live2d-app': 1.0.3
+      '@ai-zen/live2d-app': 1.0.4
       '@ai-zen/live2d-core': 1.0.2
       vue: 3.3.4
     dev: false

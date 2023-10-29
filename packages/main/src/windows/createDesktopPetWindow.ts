@@ -1,16 +1,10 @@
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
 import { live2DModelManager } from "../modules/Live2DModelsManager";
 import { useIgnoreMouseEventsByAlpha } from "./composables/useIgnoreMouseEventsByAlpha";
-import { useWindowMove } from "./composables/useWindowMove";
+import { useSystemMouseMoveEvent } from "./composables/useSystemMouseMoveEvent";
 import { createBrowserWindowEx } from "./createBrowserWindowEx";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
-
-const DEFAULT_WIDTH = 720;
-const DEFAULT_HEIGHT = 720;
-
-const MIN_WIDTH = 360;
-const MIN_HEIGHT = 360;
 
 /**
  * Create desktop pet window
@@ -23,8 +17,6 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
     {
       show: false,
       name: "desktop-pet-window",
-      // width: DEFAULT_WIDTH,
-      // height: DEFAULT_HEIGHT,
       frame: false,
       transparent: true,
       resizable: false,
@@ -47,6 +39,9 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
 
   // Auto set IgnoreMouseEvents by alpha.
   useIgnoreMouseEventsByAlpha(win);
+
+  // Sending system level mouse movement events to web contents
+  useSystemMouseMoveEvent(win);
 
   return win;
 }
@@ -71,11 +66,6 @@ function preload(win: BrowserWindowEx) {
     getCurrentLive2DModel() {
       return live2DModelManager.getCurrent();
     },
-
-    // /**
-    //  * Enable window movement for web contents.
-    //  */
-    // ...useWindowMove(win),
   });
 
   return {

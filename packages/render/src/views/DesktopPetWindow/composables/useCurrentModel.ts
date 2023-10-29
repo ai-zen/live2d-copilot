@@ -7,6 +7,7 @@ import {
 import type { CallRecord } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { ShallowRef, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { toLocalURI } from "../../../utils/toLocalURI";
+import { rpc } from "../../../modules/rpc";
 
 /**
  * Custom hook for managing the current model.
@@ -75,10 +76,10 @@ export function useCurrentModel({
   // Event handling function for mouse move.
   function onMouseMove(this: HTMLCanvasElement, ev: MouseEvent) {
     if (!beginEv) return;
-    const modelMatrix = currentModelRef.value?.getModelMatrix();
-    if (!modelMatrix) return;
-    const view = delegateRef.value?._view;
-    if (!view) return;
+    if (!delegateRef.value) return;
+    if (!currentModelRef.value) return;
+    const view = delegateRef.value._view;
+    const modelMatrix = currentModelRef.value.getModelMatrix();
     // Calculate the offset of mouse movement and update the model position.
     const eventViewX = view.transformViewX(ev.clientX * devicePixelRatio);
     const eventViewY = view.transformViewY(ev.clientY * devicePixelRatio);
@@ -113,6 +114,24 @@ export function useCurrentModel({
       }
     }
   }
+
+  // Handle System mouse move event
+  rpc.register({
+    onSystemMouseMoveEvent(
+      point: { x: number; y: number },
+      winRect: { x: number; y: number; w: number; h: number }
+    ) {
+      if (!delegateRef.value || !currentModelRef.value) return;
+      const modelMatrix = currentModelRef.value.getModelMatrix();
+      const viewX = delegateRef.value._view.transformViewX(point.x - winRect.x);
+      const viewY = delegateRef.value._view.transformViewY(point.y - winRect.y);
+      // Let the model gaze follow the mouse.
+      currentModelRef.value.setDragging(
+        viewX - modelMatrix.getTranslateX(),
+        viewY - modelMatrix.getTranslateY()
+      );
+    },
+  });
 
   // Bind event listeners.
   let el: HTMLCanvasElement | null;

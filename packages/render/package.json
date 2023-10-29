@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ai-zen/live2d-vue": "^1.0.10",
+    "@ai-zen/live2d-vue": "^1.0.11",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
     "web-message-rpc": "^1.0.4"
