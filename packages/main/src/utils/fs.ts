@@ -1,6 +1,11 @@
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 
+/**
+ * This function is used as a workaround for the lack
+ * of support for asar in fs.cp in Electron.
+ * It performs copying of a folder.
+ */
 export async function copyFolder(
   src: string, // The source directory path.
   dest: string, // The destination directory path.
