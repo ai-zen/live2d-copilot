@@ -1,3 +1,4 @@
+import { app } from "electron";
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
 import { live2DModelManager } from "../modules/Live2DModelsManager";
 import { useIgnoreMouseEventsByAlpha } from "./composables/useIgnoreMouseEventsByAlpha";
@@ -65,6 +66,13 @@ function preload(win: BrowserWindowEx) {
      */
     getCurrentLive2DModel() {
       return live2DModelManager.getCurrent();
+    },
+
+    /**
+     * Quit app.
+     */
+    quit() {
+      app.quit();
     },
   });
 

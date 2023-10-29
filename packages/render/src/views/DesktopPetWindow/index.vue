@@ -1,5 +1,6 @@
 <template>
   <Live2D class="live2d" @mounted="onLive2DMounted" ref="live2dRef" />
+  <ContextMenu />
 </template>
 
 <script setup lang="ts">
@@ -12,6 +13,7 @@ import { ref, shallowRef } from "vue";
 import type { CallRecord } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { rpc } from "../../modules/rpc";
 import { useCurrentModel } from "./composables/useCurrentModel";
+import ContextMenu from "./ContextMenu.vue";
 
 type LAppLive2DManager = LAppLive2DManagerModule.LAppLive2DManager;
 type LAppDelegate = LAppDelegateModule.LAppDelegate;
