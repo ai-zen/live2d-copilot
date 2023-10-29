@@ -13,7 +13,6 @@ async function main(argv) {
   const DIST_DIR = path.resolve(MAIN_DIR, "dist");
   const PUBLIC_DIR = path.resolve(MAIN_DIR, "public");
   const RENDER_DIR = path.resolve(MAIN_DIR, "../render");
-  const LIVE2D_ASSETS_DIR = path.resolve(MAIN_DIR, "../live2d-assets");
 
   // Clear the dist folder
   console.log("[build.mjs] clear dist dir");
@@ -46,14 +45,6 @@ async function main(argv) {
   // Copy Public files
   console.log("[build.mjs] copy public files");
   await fsp.cp(PUBLIC_DIR, DIST_DIR, { recursive: true });
-
-  // Copy Live2D assets
-  console.log("[build.mjs] Copy Live2D assets");
-  await fsp.cp(
-    path.resolve(LIVE2D_ASSETS_DIR, "models"),
-    path.resolve(DIST_DIR, "toUserData/Live2D Models"),
-    { recursive: true }
-  );
 
   // Build main and preload
   console.log("[build.mjs] build 'main' and 'payload'");

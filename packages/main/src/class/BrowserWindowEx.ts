@@ -23,7 +23,7 @@ export class BrowserWindowEx extends BrowserWindow {
           };
           this.webContents.ipc.on("rpc-event", handel);
         },
-        removeEventListener: (callback) => {
+        removeEventListener: (_callback) => {
           this.webContents.ipc.off("rpc-event", handel);
         },
         postMessage: (payload) => {

@@ -7,7 +7,7 @@ import { contextBridge, ipcRenderer } from "electron";
 const api = {
   onRpcEvent: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
     ipcRenderer.on("rpc-event", callback),
-  offRpcEvent: (callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
+  offRpcEvent: (_callback: (event: IpcRendererEvent, ...args: any[]) => void) =>
     ipcRenderer.removeAllListeners("rpc-event"),
   emitRpcEvent: (payload: any) => ipcRenderer.send("rpc-event", payload),
 };

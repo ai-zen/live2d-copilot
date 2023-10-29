@@ -92,7 +92,7 @@ export function useCurrentModel({
   }
 
   // Event handling function for mouse up.
-  function onMouseUp(this: HTMLCanvasElement, ev: MouseEvent) {
+  function onMouseUp(this: HTMLCanvasElement, _ev: MouseEvent) {
     beginEv = null;
   }
 
