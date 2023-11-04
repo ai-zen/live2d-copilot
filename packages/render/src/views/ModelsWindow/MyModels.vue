@@ -134,13 +134,15 @@ const sortState = reactive({
   ],
 });
 
-const cardWidth = ref(150);
+// This value needs to be adjusted based on experience to achieve the optimal card size.
+const BASE_CARD_WIDTH = 150;
+const cardWidth = ref(BASE_CARD_WIDTH);
 const listScrollContentRef = ref<null | HTMLDivElement>(null);
 
 function onResize() {
   if (!listScrollContentRef.value) return;
   const margin = 10;
-  const cellWidth = 150 + margin;
+  const cellWidth = BASE_CARD_WIDTH + margin;
   const containerWidth = listScrollContentRef.value.clientWidth - margin;
   const numPerRow = Math.floor(containerWidth / cellWidth);
   cardWidth.value = containerWidth / numPerRow - 10;
