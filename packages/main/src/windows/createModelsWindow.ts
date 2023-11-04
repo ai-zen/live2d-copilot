@@ -1,4 +1,4 @@
-import { app } from "electron";
+import { Menu, app } from "electron";
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
 import { createBrowserWindowEx } from "./createBrowserWindowEx";
 
@@ -12,10 +12,18 @@ export async function createModelsWindow(staticServeOrigin: string) {
   // Create window.
   const win = createBrowserWindowEx(
     `${staticServeOrigin}${MODELS_ROUTE_PATH}`,
-    { name: "models-window" }
+    {
+      name: "models-window",
+      width: 1430,
+      height: 1014,
+      minWidth: 800,
+      minHeight: 568,
+    }
   );
 
   if (!win) return;
+
+  Menu.setApplicationMenu(null);
 
   // Preload of the window.
   preload(win);

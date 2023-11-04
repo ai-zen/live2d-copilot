@@ -8,22 +8,32 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/desktop-pet-window",
     component: DesktopPetWindow,
+    meta: { title: "Live2D Copilot" },
   },
   {
     path: "/models-window",
     component: ModelsWindow,
+    meta: { title: "模型" },
   },
   {
     path: "/plugins-window",
     component: PluginsWindow,
+    meta: { title: "插件" },
   },
   {
     path: "/setting-window",
     component: SettingWindow,
+    meta: { title: "设置" },
   },
 ];
 
-export default createRouter({
+const router = createRouter({
   routes: routes,
   history: createWebHistory(),
 });
+
+router.afterEach((to) => {
+  if (typeof to.meta?.title == "string") document.title = to.meta.title;
+});
+
+export default router;
