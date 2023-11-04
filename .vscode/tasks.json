@@ -5,7 +5,30 @@
 			"type": "npm",
 			"script": "dev",
 			"path": "packages/render",
-			"problemMatcher": [],
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": "^([^\\s].*)$",
+							"file": 1
+						},
+						{
+							"regexp": "^\\s+(\\d+):(\\d+)\\s+(error|warning|info)\\s+(.*)\\s\\s+(.*)$",
+							"line": 1,
+							"column": 2,
+							"severity": 3,
+							"message": 4,
+							"code": 5
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": "VITE",
+						"endsPattern": "ready in"
+					}
+				}
+			],
+			"isBackground": true,
 			"label": "npm: dev - packages/render",
 			"presentation": {
 				"reveal": "always",
@@ -15,21 +38,44 @@
 		},
 		{
 			"type": "npm",
-			"script": "start",
+			"script": "watch:dev",
 			"path": "packages/main",
-			"problemMatcher": [],
-			"label": "npm: start - packages/main",
+			"problemMatcher": [
+				{
+					"pattern": [
+						{
+							"regexp": "^([^\\s].*)$",
+							"file": 1
+						},
+						{
+							"regexp": "^\\s+(\\d+):(\\d+)\\s+(error|warning|info)\\s+(.*)\\s\\s+(.*)$",
+							"line": 1,
+							"column": 2,
+							"severity": 3,
+							"message": 4,
+							"code": 5
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": "^\\[build.mjs\\] build started",
+						"endsPattern": "^\\[build.mjs\\] build ended"
+					}
+				}
+			],
+			"isBackground": true,
+			"label": "npm: watch:dev - packages/main",
 			"presentation": {
 				"reveal": "always",
 				"panel": "shared",
 				"group": "build",
-			}
+			},
 		},
 		{
-			"label": "tasks: dev",
+			"label": "tasks: pre-launch",
 			"group": "build",
 			"dependsOn": [
-				"npm: start - packages/main",
+				"npm: watch:dev - packages/main",
 				"npm: dev - packages/render"
 			]
 		}

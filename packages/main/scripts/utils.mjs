@@ -32,3 +32,7 @@ export function getArg(argv, key) {
     return argv[index + 1];
   }
 }
+
+export function hasArg(argv, key) {
+  return argv.includes(key);
+}

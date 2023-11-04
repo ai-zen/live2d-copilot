@@ -8,6 +8,7 @@
     "build:dev": "node ./scripts/build.mjs --mode development",
     "build:pre": "node ./scripts/build.mjs --mode prerelease",
     "build": "node ./scripts/build.mjs --mode production",
+    "watch:dev": "node ./scripts/build.mjs --mode development --watch",
     "start": "npm run build:dev && electron-forge start",
     "start:pre": "npm run build:pre && electron-forge start",
     "package": "npm run build && electron-forge package",
