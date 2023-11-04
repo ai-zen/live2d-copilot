@@ -4,6 +4,9 @@ import { live2DModelManager } from "../modules/Live2DModelsManager";
 import { useIgnoreMouseEventsByAlpha } from "./composables/useIgnoreMouseEventsByAlpha";
 import { useSystemMouseMoveEvent } from "./composables/useSystemMouseMoveEvent";
 import { createBrowserWindowEx } from "./createBrowserWindowEx";
+import { createSettingWindow } from "./createSettingWindow";
+import { createModelsWindow } from "./createModelsWindow";
+import { createPluginsWindow } from "./createPluginsWindow";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
 
@@ -12,7 +15,7 @@ export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
  * @param staticServeOrigin
  */
 export async function createDesktopPetWindow(staticServeOrigin: string) {
-  // Create render window.
+  // Create window.
   const win = createBrowserWindowEx(
     `${staticServeOrigin}${DESKTOP_PET_ROUTE_PATH}`,
     {
@@ -30,7 +33,7 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
   if (!win) return;
 
   // Preload of the window.
-  preload(win);
+  preload(win, staticServeOrigin);
 
   // Once the window is ready after creation.
   win.once("ready-to-show", () => {
@@ -50,8 +53,8 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
 /**
  * Preload of the desktop pet window
  */
-function preload(win: BrowserWindowEx) {
-  const callRecord = win.rpc.register(win.name, {
+function preload(win: BrowserWindowEx, staticServeOrigin: string) {
+  const methods = win.rpc.register(win.name, {
     /**
      * Close the loading window.
      */
@@ -74,11 +77,32 @@ function preload(win: BrowserWindowEx) {
     quit() {
       app.quit();
     },
+
+    /**
+     * Open models window.
+     */
+    openModelsWindow() {
+      createModelsWindow(staticServeOrigin);
+    },
+
+    /**
+     * Open plugins window.
+     */
+    openPluginsWindow() {
+      createPluginsWindow(staticServeOrigin);
+    },
+
+    /**
+     * Open setting window.
+     */
+    openSettingWindow() {
+      createSettingWindow(staticServeOrigin);
+    },
   });
 
   return {
-    callRecord,
+    methods,
   };
 }
 
-export type CallRecord = ReturnType<typeof preload>["callRecord"];
+export type Methods = ReturnType<typeof preload>["methods"];

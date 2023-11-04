@@ -33,6 +33,6 @@
     "esbuild": "^0.19.4",
     "mime": "^3.0.0",
     "typescript": "^5.2.2",
-    "web-message-rpc": "^1.0.4"
+    "web-message-rpc": "^1.0.5"
   }
 }

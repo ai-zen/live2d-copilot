@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, reactive } from "vue";
 import { guiState } from "./guiState";
-import type { CallRecord } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
+import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { rpc } from "../../modules/rpc";
 import { sleep } from "../../utils/sleep";
 import {
@@ -41,7 +41,7 @@ import {
   Setting,
 } from "@element-plus/icons-vue";
 
-const winApi = rpc.use<CallRecord>("desktop-pet-window");
+const winApi = rpc.use<Methods>("desktop-pet-window");
 
 const contextMenuState = reactive({
   isShow: false,
@@ -75,6 +75,7 @@ const menu = computed<MenuItem[]>(() => [
     title: "插件",
     icon: Cpu,
     click(_item: MenuItem) {
+      winApi.openPluginsWindow();
       closeMenu();
     },
   },
@@ -90,6 +91,7 @@ const menu = computed<MenuItem[]>(() => [
     title: "设置",
     icon: Setting,
     click(_item: MenuItem) {
+      winApi.openSettingWindow();
       closeMenu();
     },
   },
@@ -105,6 +107,7 @@ const menu = computed<MenuItem[]>(() => [
     title: "角色",
     icon: MagicStick,
     click(_item: MenuItem) {
+      winApi.openModelsWindow();
       closeMenu();
     },
   },

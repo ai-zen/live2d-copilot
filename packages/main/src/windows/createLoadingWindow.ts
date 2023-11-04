@@ -7,7 +7,7 @@ export const LOADING_ROUTE_PATH = `/loading.html`;
  * @param staticServeOrigin
  */
 export async function createLoadingWindow(staticServeOrigin: string) {
-  // Create render window.
+  // Create window.
   const win = createBrowserWindowEx(
     `${staticServeOrigin}${LOADING_ROUTE_PATH}`,
     {

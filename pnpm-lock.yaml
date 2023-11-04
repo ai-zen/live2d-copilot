@@ -8,8 +8,6 @@ importers:
 
   .: {}
 
-  packages/live2d-assets: {}
-
   packages/main:
     devDependencies:
       '@ai-zen/event-bus':
@@ -55,8 +53,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
       web-message-rpc:
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.5
 
   packages/render:
     dependencies:
@@ -76,8 +74,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5(vue@3.3.4)
       web-message-rpc:
-        specifier: ^1.0.4
-        version: 1.0.4
+        specifier: ^1.0.5
+        version: 1.0.5
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.2.3
@@ -4036,8 +4034,8 @@ packages:
       defaults: 1.0.4
     dev: true
 
-  /web-message-rpc@1.0.4:
-    resolution: {integrity: sha512-xYKJX99UdNWsC9FBR4ecn0SwQHgbTk39LM/ZBTdnoLnUnfFy8KWP5B2l/T5YF2uQX9TcbDG8X+QOf3lz8sKGrA==}
+  /web-message-rpc@1.0.5:
+    resolution: {integrity: sha512-peVw54K+CpQTpbY4Zf8xdXrQ82ZHImWkpuL6N8cBS51ZRHNIso7NZ5mLFAXXFLvvudPnKmISCn5DQXTfoUIASQ==}
 
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}

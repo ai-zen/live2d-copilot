@@ -10,7 +10,7 @@ import {
   LAppLive2DManagerModule,
 } from "@ai-zen/live2d-vue";
 import { ref, shallowRef } from "vue";
-import type { CallRecord } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
+import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { rpc } from "../../modules/rpc";
 import { useCurrentModel } from "./composables/useCurrentModel";
 import ContextMenu from "./ContextMenu.vue";
@@ -18,7 +18,7 @@ import ContextMenu from "./ContextMenu.vue";
 type LAppLive2DManager = LAppLive2DManagerModule.LAppLive2DManager;
 type LAppDelegate = LAppDelegateModule.LAppDelegate;
 
-const winApi = rpc.use<CallRecord>("desktop-pet-window");
+const winApi = rpc.use<Methods>("desktop-pet-window");
 const live2dRef = ref<null | InstanceType<typeof Live2D>>();
 const managerRef = shallowRef<LAppLive2DManager | null>(null);
 const delegateRef = shallowRef<LAppDelegate | null>(null);

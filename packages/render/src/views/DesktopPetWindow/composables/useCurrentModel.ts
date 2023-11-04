@@ -4,7 +4,7 @@ import {
   LAppProfileModule,
   LAppDelegateModule,
 } from "@ai-zen/live2d-vue";
-import type { CallRecord } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
+import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { ShallowRef, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { toLocalURI } from "../../../utils/toLocalURI";
 import { rpc } from "../../../modules/rpc";
@@ -23,7 +23,7 @@ export function useCurrentModel({
   managerRef,
   delegateRef,
 }: {
-  winApi: CallRecord;
+  winApi: Methods;
   managerRef: ShallowRef<LAppLive2DManagerModule.LAppLive2DManager | null>;
   delegateRef: ShallowRef<LAppDelegateModule.LAppDelegate | null>;
 }) {
