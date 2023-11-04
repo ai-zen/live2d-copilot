@@ -18,8 +18,8 @@ An AI Desktop Pet
    pnpm i
    ```
 
-4. Run the `tasks: dev` VSCode task.
+4. Using `Start Debugging` in vscode (the hotkey is usually `F5`).
 
 ## Project Status
 
-The old project has been abandoned, and a new one is currently under development.
+This is a brand new project, the old one has been abandoned.
