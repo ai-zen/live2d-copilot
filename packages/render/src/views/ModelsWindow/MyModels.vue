@@ -8,7 +8,7 @@
     </div>
     <div class="list-column">
       <div class="list-scroll-wrapper">
-        <AutoGrid class="list-scroll-content" :list="listState.list">
+        <AutoGrid class="list-scroll-content" :list="renderList">
           <template #default="{ item }: { item: Live2DModelProfileEx }">
             <div
               class="card"
@@ -36,7 +36,7 @@
           v-model:page-size="paginationState.pageSize"
           :page-sizes="paginationState.pageSizes"
           layout="sizes, total, prev, pager, next"
-          :total="400"
+          :total="paginationState.total"
           @size-change="onSizeChange"
           @current-change="onCurrentChange"
         />
@@ -95,7 +95,7 @@
 import { Search } from "@element-plus/icons-vue";
 import type { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/Live2DModelsManager";
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
-import { onMounted, reactive } from "vue";
+import { computed, onMounted, reactive } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
 import { rpc } from "../../modules/rpc";
 import { toLocalURI } from "../../utils/toLocalURI";
@@ -140,8 +140,9 @@ const filterState = reactive({
 
 const paginationState = reactive({
   currentPage: 1,
-  pageSize: 50,
-  pageSizes: [50, 100, 200],
+  total: 0,
+  pageSize: 20,
+  pageSizes: [20, 50, 100],
 });
 
 function onSizeChange() {}
@@ -162,10 +163,19 @@ const listState = reactive({
   isReady: false,
 });
 
+const renderList = computed(() => {
+  const { currentPage, pageSize } = paginationState;
+  return listState.list.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+});
+
 async function getList() {
   try {
     listState.isLoading = true;
     listState.list = await winApi.loadProfiles();
+    paginationState.total = listState.list.length;
     listState.isReady = true;
   } catch (error) {
   } finally {

@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, onMounted, onUnmounted, ref } from "vue";
+import { PropType, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 
 const props = defineProps({
   list: {
@@ -51,6 +51,14 @@ function onResize() {
   const numberPerRow = Math.floor(containerWidth / cellWidth);
   cellTargetWidth.value = containerWidth / numberPerRow - 10;
 }
+
+watch(
+  () => props.list.length,
+  async () => {
+    await nextTick();
+    onResize();
+  }
+);
 
 onMounted(() => {
   onResize();
