@@ -1,0 +1,19 @@
+{
+    "Version": 1,
+    "Model3": "Mark.model3.json",
+    "Title": "马克君",
+    "Description": "Live2D 官方示例人物",
+    "Preview": "preview.png",
+    "CreateTime": 1687551641885,
+    "Skins": [],
+    "AzureTTS": {
+        "VoiceName": "zh-CN-YunxiaNeural"
+    },
+    "ChatGPT": {
+        "RoleName": "",
+        "SystemMessage": ""
+    },
+    "Motions": {
+        "RandomIdleMotionInterval": 0
+    }
+}

@@ -2,6 +2,7 @@
     "Version": 1,
     "Model3": "Mao.model3.json",
     "Title": "虹色Mao",
+    "Description": "Live2D 官方示例人物",
     "Preview": "preview.png",
     "CreateTime": 1687551638064,
     "Skins": [],

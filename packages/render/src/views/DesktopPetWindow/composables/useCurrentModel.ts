@@ -1,13 +1,20 @@
 import {
+  LAppDelegateModule,
   LAppLive2DManagerModule,
   LAppModelModule,
-  LAppProfileModule,
-  LAppDelegateModule,
 } from "@ai-zen/live2d-vue";
+import { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/Live2DModelsManager";
 import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { ShallowRef, onMounted, onUnmounted, ref, shallowRef } from "vue";
-import { toLocalURI } from "../../../utils/toLocalURI";
 import { rpc } from "../../../modules/rpc";
+import { toLocalURI } from "../../../utils/toLocalURI";
+
+interface MatrixInfo {
+  sx: number;
+  sy: number;
+  tx: number;
+  ty: number;
+}
 
 /**
  * Custom hook for managing the current model.
@@ -31,9 +38,7 @@ export function useCurrentModel({
   const currentModelRef = shallowRef<LAppModelModule.LAppModel | null>(null);
 
   // Reference to the profile of the current model.
-  const currentModelProfileRef = ref<LAppProfileModule.LAppProfile | null>(
-    null
-  );
+  const currentModelProfileRef = ref<Live2DModelProfileEx | null>(null);
 
   /**
    * Asynchronous function for loading the current model.
@@ -41,23 +46,41 @@ export function useCurrentModel({
   async function loadCurrentModel() {
     if (!managerRef.value) return;
 
-    let pathInfo = await winApi.getCurrentLive2DModel();
-    if (!pathInfo) return;
+    // Load the profile of the model.
+    const profile = await winApi.getCurrentProfile();
+    if (!profile) return;
+    currentModelProfileRef.value = profile;
+
+    // The matrix info of prev model.
+    let prevMatrixInfo: MatrixInfo | null = null;
+    if (currentModelRef.value) {
+      const matrix = currentModelRef.value.getModelMatrix();
+      prevMatrixInfo = {
+        sx: matrix.getScaleX(),
+        sy: matrix.getScaleY(),
+        tx: matrix.getTranslateX(),
+        ty: matrix.getTranslateY(),
+      };
+    }
 
     // Change the model.
     currentModelRef.value = await managerRef.value.changeModel(
-      toLocalURI(pathInfo.modelDir),
-      pathInfo.modelFileName
+      toLocalURI(profile._ModelDir),
+      profile._ModelFileName
     );
 
-    // Adjust the model size.
-    const targetModelSize = 860;
-    const targetScale = targetModelSize / window.innerHeight;
-    currentModelRef.value.getModelMatrix().scale(targetScale, targetScale);
-
-    // Load the profile of the model.
-    currentModelProfileRef.value =
-      await currentModelRef.value._profileManager.loadProfile();
+    // If there is an prev model matrix
+    if (prevMatrixInfo) {
+      // Using the prev model matrix.
+      const matrix = currentModelRef.value.getModelMatrix();
+      matrix.scale(prevMatrixInfo.sx, prevMatrixInfo.sy);
+      matrix.translate(prevMatrixInfo.tx, prevMatrixInfo.ty);
+    } else {
+      // Adjust the model size.
+      const targetModelSize = 860;
+      const targetScale = targetModelSize / window.innerHeight;
+      currentModelRef.value.getModelMatrix().scale(targetScale, targetScale);
+    }
   }
 
   // Event handling function for mouse down.

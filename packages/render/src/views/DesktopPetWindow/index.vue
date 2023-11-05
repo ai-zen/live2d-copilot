@@ -39,6 +39,12 @@ async function onLive2DMounted(
   await loadCurrentModel(); // Load the current Live2D model
   winApi.closeLoadingWindow(); // Close the loading window
 }
+
+rpc.register("desktop-pet-window", {
+  async onCurrentModelChange() {
+    await loadCurrentModel(); // Load the current Live2D model
+  },
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,6 +1,7 @@
-import { Menu, app } from "electron";
+import { Menu } from "electron";
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
 import { createBrowserWindowEx } from "./createBrowserWindowEx";
+import { live2DModelManager } from "../modules/Live2DModelsManager";
 
 export const MODELS_ROUTE_PATH = `/models-window`;
 
@@ -35,7 +36,19 @@ export async function createModelsWindow(staticServeOrigin: string) {
  * Preload of the desktop pet window
  */
 function preload(win: BrowserWindowEx) {
-  const methods = win.rpc.register(win.name, {});
+  const methods = win.rpc.register(win.name, {
+    loadProfiles() {
+      return live2DModelManager.loadProfiles();
+    },
+
+    getCurrentProfile() {
+      return live2DModelManager.getCurrentProfile();
+    },
+
+    setCurrent(model3: string) {
+      return live2DModelManager.setCurrent(model3);
+    },
+  });
 
   return {
     methods,

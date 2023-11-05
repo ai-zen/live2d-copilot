@@ -1,4 +1,3 @@
-import { app } from "electron";
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
 import { createBrowserWindowEx } from "./createBrowserWindowEx";
 

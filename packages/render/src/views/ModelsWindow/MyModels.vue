@@ -8,19 +8,27 @@
     </div>
     <div class="list-column">
       <div class="list-scroll-wrapper">
-        <div
-          class="list-scroll-content"
-          :style="{ '--card-width': `${cardWidth}px` }"
-          ref="listScrollContentRef"
-        >
-          <div class="card" v-for="index of 50" :key="index">
-            <img class="image" />
-            <div class="content">
-              <div class="title">模型名称</div>
-              <div class="desc">模型描述模型描述模型描述模型描述模型描述</div>
+        <AutoGrid class="list-scroll-content" :list="listState.list">
+          <template #default="{ item }: { item: Live2DModelProfileEx }">
+            <div
+              class="card"
+              :class="{
+                'is-current':
+                  item._ModelPath == currentState.current?._ModelPath,
+              }"
+              @click="onCardClick(item)"
+            >
+              <img
+                class="image"
+                :src="toLocalURI(item._ModelDir + '/' + item.Preview)"
+              />
+              <div class="content">
+                <div class="title">{{ item.Title }}</div>
+                <div class="desc">{{ item.Description }}</div>
+              </div>
             </div>
-          </div>
-        </div>
+          </template>
+        </AutoGrid>
       </div>
       <div class="list-column-bottom">
         <el-pagination
@@ -51,24 +59,31 @@
       </div>
     </div>
     <div class="detail-column">
-      <div class="detail-scroll-wrapper">
+      <div v-if="currentState.current" class="detail-scroll-wrapper">
         <div class="detail-scroll-content">
-          <img class="image" />
+          <img
+            class="image"
+            :src="
+              toLocalURI(
+                currentState.current._ModelDir +
+                  '/' +
+                  currentState.current.Preview
+              )
+            "
+          />
           <div class="content">
             <div class="count-row">
               <el-rate :modelValue="3" disabled />
-              <div class="count-subscription">7.5K订阅</div>
-              <div class="count-collection">4.3K收藏</div>
+              <div class="count-subscription">0.0K订阅</div>
+              <div class="count-collection">0.0K收藏</div>
             </div>
             <div class="button-row">
               <el-button class="subscription-button" size="large" type="primary"
                 >取消订阅</el-button
               >
             </div>
-            <div class="title">模型标题</div>
-            <div class="desc">
-              模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述模型描述
-            </div>
+            <div class="title">{{ currentState.current.Title }}</div>
+            <div class="desc">{{ currentState.current.Description }}</div>
           </div>
         </div>
       </div>
@@ -78,7 +93,14 @@
 
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
-import { onMounted, onUnmounted, reactive, ref } from "vue";
+import type { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/Live2DModelsManager";
+import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
+import { onMounted, reactive } from "vue";
+import AutoGrid from "../../components/AutoGrid.vue";
+import { rpc } from "../../modules/rpc";
+import { toLocalURI } from "../../utils/toLocalURI";
+
+const winApi = rpc.use<Methods>("models-window");
 
 const filterState = reactive({
   tree: [
@@ -134,27 +156,48 @@ const sortState = reactive({
   ],
 });
 
-// This value needs to be adjusted based on experience to achieve the optimal card size.
-const BASE_CARD_WIDTH = 150;
-const cardWidth = ref(BASE_CARD_WIDTH);
-const listScrollContentRef = ref<null | HTMLDivElement>(null);
+const listState = reactive({
+  list: [] as Live2DModelProfileEx[],
+  isLoading: false,
+  isReady: false,
+});
 
-function onResize() {
-  if (!listScrollContentRef.value) return;
-  const margin = 10;
-  const cellWidth = BASE_CARD_WIDTH + margin;
-  const containerWidth = listScrollContentRef.value.clientWidth - margin;
-  const numPerRow = Math.floor(containerWidth / cellWidth);
-  cardWidth.value = containerWidth / numPerRow - 10;
+async function getList() {
+  try {
+    listState.isLoading = true;
+    listState.list = await winApi.loadProfiles();
+    listState.isReady = true;
+  } catch (error) {
+  } finally {
+    listState.isLoading = false;
+  }
+}
+
+const currentState = reactive({
+  current: null as Live2DModelProfileEx | null,
+  isLoading: false,
+  isReady: false,
+});
+
+async function getCurrent() {
+  try {
+    currentState.isLoading = true;
+    currentState.current = await winApi.getCurrentProfile();
+    currentState.isReady = true;
+  } catch (error) {
+  } finally {
+    currentState.isLoading = false;
+  }
+}
+
+async function onCardClick(item: Live2DModelProfileEx) {
+  await winApi.setCurrent(item._ModelPath);
+  await getCurrent();
 }
 
 onMounted(() => {
-  onResize();
-  window.addEventListener("resize", onResize);
-});
-
-onUnmounted(() => {
-  window.removeEventListener("resize", onResize);
+  getList();
+  getCurrent();
 });
 </script>
 
@@ -213,7 +256,6 @@ onUnmounted(() => {
     display: block;
     width: 100%;
     aspect-ratio: 1;
-    background-color: #888;
   }
   .content {
     box-sizing: border-box;
@@ -264,38 +306,58 @@ onUnmounted(() => {
   .list-scroll-content {
     position: relative;
     z-index: 0;
-    padding: 5px;
-    display: flex;
-    flex-wrap: wrap;
   }
 }
 
 .card {
-  // flex-grow: 1;
-  width: var(--card-width);
+  width: 100%;
   height: auto;
   aspect-ratio: 200 / 280;
   background-color: #fff;
   box-shadow: var(--el-box-shadow);
-  margin: 5px;
   border-radius: 8px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  &.is-current {
+    .title,
+    .desc {
+      color: var(--el-color-primary);
+    }
+  }
   .image {
     display: block;
     width: 100%;
     aspect-ratio: 1;
-    background-color: #888;
+  }
+  .content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
   .title {
-    margin-top: 2px;
-    font-size: 14px;
+    font-size: 16px;
     line-height: 22px;
     padding: 0 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--el-text-color-primary);
+    text-align: center;
   }
   .desc {
     font-size: 12px;
     line-height: 16px;
     padding: 0 10px;
+    word-break: break-all;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    color: var(--el-text-color-primary);
+    text-align: center;
   }
 }
 </style>

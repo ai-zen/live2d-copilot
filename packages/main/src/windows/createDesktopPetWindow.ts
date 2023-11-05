@@ -54,6 +54,29 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
  * Preload of the desktop pet window
  */
 function preload(win: BrowserWindowEx, staticServeOrigin: string) {
+  const webApi = win.rpc.use(win.name);
+
+  /**
+   * Forward the current model change event to a webpage
+   */
+  function onCurrentModelChange(...args: any[]) {
+    webApi.onCurrentModelChange(args);
+  }
+
+  // Bind event listeners.
+  live2DModelManager.eventBus.on("current model change", onCurrentModelChange);
+
+  // Unbind event listeners.
+  win.on("close", () => {
+    live2DModelManager.eventBus.off(
+      "current model change",
+      onCurrentModelChange
+    );
+  });
+
+  /**
+   * Registering methods for webpage calls
+   */
   const methods = win.rpc.register(win.name, {
     /**
      * Close the loading window.
@@ -65,10 +88,10 @@ function preload(win: BrowserWindowEx, staticServeOrigin: string) {
     },
 
     /**
-     * Get current Live2D model.
+     * Get current Live2D model profile.
      */
-    getCurrentLive2DModel() {
-      return live2DModelManager.getCurrent();
+    getCurrentProfile() {
+      return live2DModelManager.getCurrentProfile();
     },
 
     /**

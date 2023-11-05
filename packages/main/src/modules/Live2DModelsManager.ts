@@ -17,13 +17,14 @@ export interface Live2DModelPathInfo {
 
 export interface Live2DModelProfile {
   Model3: string; // File name of the Live2D model profile in .model3.json format
+  Preview: string; // Preview Image
+  Title: string;
+  Description: string;
+  Tag: string[];
   Skins: {
     Name: string; // Name of the skin
     Mapping: Record<string, string>; // Mapping of skin components
   }[];
-  Motions: {
-    RandomIdleMotionInterval: number; // Interval for random idle motions
-  };
 }
 
 export interface Live2DModelProfileEx extends Live2DModelProfile {
@@ -145,6 +146,18 @@ export class Live2DModelsManager {
     } catch (error) {
       return null; // Return null if the current Live2D model fails to load
     }
+  }
+
+  async setCurrent(model3: string) {
+    this.configState.data.current = model3;
+    await this.saveConfig();
+    this.eventBus.emit("current model change");
+  }
+
+  async getCurrentProfile(): Promise<Live2DModelProfileEx | null> {
+    return (
+      (await this.loadProfile((await this.getCurrent())!.modelDir)) ?? null
+    );
   }
 
   parseModel3Path(model3: string): Live2DModelPathInfo {
