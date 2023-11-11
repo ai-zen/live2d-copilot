@@ -4,6 +4,7 @@ import { useStaticServeOrigin } from "./composables/useStaticServeOrigin";
 import { live2DModelManager } from "./modules/Live2DModelsManager";
 import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
 import { createLoadingWindow } from "./windows/createLoadingWindow";
+import { steamworksManager } from "./modules/SteamworksManager";
 
 async function main() {
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -26,6 +27,12 @@ async function main() {
 
     // Handle app protocol.
     handleAppProtocol();
+
+    // Init Steamworks.
+    steamworksManager.init();
+
+    // Load Live2D Manager Config
+    await live2DModelManager.loadConfig();
 
     // Release Live2D Models Files to UserData.
     await live2DModelManager.releaseFilesToUserData();

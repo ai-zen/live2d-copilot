@@ -7,6 +7,9 @@
       <el-tab-pane label="创意工坊" name="Workshop">
         <Workshop></Workshop>
       </el-tab-pane>
+      <el-tab-pane label="发布" name="Publish">
+        <Publish></Publish>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -15,6 +18,7 @@
 import { ref } from "vue";
 import MyModels from "./MyModels.vue";
 import Workshop from "./Workshop.vue";
+import Publish from "./Publish.vue";
 
 const activeName = ref("MyModels");
 </script>

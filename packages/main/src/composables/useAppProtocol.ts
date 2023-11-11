@@ -1,4 +1,5 @@
 import { net, protocol } from "electron";
+import path from "path";
 
 export function useAppProtocol() {
   // Register "app" protocol with app privileges, so that files can be accessed using app://file?path=filepath.
@@ -28,11 +29,13 @@ export function useAppProtocol() {
         }
 
         const filePath = decodeURIComponent(filePathEncoded);
-        console.log("net.fetch", `file:///${filePath}`);
+        console.log("net.fetch", `file:///${path.normalize(filePath)}`);
 
         try {
           // Try to fetch the file's Response.
-          const response = await net.fetch(`file:///${filePath}`);
+          const response = await net.fetch(
+            `file:///${path.normalize(filePath)}`
+          );
           return response;
         } catch (error) {
           // Return 404 error if file fetching fails.

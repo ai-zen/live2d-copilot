@@ -49,7 +49,7 @@ function onResize() {
   const containerWidth =
     listScrollContentRef.value.clientWidth - props.containerPadding * 2;
   const numberPerRow = Math.floor(containerWidth / cellWidth);
-  cellTargetWidth.value = containerWidth / numberPerRow - 10;
+  cellTargetWidth.value = Math.floor(containerWidth / numberPerRow - 10);
 }
 
 watch(

@@ -9,6 +9,10 @@ importers:
   .: {}
 
   packages/main:
+    dependencies:
+      steamworks.js:
+        specifier: ^0.3.1
+        version: 0.3.1
     devDependencies:
       '@ai-zen/event-bus':
         specifier: ^1.0.1
@@ -1066,7 +1070,6 @@ packages:
 
   /@types/node@20.8.0:
     resolution: {integrity: sha512-LzcWltT83s1bthcvjBmiBvGJiiUe84NWRHkw+ZV6Fr41z2FbIzvc815dk2nQ3RAKMuN2fkenM/z3Xv2QzEpYxQ==}
-    dev: true
 
   /@types/responselike@1.0.1:
     resolution: {integrity: sha512-TiGnitEDxj2X0j+98Eqk5lv/Cij8oHd32bU4D/Yw6AOq7vvTk0gSD2GPj0G/HkvhMoVsdlhYF4yqqlyPBTM6Sg==}
@@ -3723,6 +3726,13 @@ packages:
     dependencies:
       minipass: 7.0.4
     dev: true
+
+  /steamworks.js@0.3.1:
+    resolution: {integrity: sha512-vI1rnXwUwEV6kb4C76KASJhY+ikeoEBY1r0jhpAhyCJPw/EqGHZ1ldP4MZEghyq7edoRrMwErZ/KKAE3tIut9w==}
+    engines: {node: '>= 14'}
+    dependencies:
+      '@types/node': 20.8.0
+    dev: false
 
   /string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}

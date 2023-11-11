@@ -10,10 +10,6 @@
         "VoiceName": "zh-CN-YunxiaNeural"
     },
     "ChatGPT": {
-        "RoleName": "",
         "SystemMessage": ""
-    },
-    "Motions": {
-        "RandomIdleMotionInterval": 0
     }
 }
