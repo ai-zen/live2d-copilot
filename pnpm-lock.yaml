@@ -9,10 +9,6 @@ importers:
   .: {}
 
   packages/main:
-    dependencies:
-      steamworks.js:
-        specifier: ^0.3.1
-        version: 0.3.1
     devDependencies:
       '@ai-zen/event-bus':
         specifier: ^1.0.1
@@ -42,8 +38,8 @@ importers:
         specifier: ^20.8.0
         version: 20.8.0
       electron:
-        specifier: ^26.2.4
-        version: 26.2.4
+        specifier: ^26.5.0
+        version: 26.5.0
       electron-squirrel-startup:
         specifier: ^1.0.0
         version: 1.0.0
@@ -53,6 +49,9 @@ importers:
       mime:
         specifier: ^3.0.0
         version: 3.0.0
+      steamworks.js:
+        specifier: ^0.3.1
+        version: 0.3.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -1070,6 +1069,7 @@ packages:
 
   /@types/node@20.8.0:
     resolution: {integrity: sha512-LzcWltT83s1bthcvjBmiBvGJiiUe84NWRHkw+ZV6Fr41z2FbIzvc815dk2nQ3RAKMuN2fkenM/z3Xv2QzEpYxQ==}
+    dev: true
 
   /@types/responselike@1.0.1:
     resolution: {integrity: sha512-TiGnitEDxj2X0j+98Eqk5lv/Cij8oHd32bU4D/Yw6AOq7vvTk0gSD2GPj0G/HkvhMoVsdlhYF4yqqlyPBTM6Sg==}
@@ -1854,8 +1854,8 @@ packages:
     dev: true
     optional: true
 
-  /electron@26.2.4:
-    resolution: {integrity: sha512-weMUSMyDho5E0DPQ3breba3D96IxwNvtYHjMd/4/wNN3BdI5s3+0orNnPVGJFcLhSvKoxuKUqdVonUocBPwlQA==}
+  /electron@26.5.0:
+    resolution: {integrity: sha512-j65/SMEqf+sKBUmAwYU0E5d/OKPmhRVyMntVulHKTNEazxF2TuRr/+GoEVxBq4l9jfLEXhheVOuOW0J5Tme1kA==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
     requiresBuild: true
@@ -3732,7 +3732,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       '@types/node': 20.8.0
-    dev: false
+    dev: true
 
   /string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}

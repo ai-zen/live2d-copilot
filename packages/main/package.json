@@ -29,14 +29,12 @@
     "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
     "@types/mime": "^3.0.2",
     "@types/node": "^20.8.0",
-    "electron": "^26.2.4",
+    "electron": "^26.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "esbuild": "^0.19.4",
     "mime": "^3.0.0",
     "typescript": "^5.2.2",
-    "web-message-rpc": "^1.0.5"
-  },
-  "dependencies": {
+    "web-message-rpc": "^1.0.5",
     "steamworks.js": "^0.3.1"
   }
 }

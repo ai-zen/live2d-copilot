@@ -18,7 +18,7 @@ export class SteamworksManager {
       return result;
     } catch (error) {
       console.log(error);
-      throw new Error("Failed to create item", { cause: error });
+      throw new Error("Failed to create item");
     }
   }
 
@@ -32,7 +32,7 @@ export class SteamworksManager {
       return result;
     } catch (error) {
       console.log(error);
-      throw new Error("Failed to update item", { cause: error });
+      throw new Error("Failed to update item");
     }
   }
 }

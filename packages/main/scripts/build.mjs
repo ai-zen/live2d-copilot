@@ -61,11 +61,14 @@ async function main(argv) {
         outfile: "./dist/main.js",
         target: "es2017",
         format: "cjs",
-        external: ["electron", "steamworks.js"],
+        external: ["electron"],
         define: {
           "process.env.BUILD_MODE": JSON.stringify(BUILD_MODE),
         },
         sourcemap: true,
+        loader: {
+          ".node": "copy",
+        },
         plugins: [
           {
             name: "log",

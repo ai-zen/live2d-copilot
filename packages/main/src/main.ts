@@ -6,6 +6,8 @@ import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
 import { createLoadingWindow } from "./windows/createLoadingWindow";
 import { steamworksManager } from "./modules/SteamworksManager";
 
+console.log("process.versions.modules", process.versions.modules);
+
 async function main() {
   // Handle creating/removing shortcuts on Windows when installing/uninstalling.
   if (require("electron-squirrel-startup")) {
