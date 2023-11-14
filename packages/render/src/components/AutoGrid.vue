@@ -4,9 +4,8 @@
     :style="{
       '--container-padding': `${props.containerPadding}px`,
       '--cell-margin': `${props.cellMargin}px`,
-      '--cell-width': `${cellTargetWidth}px`,
     }"
-    ref="listScrollContentRef"
+    ref="containerRef"
   >
     <div
       class="cell"
@@ -19,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { PropType, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { PropType, onMounted, onUnmounted, ref } from "vue";
 
 const props = defineProps({
   list: {
@@ -40,33 +39,33 @@ const props = defineProps({
   },
 });
 
-const cellTargetWidth = ref(props.cellBaseWidth);
-const listScrollContentRef = ref<null | HTMLDivElement>(null);
+const containerRef = ref<null | HTMLDivElement>(null);
 
 function onResize() {
-  if (!listScrollContentRef.value) return;
+  if (!containerRef.value) return;
   const cellWidth = props.cellBaseWidth + props.cellMargin * 2;
   const containerWidth =
-    listScrollContentRef.value.clientWidth - props.containerPadding * 2;
+    containerRef.value.clientWidth - props.containerPadding * 2;
   const numberPerRow = Math.floor(containerWidth / cellWidth);
-  cellTargetWidth.value = Math.floor(containerWidth / numberPerRow - 10);
+  const cellTargetWidth = Math.floor(containerWidth / numberPerRow - 10);
+  containerRef.value.style.setProperty("--cell-width", `${cellTargetWidth}px`);
 }
 
-watch(
-  () => props.list.length,
-  async () => {
-    await nextTick();
+const io = new IntersectionObserver((e) => {
+  if (e[0]?.intersectionRatio) {
     onResize();
   }
-);
+});
 
 onMounted(() => {
   onResize();
   window.addEventListener("resize", onResize);
+  io.observe(containerRef.value!);
 });
 
 onUnmounted(() => {
   window.removeEventListener("resize", onResize);
+  io.disconnect();
 });
 </script>
 
