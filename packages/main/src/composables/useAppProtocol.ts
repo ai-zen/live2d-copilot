@@ -29,10 +29,10 @@ export function useAppProtocol() {
         }
 
         const filePath = decodeURIComponent(filePathEncoded);
-        console.log("net.fetch", `file:///${path.normalize(filePath)}`);
 
         try {
           // Try to fetch the file's Response.
+          console.log("[AppProtocol]", `file:///${path.normalize(filePath)}`);
           const response = await net.fetch(
             `file:///${path.normalize(filePath)}`
           );

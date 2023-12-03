@@ -2,7 +2,16 @@ module.exports = {
   packagerConfig: {
     asar: false,
     prune: false,
-    ignore: [/node_modules/],
+    ignore: [
+      /^\/node_modules/,
+      /^\/out/,
+      /^\/src/,
+      /^\/public/,
+      /^\/scripts/,
+      /^\/.gitignore/,
+      /^\/forge.config.js/,
+      /^\/tsconfig.json/,
+    ],
   },
   rebuildConfig: {},
   makers: [

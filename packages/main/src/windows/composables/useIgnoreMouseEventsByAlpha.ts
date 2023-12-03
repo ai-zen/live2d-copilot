@@ -2,6 +2,8 @@ import { screen, BrowserWindow } from "electron";
 
 export function useIgnoreMouseEventsByAlpha(win: BrowserWindow) {
   const updateIgnoreMouseEvents = async (x: number, y: number) => {
+    if (!win.isVisible()) return;
+
     // capture 1x1 image of mouse position.
     const image = await win.webContents.capturePage({
       x,

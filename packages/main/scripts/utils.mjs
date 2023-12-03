@@ -1,27 +1,22 @@
 import child_process from "node:child_process";
 
+/**
+ * spawnp
+ * @param {string} command
+ * @param {child_process.SpawnOptionsWithoutStdio | undefined} options
+ */
 export function spawnp(command, options) {
   return new Promise((resolve, reject) => {
-    const childProcess = child_process.spawn(command, options);
-
-    childProcess.on("exit", (code) => {
+    const child = child_process.spawn(command, options);
+    child.on("close", (code) => {
       if (code === 0) {
         resolve();
       } else {
-        reject(
-          new Error(
-            `Command ${command} ${options.join(" ")} exited with code ${code}`
-          )
-        );
+        reject(new Error(`Command ${command} exited with code ${code}`));
       }
     });
-
-    childProcess.on("error", (err) => {
-      reject(err);
-    });
-
     process.on("exit", () => {
-      childProcess.kill();
+      child.kill();
     });
   });
 }
