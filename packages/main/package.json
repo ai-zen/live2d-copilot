@@ -32,9 +32,10 @@
     "electron": "^26.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "esbuild": "^0.19.4",
+    "live2d-copilot-shader": "workspace:^",
     "mime": "^3.0.0",
+    "@ai-zen/steamworks.js": "^0.3.3",
     "typescript": "^5.2.2",
-    "web-message-rpc": "^1.0.5",
-    "steamworks.js": "^0.3.1"
+    "web-message-rpc": "^1.0.5"
   }
 }

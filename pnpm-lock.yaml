@@ -13,6 +13,9 @@ importers:
       '@ai-zen/event-bus':
         specifier: ^1.0.1
         version: 1.0.1
+      '@ai-zen/steamworks.js':
+        specifier: ^0.3.3
+        version: registry.npmjs.org/@ai-zen/steamworks.js@0.3.3
       '@electron-forge/cli':
         specifier: ^6.4.2
         version: 6.4.2
@@ -46,12 +49,12 @@ importers:
       esbuild:
         specifier: ^0.19.4
         version: 0.19.4
+      live2d-copilot-shader:
+        specifier: workspace:^
+        version: link:../shader
       mime:
         specifier: ^3.0.0
         version: 3.0.0
-      steamworks.js:
-        specifier: ^0.3.1
-        version: 0.3.1
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
@@ -86,6 +89,9 @@ importers:
       live2d-copilot-main:
         specifier: workspace:^
         version: link:../main
+      live2d-copilot-shader:
+        specifier: workspace:^
+        version: link:../shader
       sass:
         specifier: ^1.69.4
         version: 1.69.4
@@ -98,6 +104,8 @@ importers:
       vue-tsc:
         specifier: ^1.8.5
         version: 1.8.15(typescript@5.2.2)
+
+  packages/shader: {}
 
 packages:
 
@@ -3727,13 +3735,6 @@ packages:
       minipass: 7.0.4
     dev: true
 
-  /steamworks.js@0.3.1:
-    resolution: {integrity: sha512-vI1rnXwUwEV6kb4C76KASJhY+ikeoEBY1r0jhpAhyCJPw/EqGHZ1ldP4MZEghyq7edoRrMwErZ/KKAE3tIut9w==}
-    engines: {node: '>= 14'}
-    dependencies:
-      '@types/node': 20.8.0
-    dev: true
-
   /string-width@4.2.3:
     resolution: {integrity: sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==}
     engines: {node: '>=8'}
@@ -4195,4 +4196,13 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+    dev: true
+
+  registry.npmjs.org/@ai-zen/steamworks.js@0.3.3:
+    resolution: {integrity: sha512-+TRPWFSnGDAbvQuissst5d5JFVVQlve51mvU6KAwlznkTfXKwMjXaZM583aYV0qgvp+IF8wCWCIF6SFHATks8A==, registry: https://registry.npmmirror.com/, tarball: https://registry.npmjs.org/@ai-zen/steamworks.js/-/steamworks.js-0.3.3.tgz}
+    name: '@ai-zen/steamworks.js'
+    version: 0.3.3
+    engines: {node: '>= 14'}
+    dependencies:
+      '@types/node': 20.8.0
     dev: true

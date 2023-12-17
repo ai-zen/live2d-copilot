@@ -6,9 +6,10 @@ import {
   live2DModelManager,
 } from "../modules/Live2DModelsManager";
 import { steamworksManager } from "../modules/SteamworksManager";
-import { workshop } from "steamworks.js/client";
+import { workshop } from "@ai-zen/steamworks.js/client";
 import fsp from "node:fs/promises";
 import path from "node:path";
+import { UpdateStatus } from "live2d-copilot-shader/src/Steamworks";
 
 export const MODELS_ROUTE_PATH = `/models-window`;
 
@@ -60,12 +61,24 @@ function preload(win: BrowserWindowEx) {
       return dialog.showOpenDialog(options);
     },
 
-    createItem(updateDetails: workshop.UgcUpdate) {
-      return steamworksManager.createItem(updateDetails);
+    createItem() {
+      return steamworksManager.createItem();
     },
 
-    updateItem(itemId: bigint, updateDetails: workshop.UgcUpdate) {
-      return steamworksManager.updateItem(itemId, updateDetails);
+    updateItem(
+      itemId: bigint,
+      updateDetails: workshop.UgcUpdate,
+      progressCallback: (data: {
+        status: UpdateStatus;
+        progress: bigint;
+        total: bigint;
+      }) => void
+    ) {
+      return steamworksManager.updateItem(
+        itemId,
+        updateDetails,
+        progressCallback
+      );
     },
 
     async buildProfile(info: {

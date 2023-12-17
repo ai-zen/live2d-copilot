@@ -19,6 +19,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
     "live2d-copilot-main": "workspace:^",
+    "live2d-copilot-shader": "workspace:^",
     "sass": "^1.69.4",
     "typescript": "^5.0.2",
     "vite": "^4.4.5",

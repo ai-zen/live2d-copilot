@@ -1,9 +1,5 @@
 <template>
-  <div
-    class="publish"
-    v-loading="publishState.isLoading"
-    element-loading-text="发布中..."
-  >
+  <div class="publish">
     <el-form class="form" :model="form" label-width="100px" ref="formRef">
       <el-form-item
         prop="publishType"
@@ -125,16 +121,65 @@
         <el-button type="primary" @click="onSubmit">发布</el-button>
       </el-form-item>
     </el-form>
+
+    <div class="publish-wrapper" v-if="publishState.isPublishing">
+      <el-steps
+        :active="publishState.progressPayload?.status"
+        align-center
+        finish-status="success"
+      >
+        <el-step
+          v-for="step in steps"
+          :key="step.value"
+          :title="step.label"
+        ></el-step>
+      </el-steps>
+      <template
+        v-if="
+          publishState.progressPayload?.status === UpdateStatus.UploadingContent
+        "
+      >
+        <el-progress :percentage="getProgressPercentage"></el-progress>
+        <div class="title">上传中...</div>
+      </template>
+    </div>
+
+    <div class="result-wrapper" v-if="publishState.isSuccess">
+      <el-result
+        icon="success"
+        title="发布成功！"
+        :sub-title="publishState.successMessage"
+      >
+        <template #extra>
+          <el-button type="primary" @click="back">返回</el-button>
+        </template>
+      </el-result>
+    </div>
+
+    <div class="result-wrapper" v-if="publishState.isError">
+      <el-result
+        icon="error"
+        title="发布失败！"
+        :sub-title="publishState.errorMessage"
+      >
+        <template #extra>
+          <el-button type="primary" @click="back">返回</el-button>
+        </template>
+      </el-result>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { rpc } from "../../modules/rpc";
-import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
-import { reactive, toRaw } from "vue";
-import { nextTick, ref } from "vue";
-import { ElForm, ElInput, ElMessage } from "element-plus";
 import { InfoFilled } from "@element-plus/icons-vue";
+import { ElForm, ElInput, ElMessage } from "element-plus";
+import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
+import {
+  UgcItemVisibility,
+  UpdateStatus,
+} from "live2d-copilot-shader/src/Steamworks";
+import { computed, nextTick, reactive, ref, toRaw } from "vue";
+import { rpc } from "../../modules/rpc";
 
 const winApi = rpc.use<Methods>("models-window");
 
@@ -143,13 +188,6 @@ const formRef = ref<null | InstanceType<typeof ElForm>>(null);
 enum PublishType {
   Add = 0,
   Update = 1,
-}
-
-enum UgcItemVisibility {
-  Public = 0,
-  FriendsOnly = 1,
-  Private = 2,
-  Unlisted = 3,
 }
 
 const DEFAULT_FORM = {
@@ -220,7 +258,16 @@ async function selectPreviewFile() {
 }
 
 const publishState = reactive({
-  isLoading: false,
+  isPublishing: false,
+  progressPayload: null as {
+    status: UpdateStatus;
+    progress: bigint;
+    total: bigint;
+  } | null,
+  isSuccess: false,
+  successMessage: "",
+  isError: false,
+  errorMessage: "",
 });
 
 async function onSubmit() {
@@ -232,25 +279,73 @@ async function onSubmit() {
   }
 
   try {
-    publishState.isLoading = true;
+    publishState.isPublishing = true;
+
     await winApi.buildProfile(toRaw(form));
+
     let result: { itemId: bigint } | undefined;
-    if (form.itemId) {
-      result = await winApi.updateItem(BigInt(form.itemId), toRaw<any>(form));
+    let itemId = undefined;
+
+    if (form.publishType == PublishType.Add) {
+      const result = await winApi.createItem();
+      if (result?.itemId) itemId = result.itemId;
     } else {
-      result = await winApi.createItem(toRaw<any>(form));
+      itemId = BigInt(form.itemId);
     }
+
+    if (!itemId) throw new Error("未获取有效itemId");
+
+    result = await winApi.updateItem(
+      itemId,
+      toRaw<any>(form),
+      (data: { status: UpdateStatus; progress: bigint; total: bigint }) => {
+        console.log("progressCallback", data);
+        publishState.progressPayload = data;
+      }
+    );
     if (!result) throw new Error("未返回有效结果");
+
     Object.assign(form, DEFAULT_FORM);
-    ElMessage.success(`发布成功！ID ${result?.itemId}`);
+    publishState.isPublishing = false;
+    publishState.isSuccess = true;
+    publishState.successMessage = `ID ${result?.itemId}`;
     await nextTick(); // 等待两刻后清除验证信息
     await nextTick();
     formRef.value?.clearValidate();
   } catch (error: any) {
-    ElMessage.error(`发布失败: ${error?.message || "未知错误"}`);
-  } finally {
-    publishState.isLoading = false;
+    publishState.isPublishing = false;
+    publishState.isError = true;
+    publishState.errorMessage = error?.message || "未知错误";
   }
+}
+
+const steps = [
+  { value: UpdateStatus.PreparingConfig, label: "准备配置" },
+  { value: UpdateStatus.PreparingContent, label: "准备内容" },
+  { value: UpdateStatus.UploadingContent, label: "上传内容" },
+  { value: UpdateStatus.UploadingPreviewFile, label: "上传文件" },
+  { value: UpdateStatus.CommittingChanges, label: "提交变更记录" },
+];
+
+const getProgressPercentage = computed(() => {
+  if (!publishState.progressPayload) return 0;
+  return Number(
+    (
+      ((Number(String(publishState.progressPayload.progress)) || 0) /
+        (Number(String(publishState.progressPayload.total)) || 1)) *
+      100
+    ).toFixed(2)
+  );
+});
+
+function back() {
+  publishState.isPublishing = false;
+  publishState.progressPayload = null;
+  publishState.isSuccess = false;
+  publishState.successMessage = "";
+  publishState.isError = false;
+  publishState.errorMessage = "";
+  Object.assign(form, structuredClone(DEFAULT_FORM));
 }
 </script>
 
@@ -260,6 +355,46 @@ async function onSubmit() {
   height: 0px;
   width: 100%;
   overflow-y: auto;
+  position: relative;
+}
+
+.publish-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: var(--el-mask-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  .el-steps {
+    width: 600px;
+  }
+  .el-progress {
+    margin-top: 60px;
+    width: 600px;
+  }
+  .title {
+    margin-top: 10px;
+    font-size: 16px;
+  }
+}
+
+.result-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: var(--el-mask-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .upload-area {
