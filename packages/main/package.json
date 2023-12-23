@@ -34,7 +34,7 @@
     "esbuild": "^0.19.4",
     "live2d-copilot-shader": "workspace:^",
     "mime": "^3.0.0",
-    "@ai-zen/steamworks.js": "^0.3.3",
+    "@ai-zen/steamworks.js": "^0.3.5",
     "typescript": "^5.2.2",
     "web-message-rpc": "^1.0.5"
   }

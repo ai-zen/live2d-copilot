@@ -14,8 +14,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@ai-zen/steamworks.js':
-        specifier: ^0.3.3
-        version: registry.npmjs.org/@ai-zen/steamworks.js@0.3.3
+        specifier: ^0.3.5
+        version: 0.3.5
       '@electron-forge/cli':
         specifier: ^6.4.2
         version: 6.4.2
@@ -137,6 +137,13 @@ packages:
       '@ai-zen/live2d-core': 1.0.2
       vue: 3.3.4
     dev: false
+
+  /@ai-zen/steamworks.js@0.3.5:
+    resolution: {integrity: sha512-cI19Lw0V5NKAdASgPbd1ekvclzdXGUJkH3RXqhQ0ZQjujwGDsbl3HFSBIybQZSY5Tfdr8ZiHiArV169wrXcysA==}
+    engines: {node: '>= 14'}
+    dependencies:
+      '@types/node': 20.8.0
+    dev: true
 
   /@babel/helper-string-parser@7.22.5:
     resolution: {integrity: sha512-mM4COjgZox8U+JcXQwPijIZLElkgEpO5rsERVDJTc2qfCDfERyob6k5WegS14SX18IIjv+XD+GrqNumY5JRCDw==}
@@ -4196,13 +4203,4 @@ packages:
   /yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
-    dev: true
-
-  registry.npmjs.org/@ai-zen/steamworks.js@0.3.3:
-    resolution: {integrity: sha512-+TRPWFSnGDAbvQuissst5d5JFVVQlve51mvU6KAwlznkTfXKwMjXaZM583aYV0qgvp+IF8wCWCIF6SFHATks8A==, registry: https://registry.npmmirror.com/, tarball: https://registry.npmjs.org/@ai-zen/steamworks.js/-/steamworks.js-0.3.3.tgz}
-    name: '@ai-zen/steamworks.js'
-    version: 0.3.3
-    engines: {node: '>= 14'}
-    dependencies:
-      '@types/node': 20.8.0
     dev: true

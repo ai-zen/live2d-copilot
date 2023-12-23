@@ -301,7 +301,8 @@ async function onSubmit() {
       (data: { status: UpdateStatus; progress: bigint; total: bigint }) => {
         console.log("progressCallback", data);
         publishState.progressPayload = data;
-      }
+      },
+      500
     );
     if (!result) throw new Error("未返回有效结果");
 

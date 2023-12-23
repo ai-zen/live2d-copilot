@@ -72,12 +72,14 @@ function preload(win: BrowserWindowEx) {
         status: UpdateStatus;
         progress: bigint;
         total: bigint;
-      }) => void
+      }) => void,
+      progressCallbackInterval: number
     ) {
       return steamworksManager.updateItem(
         itemId,
         updateDetails,
-        progressCallback
+        progressCallback,
+        progressCallbackInterval
       );
     },
 

@@ -27,7 +27,8 @@ export class SteamworksManager {
       status: UpdateStatus;
       progress: bigint;
       total: bigint;
-    }) => void
+    }) => void,
+    progressCallbackInterval: number
   ) {
     return new Promise<{
       itemId: bigint;
@@ -45,7 +46,8 @@ export class SteamworksManager {
         undefined,
         resolve,
         reject,
-        progressCallback
+        progressCallback,
+        progressCallbackInterval
       );
     });
   }
