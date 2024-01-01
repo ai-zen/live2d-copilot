@@ -1,10 +1,11 @@
 import { app, BrowserWindow } from "electron";
 import { useAppProtocol } from "./composables/useAppProtocol";
-import { useStaticServeOrigin } from "./composables/useStaticServeOrigin";
 import { live2DModelManager } from "./modules/Live2DModelsManager";
+import { staticServeManager } from "./modules/StaticServeManager";
+import { steamworksManager } from "./modules/SteamworksManager";
 import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
 import { createLoadingWindow } from "./windows/createLoadingWindow";
-import { steamworksManager } from "./modules/SteamworksManager";
+import { createTray } from "./windows/createTray";
 
 console.log("process.versions.modules", process.versions.modules);
 
@@ -14,9 +15,6 @@ async function main() {
     app.quit();
   }
 
-  // Use static serve origin.
-  let { staticServeOrigin } = await useStaticServeOrigin();
-
   // Use app protocol.
   const { handleAppProtocol } = useAppProtocol();
 
@@ -25,13 +23,16 @@ async function main() {
   // Some APIs can only be used after this event occurs.
   app.on("ready", async () => {
     // Create Loading.
-    createLoadingWindow(staticServeOrigin);
+    createLoadingWindow();
 
     // Handle app protocol.
     handleAppProtocol();
 
+    // Init static serve.
+    await staticServeManager.init();
+
     // Init Steamworks.
-    steamworksManager.init();
+    await steamworksManager.init();
 
     // Load Live2D Manager Config
     await live2DModelManager.loadConfig();
@@ -39,8 +40,11 @@ async function main() {
     // Release Live2D Models Files to UserData.
     await live2DModelManager.releaseFilesToUserData();
 
+    // Create system tray.
+    createTray();
+
     // Create the Desktop Pet Window.
-    createDesktopPetWindow(staticServeOrigin);
+    createDesktopPetWindow();
   });
 
   // Quit when all windows are closed, except on macOS. There, it's common
@@ -57,7 +61,7 @@ async function main() {
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) {
       // Create the Desktop Pet Window.
-      createDesktopPetWindow(staticServeOrigin);
+      createDesktopPetWindow();
     }
   });
 

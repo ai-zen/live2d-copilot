@@ -1,26 +1,23 @@
 import { Menu, dialog } from "electron";
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
-import { createBrowserWindowEx } from "./createBrowserWindowEx";
 import {
   Live2DModelProfile,
   live2DModelManager,
 } from "../modules/Live2DModelsManager";
 import { steamworksManager } from "../modules/SteamworksManager";
-import { workshop } from "@ai-zen/steamworks.js/client";
 import fsp from "node:fs/promises";
 import path from "node:path";
-import { UpdateStatus } from "live2d-copilot-shader/src/Steamworks";
+import { staticServeManager } from "../modules/StaticServeManager";
 
 export const MODELS_ROUTE_PATH = `/models-window`;
 
 /**
  * Create models window
- * @param staticServeOrigin
  */
-export async function createModelsWindow(staticServeOrigin: string) {
+export async function createModelsWindow() {
   // Create window.
-  const win = createBrowserWindowEx(
-    `${staticServeOrigin}${MODELS_ROUTE_PATH}`,
+  const win = BrowserWindowEx.create(
+    `${staticServeManager.origin}${MODELS_ROUTE_PATH}`,
     {
       name: "models-window",
       width: 1430,
@@ -45,43 +42,22 @@ export async function createModelsWindow(staticServeOrigin: string) {
  */
 function preload(win: BrowserWindowEx) {
   const methods = win.rpc.register(win.name, {
-    loadProfiles() {
-      return live2DModelManager.loadProfiles();
-    },
-
-    getCurrentProfile() {
-      return live2DModelManager.getCurrentProfile();
-    },
-
-    setCurrent(model3: string) {
-      return live2DModelManager.setCurrent(model3);
-    },
-
     showOpenDialog(options: Electron.OpenDialogOptions) {
       return dialog.showOpenDialog(options);
     },
 
-    createItem() {
-      return steamworksManager.createItem();
-    },
-
-    updateItem(
-      itemId: bigint,
-      updateDetails: workshop.UgcUpdate,
-      progressCallback: (data: {
-        status: UpdateStatus;
-        progress: bigint;
-        total: bigint;
-      }) => void,
-      progressCallbackInterval: number
-    ) {
-      return steamworksManager.updateItem(
-        itemId,
-        updateDetails,
-        progressCallback,
-        progressCallbackInterval
-      );
-    },
+    loadProfiles: live2DModelManager.loadProfiles.bind(live2DModelManager),
+    getCurrentProfile:
+      live2DModelManager.getCurrentProfile.bind(live2DModelManager),
+    setCurrent: live2DModelManager.setCurrent.bind(live2DModelManager),
+    createItem: steamworksManager.createItem.bind(steamworksManager),
+    updateItem: steamworksManager.updateItem.bind(steamworksManager),
+    getAllItems: steamworksManager.getAllItems.bind(steamworksManager),
+    getItem: steamworksManager.getItem.bind(steamworksManager),
+    subscribe: steamworksManager.subscribe.bind(steamworksManager),
+    unsubscribe: steamworksManager.unsubscribe.bind(steamworksManager),
+    download: steamworksManager.download.bind(steamworksManager),
+    downloadInfo: steamworksManager.downloadInfo.bind(steamworksManager),
 
     async buildProfile(info: {
       title: string;

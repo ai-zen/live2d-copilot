@@ -51,21 +51,27 @@ function onResize() {
   containerRef.value.style.setProperty("--cell-width", `${cellTargetWidth}px`);
 }
 
-const io = new IntersectionObserver((e) => {
+const intersectionObserver = new IntersectionObserver((e) => {
   if (e[0]?.intersectionRatio) {
+    onResize();
+  }
+});
+
+const resizeObserver = new ResizeObserver((e) => {
+  if (e[0]) {
     onResize();
   }
 });
 
 onMounted(() => {
   onResize();
-  window.addEventListener("resize", onResize);
-  io.observe(containerRef.value!);
+  intersectionObserver.observe(containerRef.value!);
+  resizeObserver.observe(containerRef.value!);
 });
 
 onUnmounted(() => {
-  window.removeEventListener("resize", onResize);
-  io.disconnect();
+  intersectionObserver.disconnect();
+  resizeObserver.disconnect();
 });
 </script>
 

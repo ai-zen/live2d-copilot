@@ -24,7 +24,6 @@
               />
               <div class="content">
                 <div class="title">{{ item.Title }}</div>
-                <div class="desc">{{ item.Description }}</div>
               </div>
             </div>
           </template>
@@ -138,23 +137,19 @@ const filterState = reactive({
   ],
 });
 
-const paginationState = reactive({
-  currentPage: 1,
-  total: 0,
-  pageSize: 20,
-  pageSizes: [20, 50, 100],
-});
-
-function onSizeChange() {}
-
-function onCurrentChange() {}
-
 const sortState = reactive({
   current: "title",
   options: [
     { label: "按名称排序", value: "title" },
     { label: "按订阅日期排序", value: "subscription-time" },
   ],
+});
+
+const paginationState = reactive({
+  currentPage: 1,
+  total: 0,
+  pageSize: 50,
+  pageSizes: [50],
 });
 
 const listState = reactive({
@@ -183,6 +178,15 @@ async function getList() {
   }
 }
 
+async function getNewList() {
+  paginationState.currentPage = 1;
+  await getList();
+}
+
+function onSizeChange() {}
+
+function onCurrentChange() {}
+
 const currentState = reactive({
   current: null as Live2DModelProfileEx | null,
   isLoading: false,
@@ -206,7 +210,7 @@ async function onCardClick(item: Live2DModelProfileEx) {
 }
 
 onMounted(() => {
-  getList();
+  getNewList();
   getCurrent();
 });
 </script>
@@ -312,7 +316,7 @@ onMounted(() => {
 .list-scroll-wrapper {
   height: 0;
   flex-grow: 1;
-  overflow: auto;
+  overflow-y: scroll;
   .list-scroll-content {
     position: relative;
     z-index: 0;
@@ -322,7 +326,7 @@ onMounted(() => {
 .card {
   width: 100%;
   height: auto;
-  aspect-ratio: 200 / 280;
+  aspect-ratio: 200 / 260;
   background-color: #fff;
   box-shadow: var(--el-box-shadow);
   border-radius: 8px;

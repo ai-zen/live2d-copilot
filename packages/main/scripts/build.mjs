@@ -68,6 +68,7 @@ async function main(argv) {
         sourcemap: true,
         loader: {
           ".node": "copy",
+          ".png": "file",
         },
         plugins: [
           {

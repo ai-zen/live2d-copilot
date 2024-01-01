@@ -1,16 +1,15 @@
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
-import { createBrowserWindowEx } from "./createBrowserWindowEx";
+import { staticServeManager } from "../modules/StaticServeManager";
 
 export const PLUGINS_ROUTE_PATH = `/plugins-window`;
 
 /**
  * Create plugins window
- * @param staticServeOrigin
  */
-export async function createPluginsWindow(staticServeOrigin: string) {
+export async function createPluginsWindow() {
   // Create window.
-  const win = createBrowserWindowEx(
-    `${staticServeOrigin}${PLUGINS_ROUTE_PATH}`,
+  const win = BrowserWindowEx.create(
+    `${staticServeManager.origin}${PLUGINS_ROUTE_PATH}`,
     { name: "plugins-window" }
   );
 

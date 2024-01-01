@@ -177,6 +177,7 @@ import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow
 import {
   UgcItemVisibility,
   UpdateStatus,
+  UpdateProgress,
 } from "live2d-copilot-shader/src/Steamworks";
 import { computed, nextTick, reactive, ref, toRaw } from "vue";
 import { rpc } from "../../modules/rpc";
@@ -259,11 +260,7 @@ async function selectPreviewFile() {
 
 const publishState = reactive({
   isPublishing: false,
-  progressPayload: null as {
-    status: UpdateStatus;
-    progress: bigint;
-    total: bigint;
-  } | null,
+  progressPayload: null as UpdateProgress | null,
   isSuccess: false,
   successMessage: "",
   isError: false,
@@ -298,9 +295,9 @@ async function onSubmit() {
     result = await winApi.updateItem(
       itemId,
       toRaw<any>(form),
-      (data: { status: UpdateStatus; progress: bigint; total: bigint }) => {
+      (data) => {
         console.log("progressCallback", data);
-        publishState.progressPayload = data;
+        publishState.progressPayload = data as unknown as UpdateProgress;
       },
       500
     );

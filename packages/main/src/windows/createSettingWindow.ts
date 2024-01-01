@@ -1,16 +1,15 @@
 import { BrowserWindowEx } from "../class/BrowserWindowEx";
-import { createBrowserWindowEx } from "./createBrowserWindowEx";
+import { staticServeManager } from "../modules/StaticServeManager";
 
 export const SETTING_ROUTE_PATH = `/setting-window`;
 
 /**
  * Create setting window
- * @param staticServeOrigin
  */
-export async function createSettingWindow(staticServeOrigin: string) {
+export async function createSettingWindow() {
   // Create window.
-  const win = createBrowserWindowEx(
-    `${staticServeOrigin}${SETTING_ROUTE_PATH}`,
+  const win = BrowserWindowEx.create(
+    `${staticServeManager.origin}${SETTING_ROUTE_PATH}`,
     { name: "setting-window" }
   );
 

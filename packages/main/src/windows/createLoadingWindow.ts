@@ -1,15 +1,13 @@
-import { createBrowserWindowEx } from "./createBrowserWindowEx";
-
-export const LOADING_ROUTE_PATH = `/loading.html`;
+import path from "node:path";
+import { BrowserWindowEx } from "../class/BrowserWindowEx";
 
 /**
  * Create Loading window
- * @param staticServeOrigin
  */
-export async function createLoadingWindow(staticServeOrigin: string) {
+export async function createLoadingWindow() {
   // Create window.
-  const win = createBrowserWindowEx(
-    `${staticServeOrigin}${LOADING_ROUTE_PATH}`,
+  const win = BrowserWindowEx.create(
+    `file:///${path.resolve(__dirname, "loading.html")}`,
     {
       show: false,
       name: "loading-window",
@@ -26,6 +24,8 @@ export async function createLoadingWindow(staticServeOrigin: string) {
   );
 
   if (!win) return;
+
+  win.setIgnoreMouseEvents(true);
 
   // Once the window is ready after creation
   win.once("ready-to-show", () => {

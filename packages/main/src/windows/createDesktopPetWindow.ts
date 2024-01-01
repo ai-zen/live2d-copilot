@@ -3,21 +3,20 @@ import { BrowserWindowEx } from "../class/BrowserWindowEx";
 import { live2DModelManager } from "../modules/Live2DModelsManager";
 import { useIgnoreMouseEventsByAlpha } from "./composables/useIgnoreMouseEventsByAlpha";
 import { useSystemMouseMoveEvent } from "./composables/useSystemMouseMoveEvent";
-import { createBrowserWindowEx } from "./createBrowserWindowEx";
 import { createSettingWindow } from "./createSettingWindow";
 import { createModelsWindow } from "./createModelsWindow";
 import { createPluginsWindow } from "./createPluginsWindow";
+import { staticServeManager } from "../modules/StaticServeManager";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
 
 /**
  * Create desktop pet window
- * @param staticServeOrigin
  */
-export async function createDesktopPetWindow(staticServeOrigin: string) {
+export async function createDesktopPetWindow() {
   // Create window.
-  const win = createBrowserWindowEx(
-    `${staticServeOrigin}${DESKTOP_PET_ROUTE_PATH}`,
+  const win = BrowserWindowEx.create(
+    `${staticServeManager.origin}${DESKTOP_PET_ROUTE_PATH}`,
     {
       show: false,
       name: "desktop-pet-window",
@@ -33,7 +32,7 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
   if (!win) return;
 
   // Preload of the window.
-  preload(win, staticServeOrigin);
+  preload(win);
 
   // Once the window is ready after creation.
   win.once("ready-to-show", () => {
@@ -53,7 +52,7 @@ export async function createDesktopPetWindow(staticServeOrigin: string) {
 /**
  * Preload of the desktop pet window
  */
-function preload(win: BrowserWindowEx, staticServeOrigin: string) {
+function preload(win: BrowserWindowEx) {
   const webApi = win.rpc.use(win.name);
 
   /**
@@ -105,21 +104,21 @@ function preload(win: BrowserWindowEx, staticServeOrigin: string) {
      * Open models window.
      */
     openModelsWindow() {
-      createModelsWindow(staticServeOrigin);
+      createModelsWindow();
     },
 
     /**
      * Open plugins window.
      */
     openPluginsWindow() {
-      createPluginsWindow(staticServeOrigin);
+      createPluginsWindow();
     },
 
     /**
      * Open setting window.
      */
     openSettingWindow() {
-      createSettingWindow(staticServeOrigin);
+      createSettingWindow();
     },
   });
 
