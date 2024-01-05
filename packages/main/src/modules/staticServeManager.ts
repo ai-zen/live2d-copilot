@@ -6,7 +6,10 @@ import fs from "node:fs";
 import mime from "mime";
 
 export class StaticServeManager {
-  private localServe = null as null | http.Server<
+  static instance = new StaticServeManager();
+  private constructor() {}
+
+  private staticServer = null as null | http.Server<
     typeof http.IncomingMessage,
     typeof http.ServerResponse
   >;
@@ -81,10 +84,10 @@ export class StaticServeManager {
       process.env.BUILD_MODE == "prerelease"
     ) {
       // When in production or prerelease mode, create a temporary static server
-      this.localServe = await StaticServeManager.createStaticServe(
+      this.staticServer = await StaticServeManager.createStaticServe(
         path.join(__dirname, "./static")
       );
-      const info = this.localServe.address() as AddressInfo;
+      const info = this.staticServer.address() as AddressInfo;
       this._origin = `http://127.0.0.1:${info.port}`;
     } else {
       // When in development mode, use the vite development server
@@ -93,9 +96,9 @@ export class StaticServeManager {
   }
 
   destroy() {
-    this.localServe?.close();
-    this.localServe = null;
+    this.staticServer?.close();
+    this.staticServer = null;
   }
 }
 
-export const staticServeManager = new StaticServeManager();
+export const staticServeManager = StaticServeManager.instance;

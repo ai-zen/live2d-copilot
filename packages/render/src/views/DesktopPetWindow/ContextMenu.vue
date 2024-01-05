@@ -27,11 +27,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, reactive } from "vue";
-import { guiState } from "./guiState";
-import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
-import { rpc } from "../../modules/rpc";
-import { sleep } from "../../utils/sleep";
 import {
   Back,
   ChatLineRound,
@@ -40,6 +35,11 @@ import {
   MagicStick,
   Setting,
 } from "@element-plus/icons-vue";
+import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
+import { computed, nextTick, onMounted, onUnmounted, reactive } from "vue";
+import { rpc } from "../../modules/rpc";
+import { sleep } from "../../utils/sleep";
+import { guiController } from "./modules/guiController";
 
 const winApi = rpc.use<Methods>("desktop-pet-window");
 
@@ -83,7 +83,7 @@ const menu = computed<MenuItem[]>(() => [
     title: "聊天",
     icon: ChatLineRound,
     click(_item: MenuItem) {
-      guiState.isShowChatInput = !guiState.isShowChatInput;
+      guiController.openChat();
       closeMenu();
     },
   },
@@ -262,3 +262,4 @@ async function closeMenu() {
   }
 }
 </style>
+./store/guiState ./modules/guiController./store/GuiController

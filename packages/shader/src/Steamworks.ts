@@ -156,3 +156,14 @@ export interface WorkshopPageResult {
   totalResults: number;
   wasCached: boolean;
 }
+
+export interface InstallInfo {
+  folder: string;
+  sizeOnDisk: bigint;
+  timestamp: number;
+}
+
+export interface DownloadInfo {
+  current: bigint;
+  total: bigint;
+}

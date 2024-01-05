@@ -35,6 +35,9 @@ export interface Live2DModelProfileEx extends Live2DModelProfile {
 }
 
 export class Live2DModelsManager {
+  static instance = new Live2DModelsManager();
+  private constructor() {}
+
   MODELS_DIR = path.join(app.getPath("userData"), "Live2D Models"); // Directory to store Live2D models
   CONFIG_PATH = path.join(this.MODELS_DIR, "config.json"); // Path to the config file storing Live2D model information
 
@@ -171,6 +174,42 @@ export class Live2DModelsManager {
     const modelsTarget = path.resolve(this.MODELS_DIR); // Get the target directory for releasing the models to user data
     await copyFolder(modelsSource, modelsTarget, { overwrite: false }); // Copy the models source directory to the models target directory, avoiding overwriting existing files
   }
+
+  async buildProfile(info: {
+    title: string;
+    description: string;
+    contentPath: string;
+    previewPath: string;
+  }) {
+    const profileJsonPath = path.join(info.contentPath, "profile.json");
+    let profile: Live2DModelProfile = {
+      Version: 1,
+      Model3: "",
+      Title: "",
+      Description: "",
+      Preview: "",
+      Skins: [],
+    };
+    try {
+      const json = await fsp.readFile(profileJsonPath, { encoding: "utf-8" });
+      profile = JSON.parse(json);
+    } catch {}
+    const files = await fsp.readdir(info.contentPath);
+    const model3 = files.find((file) => file.endsWith("model3.json"));
+    if (!model3) throw new Error("Folder does not contain model3.json file.");
+    profile.Model3 = model3;
+    profile.Title = info.title;
+    profile.Description = info.description;
+    profile.Preview = "preview.png";
+    const source = path.normalize(info.previewPath);
+    const dest = path.normalize(path.join(info.contentPath, "preview.png"));
+    if (source != dest) {
+      await fsp.cp(source, dest);
+    }
+    await fsp.writeFile(profileJsonPath, JSON.stringify(profile, null, 4), {
+      encoding: "utf-8",
+    });
+  }
 }
 
-export const live2DModelManager = new Live2DModelsManager(); // Create a singleton instance of Live2DModelsManager
+export const live2DModelManager = Live2DModelsManager.instance; // Create a singleton instance of Live2DModelsManager

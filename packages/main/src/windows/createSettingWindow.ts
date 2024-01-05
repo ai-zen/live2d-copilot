@@ -1,5 +1,5 @@
-import { BrowserWindowEx } from "../class/BrowserWindowEx";
-import { staticServeManager } from "../modules/StaticServeManager";
+import { BrowserWindowEx } from "../classes/BrowserWindowEx";
+import { staticServeManager } from "../modules/staticServeManager";
 
 export const SETTING_ROUTE_PATH = `/setting-window`;
 

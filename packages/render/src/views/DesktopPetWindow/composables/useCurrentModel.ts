@@ -3,7 +3,7 @@ import {
   LAppLive2DManagerModule,
   LAppModelModule,
 } from "@ai-zen/live2d-vue";
-import { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/Live2DModelsManager";
+import { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/live2DModelsManager";
 import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { ShallowRef, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { rpc } from "../../../modules/rpc";

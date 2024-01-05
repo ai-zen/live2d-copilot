@@ -1,6 +1,6 @@
 import type { Point } from "electron";
 import { screen } from "electron";
-import { BrowserWindowEx } from "../../class/BrowserWindowEx";
+import { BrowserWindowEx } from "../../classes/BrowserWindowEx";
 
 export function useSystemMouseMoveEvent(win: BrowserWindowEx) {
   let lastPoint: Point | null = null;

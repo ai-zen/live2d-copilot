@@ -9,6 +9,9 @@ import {
 } from "live2d-copilot-shader/src/Steamworks";
 
 export class SteamworksManager {
+  static instance = new SteamworksManager();
+  private constructor() {}
+
   APP_ID = 2570090;
   _client: Omit<Client, "init" | "runCallbacks"> | null = null;
 
@@ -23,11 +26,11 @@ export class SteamworksManager {
     return this._client;
   }
 
-  createItem() {
+  async createItem() {
     return this.client.workshop.createItem();
   }
 
-  updateItem(
+  async updateItem(
     itemId: bigint,
     updateDetails: UgcUpdate,
     progressCallback: (data: UpdateProgress) => void,
@@ -49,7 +52,7 @@ export class SteamworksManager {
     });
   }
 
-  getAllItems(
+  async getAllItems(
     page: number,
     queryType: UGCQueryType,
     itemType: UGCType,
@@ -65,33 +68,37 @@ export class SteamworksManager {
     );
   }
 
-  getSubscribedItems() {
+  async getSubscribedItems() {
     return this.client.workshop.getSubscribedItems();
   }
 
-  getItems(itemIds: bigint[], queryConfig?: WorkshopItemQueryConfig) {
+  async getItems(itemIds: bigint[], queryConfig?: WorkshopItemQueryConfig) {
     return this.client.workshop.getItems(itemIds, queryConfig);
   }
 
-  getItem(itemId: bigint, queryConfig?: WorkshopItemQueryConfig) {
+  async getItem(itemId: bigint, queryConfig?: WorkshopItemQueryConfig) {
     return this.client.workshop.getItem(itemId, queryConfig);
   }
 
-  subscribe(itemId: bigint) {
+  async subscribe(itemId: bigint) {
     return this.client.workshop.subscribe(itemId);
   }
 
-  unsubscribe(itemId: bigint) {
+  async unsubscribe(itemId: bigint) {
     return this.client.workshop.unsubscribe(itemId);
   }
 
-  download(itemId: bigint, highPriority: boolean) {
+  async download(itemId: bigint, highPriority: boolean) {
     return this.client.workshop.download(itemId, highPriority);
   }
 
-  downloadInfo(itemId: bigint) {
+  async downloadInfo(itemId: bigint) {
     return this.client.workshop.downloadInfo(itemId);
+  }
+
+  async installInfo(itemId: bigint) {
+    return this.client.workshop.installInfo(itemId);
   }
 }
 
-export const steamworksManager = new SteamworksManager();
+export const steamworksManager = SteamworksManager.instance;

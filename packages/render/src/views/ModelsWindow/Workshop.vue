@@ -69,8 +69,31 @@
               </div>
             </div>
             <div class="button-row">
-              <el-button class="subscription-button" size="large" type="primary"
+              <el-button
+                v-if="isSubscribe(currentState.current.publishedFileId)"
+                class="subscription-button"
+                size="large"
+                type="danger"
+                :loading="
+                  subscribedState.unsubscribing.has(
+                    currentState.current.publishedFileId
+                  )
+                "
+                @click="unsubscribe(currentState.current.publishedFileId)"
                 >取消订阅</el-button
+              >
+              <el-button
+                v-else
+                class="subscription-button"
+                size="large"
+                type="primary"
+                :loading="
+                  subscribedState.subscribing.has(
+                    currentState.current.publishedFileId
+                  )
+                "
+                @click="subscribe(currentState.current.publishedFileId)"
+                >订阅</el-button
               >
             </div>
             <div class="title">{{ currentState.current.title }}</div>
@@ -166,6 +189,7 @@ async function getList() {
     paginationState.total = res.totalResults;
     listState.isReady = true;
   } catch (error) {
+    console.error(error);
   } finally {
     listState.isLoading = false;
   }
@@ -190,8 +214,64 @@ function getRate(item: WorkshopItem) {
   return (numUpvotes / (numUpvotes + numDownvotes)) * 5;
 }
 
+const subscribedState = reactive({
+  isLoading: false,
+  isReady: false,
+  isSubscribing: false,
+  isUnsubscribing: false,
+  ids: new Set() as Set<bigint>,
+  subscribing: new Set() as Set<bigint>,
+  unsubscribing: new Set() as Set<bigint>,
+});
+
+async function getSubscribedItems() {
+  try {
+    subscribedState.isLoading = true;
+    subscribedState.ids = new Set(await winApi.getSubscribedItems());
+    subscribedState.isReady = true;
+  } catch (error) {
+    console.error(error);
+  } finally {
+    subscribedState.isLoading = false;
+  }
+}
+
+async function subscribe(itemId: bigint) {
+  try {
+    subscribedState.subscribing.add(itemId);
+    await winApi.subscribe(itemId);
+    await getSubscribedItems();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    subscribedState.subscribing.delete(itemId);
+  }
+}
+
+async function unsubscribe(itemId: bigint) {
+  try {
+    subscribedState.unsubscribing.add(itemId);
+    await winApi.unsubscribe(itemId);
+    await getSubscribedItems();
+  } catch (error) {
+    console.error(error);
+  } finally {
+    subscribedState.unsubscribing.delete(itemId);
+  }
+}
+
+function isSubscribe(itemId: bigint) {
+  return subscribedState.ids.has(itemId);
+}
+
+// function download(itemId: bigint) {
+//   winApi.download(itemId, false);
+//   // TODO: Watch item download info
+// }
+
 onMounted(() => {
   getNewList();
+  getSubscribedItems();
 });
 </script>
 

@@ -1,12 +1,12 @@
 import { app } from "electron";
-import { BrowserWindowEx } from "../class/BrowserWindowEx";
-import { live2DModelManager } from "../modules/Live2DModelsManager";
+import { BrowserWindowEx } from "../classes/BrowserWindowEx";
+import { live2DModelManager } from "../modules/live2DModelsManager";
+import { staticServeManager } from "../modules/staticServeManager";
 import { useIgnoreMouseEventsByAlpha } from "./composables/useIgnoreMouseEventsByAlpha";
 import { useSystemMouseMoveEvent } from "./composables/useSystemMouseMoveEvent";
-import { createSettingWindow } from "./createSettingWindow";
 import { createModelsWindow } from "./createModelsWindow";
 import { createPluginsWindow } from "./createPluginsWindow";
-import { staticServeManager } from "../modules/StaticServeManager";
+import { createSettingWindow } from "./createSettingWindow";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
 
@@ -89,9 +89,8 @@ function preload(win: BrowserWindowEx) {
     /**
      * Get current Live2D model profile.
      */
-    getCurrentProfile() {
-      return live2DModelManager.getCurrentProfile();
-    },
+    getCurrentProfile:
+      live2DModelManager.getCurrentProfile.bind(live2DModelManager),
 
     /**
      * Quit app.
@@ -103,23 +102,17 @@ function preload(win: BrowserWindowEx) {
     /**
      * Open models window.
      */
-    openModelsWindow() {
-      createModelsWindow();
-    },
+    openModelsWindow: createModelsWindow,
 
     /**
      * Open plugins window.
      */
-    openPluginsWindow() {
-      createPluginsWindow();
-    },
+    openPluginsWindow: createPluginsWindow,
 
     /**
      * Open setting window.
      */
-    openSettingWindow() {
-      createSettingWindow();
-    },
+    openSettingWindow: createSettingWindow,
   });
 
   return {

@@ -64,7 +64,7 @@ export class BrowserWindowEx extends BrowserWindow {
     if (!allowDuplicates && BrowserWindowEx.instanceMap.has(url)) {
       const lastWin = BrowserWindowEx.instanceMap.get(url)!;
       lastWin.show();
-      return false;
+      return null;
     }
 
     const win = new BrowserWindowEx({

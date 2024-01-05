@@ -92,7 +92,7 @@
 
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
-import type { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/Live2DModelsManager";
+import type { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/live2DModelsManager";
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
 import { computed, onMounted, reactive } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";

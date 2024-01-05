@@ -1,8 +1,8 @@
 import { app, BrowserWindow } from "electron";
 import { useAppProtocol } from "./composables/useAppProtocol";
-import { live2DModelManager } from "./modules/Live2DModelsManager";
-import { staticServeManager } from "./modules/StaticServeManager";
-import { steamworksManager } from "./modules/SteamworksManager";
+import { live2DModelManager } from "./modules/live2DModelsManager";
+import { staticServeManager } from "./modules/staticServeManager";
+import { steamworksManager } from "./modules/steamworksManager";
 import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
 import { createLoadingWindow } from "./windows/createLoadingWindow";
 import { createTray } from "./windows/createTray";

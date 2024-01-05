@@ -1,5 +1,5 @@
 import { screen } from "electron";
-import { BrowserWindowEx } from "../../class/BrowserWindowEx";
+import { BrowserWindowEx } from "../../classes/BrowserWindowEx";
 
 /**
  * Enable window movement

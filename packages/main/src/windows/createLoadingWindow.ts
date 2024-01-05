@@ -1,5 +1,5 @@
 import path from "node:path";
-import { BrowserWindowEx } from "../class/BrowserWindowEx";
+import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 
 /**
  * Create Loading window
