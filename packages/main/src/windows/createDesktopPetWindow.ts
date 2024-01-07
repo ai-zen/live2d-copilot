@@ -102,17 +102,23 @@ function preload(win: BrowserWindowEx) {
     /**
      * Open models window.
      */
-    openModelsWindow: createModelsWindow,
+    openModelsWindow() {
+      createModelsWindow();
+    },
 
     /**
      * Open plugins window.
      */
-    openPluginsWindow: createPluginsWindow,
+    openPluginsWindow() {
+      createPluginsWindow();
+    },
 
     /**
      * Open setting window.
      */
-    openSettingWindow: createSettingWindow,
+    openSettingWindow() {
+      createSettingWindow();
+    },
   });
 
   return {

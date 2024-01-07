@@ -154,9 +154,10 @@ export class Live2DModelsManager {
   }
 
   async getCurrentProfile(): Promise<Live2DModelProfileEx | null> {
-    return (
-      (await this.loadProfile((await this.getCurrent())!.modelDir)) ?? null
-    );
+    const pathInfo = await this.getCurrent();
+    if (!pathInfo) return null;
+    const profile = await this.loadProfile(pathInfo.modelDir);
+    return profile ?? null;
   }
 
   parseModel3Path(model3: string): Live2DModelPathInfo {

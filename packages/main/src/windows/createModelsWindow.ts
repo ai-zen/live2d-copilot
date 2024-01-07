@@ -41,6 +41,7 @@ function preload(win: BrowserWindowEx) {
       return dialog.showOpenDialog(options);
     },
 
+    loadProfile: live2DModelManager.loadProfile.bind(live2DModelManager),
     loadProfiles: live2DModelManager.loadProfiles.bind(live2DModelManager),
     getCurrentProfile:
       live2DModelManager.getCurrentProfile.bind(live2DModelManager),
@@ -51,8 +52,9 @@ function preload(win: BrowserWindowEx) {
     updateItem: steamworksManager.updateItem.bind(steamworksManager),
     getAllItems: steamworksManager.getAllItems.bind(steamworksManager),
     getItem: steamworksManager.getItem.bind(steamworksManager),
-    getSubscribedItems:
-      steamworksManager.getSubscribedItems.bind(steamworksManager),
+    getItems: steamworksManager.getItems.bind(steamworksManager),
+    getSubscribedIds:
+      steamworksManager.getSubscribedIds.bind(steamworksManager),
     subscribe: steamworksManager.subscribe.bind(steamworksManager),
     unsubscribe: steamworksManager.unsubscribe.bind(steamworksManager),
     download: steamworksManager.download.bind(steamworksManager),

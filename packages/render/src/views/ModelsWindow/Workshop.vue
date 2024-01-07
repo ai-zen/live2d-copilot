@@ -9,37 +9,7 @@
     <div class="list-column">
       <AutoGrid :list="listState.list">
         <template #default="{ item }: { item: WorkshopItem }">
-          <div
-            class="card"
-            :class="{
-              'is-current': false,
-            }"
-            @click="onCardClick(item)"
-          >
-            <img class="image" :src="item.additional?.previewUrl" />
-            <div class="content">
-              <div class="title">{{ item.title }}</div>
-            </div>
-            <div
-              v-if="workshopItemsManager.isDownloading(item.publishedFileId)"
-              class="download-info"
-            >
-              <el-progress
-                type="circle"
-                :percentage="formatDownloadProgress(item)"
-              />
-            </div>
-            <div
-              class="status-info"
-              v-if="
-                workshopItemsManager.getCachedItemStatusData(
-                  item.publishedFileId
-                )?.itemState
-              "
-            >
-              {{ formatItemStateText(item) }}
-            </div>
-          </div>
+          <WorkshopItemCard :item="item" @click="onCardClick(item)" />
         </template>
       </AutoGrid>
 
@@ -61,69 +31,10 @@
         </el-select>
       </div>
     </div>
-    <div class="detail-column" v-if="currentState.current">
-      <div class="detail-scroll-wrapper">
-        <div class="detail-scroll-content">
-          <img
-            class="image"
-            :src="currentState.current.additional?.previewUrl"
-          />
-          <div class="content">
-            <div class="count-row">
-              <el-rate :modelValue="getRate(currentState.current)" disabled />
-              <div class="count-subscription">
-                {{ currentState.current.additional?.numSubscriptions }}订阅
-              </div>
-              <div class="count-collection">
-                {{ currentState.current.additional?.numFavorites }}收藏
-              </div>
-            </div>
-            <div class="button-row">
-              <el-button
-                v-if="
-                  workshopItemsManager.isSubscribed(
-                    currentState.current.publishedFileId
-                  )
-                "
-                class="subscription-button"
-                size="large"
-                type="danger"
-                :loading="
-                  workshopItemsManager.isUnsubscribing(
-                    currentState.current.publishedFileId
-                  )
-                "
-                @click="
-                  workshopItemsManager.unsubscribe(
-                    currentState.current.publishedFileId
-                  )
-                "
-                >取消订阅</el-button
-              >
-              <el-button
-                v-else
-                class="subscription-button"
-                size="large"
-                type="primary"
-                :loading="
-                  workshopItemsManager.isSubscribing(
-                    currentState.current.publishedFileId
-                  )
-                "
-                @click="
-                  workshopItemsManager.subscribe(
-                    currentState.current.publishedFileId
-                  )
-                "
-                >订阅</el-button
-              >
-            </div>
-            <div class="title">{{ currentState.current.title }}</div>
-            <div class="desc">{{ currentState.current.description }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <WorkshopItemDetailColumn
+      v-if="focusState.current"
+      :item="focusState.current"
+    />
   </div>
 </template>
 
@@ -135,11 +46,12 @@ import {
   UGCType,
   WorkshopItem,
   WorkshopPageResult,
-  ItemState,
 } from "live2d-copilot-shader/src/Steamworks";
 import { onMounted, reactive } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
 import { rpc } from "../../modules/rpc";
+import WorkshopItemCard from "./components/WorkshopItemCard.vue";
+import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
 
 const winApi = rpc.use<Methods>("models-window");
@@ -224,55 +136,18 @@ async function getNewList() {
   await getList();
 }
 
-const currentState = reactive({
+const focusState = reactive({
   current: null as WorkshopItem | null,
 });
 
 async function onCardClick(item: WorkshopItem) {
-  currentState.current = item;
+  focusState.current = item;
 }
 
-function getRate(item: WorkshopItem) {
-  const { numUpvotes, numDownvotes } = item;
-  if (!(numUpvotes + numDownvotes)) return -1;
-  return (numUpvotes / (numUpvotes + numDownvotes)) * 5;
-}
-
-function formatDownloadProgress(item: WorkshopItem) {
-  const statusData = workshopItemsManager.getCachedItemStatusData(
-    item.publishedFileId
-  );
-  if (!statusData?.downloadInfo) return 0;
-  return Math.round(
-    (Number(statusData.downloadInfo.current) /
-      (Number(statusData.downloadInfo.total) || 1)) *
-      100
-  );
-}
-
-function formatItemStateText(item: WorkshopItem) {
-  const statusData = workshopItemsManager.getCachedItemStatusData(
-    item.publishedFileId
-  );
-  if (!statusData?.itemState) return "";
-  const stateTextList: [ItemState, string][] = [
-    [ItemState.NONE, "无状态"],
-    [ItemState.SUBSCRIBED, "已订阅"],
-    [ItemState.LEGACY_ITEM, "遗留项目"],
-    [ItemState.INSTALLED, "已安装"],
-    [ItemState.NEEDS_UPDATE, "需要更新"],
-    [ItemState.DOWNLOADING, "下载中"],
-    [ItemState.DOWNLOAD_PENDING, "下载排队中"],
-  ];
-  return stateTextList
-    .filter(([bit]) => bit & statusData.itemState)
-    .map(([_bit, text]) => text)
-    .join("+");
-}
-
-onMounted(() => {
+onMounted(async () => {
   getNewList();
-  workshopItemsManager.getSubscribedItems();
+  await workshopItemsManager.getSubscribedIds();
+  await workshopItemsManager.updateSubscribedItemsStatusData();
 });
 </script>
 

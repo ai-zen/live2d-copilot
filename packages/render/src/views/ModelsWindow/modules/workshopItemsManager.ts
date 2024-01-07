@@ -46,7 +46,7 @@ export class WorkshopItemsManager {
   watchInterval = 500;
   setWatchTimer() {
     this.watchTimer = window.setInterval(
-      this.updateItemsStatusData.bind(this),
+      this.updateWatchItemsStatusData.bind(this),
       this.watchInterval
     );
   }
@@ -56,9 +56,14 @@ export class WorkshopItemsManager {
     this.watchTimer = 0;
   }
 
-  updateItemsStatusData() {
+  updateWatchItemsStatusData() {
     const watchIds = Array.from(this.state.watchIds);
     return Promise.all(watchIds.map(this.updateItemStatusData.bind(this)));
+  }
+
+  updateSubscribedItemsStatusData() {
+    const subscribedIds = Array.from(this.state.subscribedIds);
+    return Promise.all(subscribedIds.map(this.updateItemStatusData.bind(this)));
   }
 
   async updateItemStatusData(itemId: bigint) {
@@ -111,17 +116,17 @@ export class WorkshopItemsManager {
     return this.state.statusDataMap.get(itemId);
   }
 
-  async getSubscribedItems() {
+  async getSubscribedIds() {
     try {
       this.state.isLoading = true;
       this.state.subscribedIds = reactive(
-        new Set(await winApi.getSubscribedItems())
+        new Set(await winApi.getSubscribedIds())
       );
-      const ids = Array.from(this.state.subscribedIds);
-      await Promise.all(ids.map(this.updateItemStatusData.bind(this)));
       this.state.isReady = true;
+      return Array.from(this.state.subscribedIds);
     } catch (error) {
       console.error(error);
+      return [];
     } finally {
       this.state.isLoading = false;
     }
@@ -132,9 +137,11 @@ export class WorkshopItemsManager {
       this.state.subscribing.add(itemId);
       await winApi.subscribe(itemId);
       this.state.subscribedIds.add(itemId);
-      if (!(await this.updateItemStatusData(itemId))?.installInfo) {
+      const statusData = await this.updateItemStatusData(itemId);
+      if (!statusData?.installInfo) {
         this.download(itemId);
       }
+      this.eventBus.emit("subscribed", itemId);
     } catch (error) {
       console.error(error);
     } finally {
@@ -149,6 +156,7 @@ export class WorkshopItemsManager {
       this.state.subscribedIds.delete(itemId);
       this.state.statusDataMap.delete(itemId);
       // await this.updateItemStatusData(itemId);
+      this.eventBus.emit("unsubscribed", itemId);
     } catch (error) {
       console.error(error);
     } finally {

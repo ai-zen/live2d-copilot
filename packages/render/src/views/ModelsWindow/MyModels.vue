@@ -8,22 +8,17 @@
     </div>
     <div class="list-column">
       <AutoGrid :list="renderList">
-        <template #default="{ item }: { item: Live2DModelProfileEx }">
-          <div
-            class="card"
-            :class="{
-              'is-current': item._ModelPath == currentState.current?._ModelPath,
-            }"
+        <template #default="{ item }: { item: MyItem }">
+          <SystemItemCard
+            v-if="item.systemItem"
+            :item="item.systemItem"
             @click="onCardClick(item)"
-          >
-            <img
-              class="image"
-              :src="toLocalURI(item._ModelDir + '/' + item.Preview)"
-            />
-            <div class="content">
-              <div class="title">{{ item.Title }}</div>
-            </div>
-          </div>
+          />
+          <WorkshopItemCard
+            v-if="item.workshopItem"
+            :item="item.workshopItem"
+            @click="onCardClick(item)"
+          />
         </template>
       </AutoGrid>
 
@@ -47,36 +42,15 @@
         </el-select>
       </div>
     </div>
-    <div class="detail-column" v-if="currentState.current">
-      <div class="detail-scroll-wrapper">
-        <div class="detail-scroll-content">
-          <img
-            class="image"
-            :src="
-              toLocalURI(
-                currentState.current._ModelDir +
-                  '/' +
-                  currentState.current.Preview
-              )
-            "
-          />
-          <div class="content">
-            <div class="count-row">
-              <el-rate :modelValue="3" disabled />
-              <div class="count-subscription">0.0K订阅</div>
-              <div class="count-collection">0.0K收藏</div>
-            </div>
-            <div class="button-row">
-              <el-button class="subscription-button" size="large" type="primary"
-                >取消订阅</el-button
-              >
-            </div>
-            <div class="title">{{ currentState.current.Title }}</div>
-            <div class="desc">{{ currentState.current.Description }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+    <SystemItemDetailColumn
+      v-if="focusState.currentSystemItem"
+      :item="focusState.currentSystemItem"
+    />
+    <WorkshopItemDetailColumn
+      v-if="focusState.currentWorkshopItem"
+      :item="focusState.currentWorkshopItem"
+    />
   </div>
 </template>
 
@@ -84,10 +58,26 @@
 import { Search } from "@element-plus/icons-vue";
 import type { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/live2DModelsManager";
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
-import { computed, onMounted, reactive } from "vue";
+import { WorkshopItem } from "live2d-copilot-shader/src/Steamworks";
+import { computed, onMounted, onUnmounted, reactive } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
 import { rpc } from "../../modules/rpc";
-import { toLocalURI } from "../../utils/toLocalURI";
+import SystemItemCard from "./components/SystemItemCard.vue";
+import SystemItemDetailColumn from "./components/SystemItemDetailColumn.vue";
+import WorkshopItemCard from "./components/WorkshopItemCard.vue";
+import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
+import { workshopItemsManager } from "./modules/workshopItemsManager";
+
+enum MyItemType {
+  SystemItem = 0,
+  WorkshopItem,
+}
+
+interface MyItem {
+  type: MyItemType;
+  workshopItem?: WorkshopItem;
+  systemItem?: Live2DModelProfileEx;
+}
 
 const winApi = rpc.use<Methods>("models-window");
 
@@ -143,21 +133,10 @@ const paginationState = reactive({
 });
 
 const listState = reactive({
-  list: [] as Live2DModelProfileEx[],
+  list: [] as MyItem[],
   isLoading: false,
   isReady: false,
 });
-
-// enum Live2DModelsListItemMetaType {
-//   SystemItem = 0,
-//   WorkshopItem,
-// }
-
-// interface Live2DModelsListItemMeta {
-//   type: Live2DModelsListItemMetaType;
-//   workshopItemId: bigint | null;
-//   localItemModelDir: string | null;
-// }
 
 const renderList = computed(() => {
   const { currentPage, pageSize } = paginationState;
@@ -170,7 +149,29 @@ const renderList = computed(() => {
 async function getList() {
   try {
     listState.isLoading = true;
-    listState.list = await winApi.loadProfiles();
+    const profiles = await winApi.loadProfiles();
+    const subscribedIds = await workshopItemsManager.getSubscribedIds();
+    // TODO: There is a known issue that when passing an empty array (subscribedIds), the function will never return.
+    const itemsRes = subscribedIds?.length
+      ? await winApi.getItems(subscribedIds)
+      : null;
+    await workshopItemsManager.updateSubscribedItemsStatusData();
+    console.log("itemsRes", itemsRes);
+    const subscribedItems = itemsRes?.items ?? [];
+    listState.list = [
+      ...profiles.map(
+        (profile): MyItem => ({
+          type: MyItemType.SystemItem,
+          systemItem: profile,
+        })
+      ),
+      ...subscribedItems.map(
+        (item): MyItem => ({
+          type: MyItemType.WorkshopItem,
+          workshopItem: item!,
+        })
+      ),
+    ];
     paginationState.total = listState.list.length;
     listState.isReady = true;
   } catch (error) {
@@ -188,31 +189,117 @@ function onSizeChange() {}
 
 function onCurrentChange() {}
 
-const currentState = reactive({
-  current: null as Live2DModelProfileEx | null,
+const focusState = reactive({
+  currentItemType: null as MyItemType | null,
+  currentWorkshopItem: null as WorkshopItem | null,
+  currentSystemItem: null as Live2DModelProfileEx | null,
+});
+
+function onCardClick(item: MyItem) {
+  useItem(item);
+}
+
+async function useItem(item: MyItem) {
+  if (item.type == MyItemType.SystemItem) {
+    focusState.currentWorkshopItem = null;
+    focusState.currentSystemItem = item.systemItem!;
+    await winApi.setCurrent(item.systemItem!._ModelPath);
+  } else {
+    focusState.currentWorkshopItem = item.workshopItem!;
+    focusState.currentSystemItem = null;
+    const statusData = await workshopItemsManager.updateItemStatusData(
+      item.workshopItem!.publishedFileId
+    );
+    if (statusData?.installInfo?.folder) {
+      const profile = await winApi.loadProfile(statusData.installInfo.folder);
+      if (profile) {
+        await winApi.setCurrent(profile._ModelPath);
+      }
+    }
+  }
+  focusState.currentItemType = item.type;
+}
+
+const usedState = reactive({
+  currentProfile: null as Live2DModelProfileEx | null,
   isLoading: false,
   isReady: false,
 });
 
-async function getCurrent() {
+async function getCurrentUsedProfile() {
   try {
-    currentState.isLoading = true;
-    currentState.current = await winApi.getCurrentProfile();
-    currentState.isReady = true;
+    usedState.isLoading = true;
+    usedState.currentProfile = await winApi.getCurrentProfile();
+    usedState.isReady = true;
   } catch (error) {
   } finally {
-    currentState.isLoading = false;
+    usedState.isLoading = false;
   }
 }
 
-async function onCardClick(item: Live2DModelProfileEx) {
-  await winApi.setCurrent(item._ModelPath);
-  await getCurrent();
+function focusCurrentUsedItem() {
+  listState.list.forEach((item) => {
+    if (item.type == MyItemType.SystemItem) {
+      if (item.systemItem?._ModelDir == usedState.currentProfile?._ModelDir) {
+        focusState.currentItemType = MyItemType.SystemItem;
+        focusState.currentSystemItem = item.systemItem!;
+      }
+    } else {
+      const statusData = workshopItemsManager.getCachedItemStatusData(
+        item.workshopItem!.publishedFileId
+      );
+      if (
+        statusData?.installInfo?.folder == usedState.currentProfile?._ModelDir
+      ) {
+        focusState.currentItemType = MyItemType.WorkshopItem;
+        focusState.currentWorkshopItem = item.workshopItem!;
+      }
+    }
+  });
 }
 
-onMounted(() => {
-  getNewList();
-  getCurrent();
+async function onItemSubscribed(itemId: bigint) {
+  const item = await winApi.getItem(itemId);
+  if (item) {
+    await workshopItemsManager.updateItemStatusData(itemId);
+    listState.list.push({
+      type: MyItemType.WorkshopItem,
+      workshopItem: item,
+    });
+  }
+}
+
+function onItemUnsubscribed(itemId: bigint) {
+  const index = listState.list.findIndex(
+    (item) => item.workshopItem?.publishedFileId == itemId
+  );
+  if (index != -1) {
+    listState.list.splice(index, 1);
+  }
+
+  // If the unsubscribed item is currently in use, switch the currently in use item to the first item in the list.
+  const statusData = workshopItemsManager.getCachedItemStatusData(itemId);
+  if (
+    statusData?.installInfo?.folder == usedState.currentProfile?._ModelDir &&
+    listState.list[0]
+  ) {
+    useItem(listState.list[0]);
+  }
+}
+
+onMounted(async () => {
+  workshopItemsManager.eventBus.on("subscribed", onItemSubscribed);
+  workshopItemsManager.eventBus.on("unsubscribed", onItemUnsubscribed);
+
+  await getNewList();
+  await getCurrentUsedProfile();
+
+  focusCurrentUsedItem();
+});
+
+onUnmounted(() => {
+  workshopItemsManager.eventBus.off("subscribed", onItemSubscribed);
+  workshopItemsManager.eventBus.off("unsubscribed", onItemUnsubscribed);
 });
 </script>
 

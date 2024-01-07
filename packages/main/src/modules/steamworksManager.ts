@@ -68,7 +68,7 @@ export class SteamworksManager {
     );
   }
 
-  async getSubscribedItems() {
+  async getSubscribedIds() {
     return this.client.workshop.getSubscribedItems();
   }
 
