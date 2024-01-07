@@ -99,6 +99,10 @@ export class SteamworksManager {
   async installInfo(itemId: bigint) {
     return this.client.workshop.installInfo(itemId);
   }
+
+  async itemState(itemId: bigint) {
+    return this.client.workshop.state(itemId);
+  }
 }
 
 export const steamworksManager = SteamworksManager.instance;

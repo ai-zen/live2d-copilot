@@ -64,6 +64,9 @@ importers:
 
   packages/render:
     dependencies:
+      '@ai-zen/event-bus':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@ai-zen/live2d-vue':
         specifier: ^1.0.11
         version: 1.0.11(vue@3.3.4)

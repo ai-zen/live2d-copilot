@@ -58,6 +58,7 @@ function preload(win: BrowserWindowEx) {
     download: steamworksManager.download.bind(steamworksManager),
     downloadInfo: steamworksManager.downloadInfo.bind(steamworksManager),
     installInfo: steamworksManager.installInfo.bind(steamworksManager),
+    itemState: steamworksManager.itemState.bind(steamworksManager),
   });
 
   return {

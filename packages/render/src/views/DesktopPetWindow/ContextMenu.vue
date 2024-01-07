@@ -9,6 +9,7 @@
     }"
     :class="{ out: contextMenuState.isOut, in: !contextMenuState.isOut }"
   >
+    <div class="context-menu-background"></div>
     <div
       class="context-menu-item-position"
       v-for="(menuItem, index) of menu"
@@ -143,6 +144,22 @@ async function closeMenu() {
   pointer-events: none;
 }
 
+.context-menu-background {
+  position: absolute;
+  width: calc(300px);
+  height: calc(300px);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+
+  .in & {
+    pointer-events: initial;
+  }
+
+  .out & {
+    pointer-events: none;
+  }
+}
+
 .context-menu-item {
   cursor: pointer;
   user-select: none;
@@ -198,20 +215,52 @@ async function closeMenu() {
   transform-origin: 50% 50%;
 }
 
-.in .context-menu-item-position.is-close {
-  animation: content-menu-close-in 0.5s both;
+.in .context-menu-background {
+  animation: content-menu-background-in 0.5s both;
 }
 
-.in .context-menu-item-position {
-  animation: content-menu-item-in 0.5s both;
+.out .context-menu-background {
+  animation: content-menu-background-out 0.5s both;
+}
+
+.in .context-menu-item-position.is-close {
+  animation: content-menu-close-in 0.5s both;
 }
 
 .out .context-menu-item-position.is-close {
   animation: content-menu-close-out 0.5s both;
 }
 
+.in .context-menu-item-position {
+  animation: content-menu-item-in 0.5s both;
+}
+
 .out .context-menu-item-position {
   animation: content-menu-item-out 0.5s both;
+}
+
+@keyframes content-menu-background-in {
+  from {
+    opacity: 0;
+    transform: scale(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes content-menu-background-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(0);
+  }
 }
 
 @keyframes content-menu-close-in {
@@ -221,6 +270,16 @@ async function closeMenu() {
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes content-menu-close-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
   }
 }
 
@@ -238,16 +297,6 @@ async function closeMenu() {
   }
 }
 
-@keyframes content-menu-close-out {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
-}
-
 @keyframes content-menu-item-out {
   from {
     transform: rotate(calc(var(--index) / var(--count) * 360deg))
@@ -262,4 +311,3 @@ async function closeMenu() {
   }
 }
 </style>
-./store/guiState ./modules/guiController./store/GuiController

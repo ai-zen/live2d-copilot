@@ -167,3 +167,13 @@ export interface DownloadInfo {
   current: bigint;
   total: bigint;
 }
+
+export enum ItemState {
+  NONE = 0,
+  SUBSCRIBED = 1,
+  LEGACY_ITEM = 2,
+  INSTALLED = 4,
+  NEEDS_UPDATE = 8,
+  DOWNLOADING = 16,
+  DOWNLOAD_PENDING = 32,
+}
