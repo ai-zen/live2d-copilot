@@ -93,6 +93,7 @@ export interface WorkshopItemQueryConfig {
   requiredTags?: Array<string>;
   excludedTags?: Array<string>;
   searchText?: string;
+  rankedByTrendDays?: number;
 }
 
 export interface UgcUpdate {

@@ -77,7 +77,11 @@
           v-model="form.description"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="tags" label="标签">
+      <!-- <el-form-item prop="tags" label="标签">
+        TODO: radio-group of Age Rating Tags
+        TODO: checkbox-group of Models Tags
+      </el-form-item> -->
+      <!-- <el-form-item prop="tags" label="标签">
         <el-row>
           <el-tag
             v-for="tag in form.tags"
@@ -101,7 +105,7 @@
             + 新标签
           </el-button>
         </el-row>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item prop="changeNote" label="变更日志">
         <el-input
           type="textarea"
@@ -205,31 +209,31 @@ const DEFAULT_FORM = {
 
 const form = reactive(structuredClone(DEFAULT_FORM));
 
-const tagInputRef = ref<InstanceType<typeof ElInput>>();
+// const tagInputRef = ref<InstanceType<typeof ElInput>>();
 
-const newTagState = reactive({
-  value: "",
-  isShow: false,
-});
+// const newTagState = reactive({
+//   value: "",
+//   isShow: false,
+// });
 
-const onTagClose = (tag: string) => {
-  form.tags.splice(form.tags.indexOf(tag), 1);
-};
+// const onTagClose = (tag: string) => {
+//   form.tags.splice(form.tags.indexOf(tag), 1);
+// };
 
-function addTag() {
-  newTagState.isShow = true;
-  nextTick(() => {
-    tagInputRef.value?.input?.focus();
-  });
-}
+// function addTag() {
+//   newTagState.isShow = true;
+//   nextTick(() => {
+//     tagInputRef.value?.input?.focus();
+//   });
+// }
 
-const onInputConfirm = () => {
-  if (newTagState.value) {
-    form.tags.push(newTagState.value);
-  }
-  newTagState.isShow = false;
-  newTagState.value = "";
-};
+// const onInputConfirm = () => {
+//   if (newTagState.value) {
+//     form.tags.push(newTagState.value);
+//   }
+//   newTagState.isShow = false;
+//   newTagState.value = "";
+// };
 
 async function selectContentDir() {
   try {

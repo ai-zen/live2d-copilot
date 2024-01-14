@@ -8,6 +8,16 @@
     height: 100%;
     padding: 10px;
     box-sizing: border-box;
+    .reset-filter-button {
+      width: 100%;
+    }
+    .sort-select {
+      margin-top: 10px;
+      width: 100%;
+    }
+    .search-input {
+      margin-top: 10px;
+    }
     .tree-wrapper {
       margin-top: 10px;
     }

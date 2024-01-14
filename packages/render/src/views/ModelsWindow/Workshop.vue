@@ -1,12 +1,37 @@
 <template>
   <div class="modules-list">
     <div class="filter-column">
-      <el-input :prefix-icon="Search" placeholder="请输入关键字搜索"></el-input>
+      <el-button
+        class="reset-filter-button"
+        type="primary"
+        plain
+        @click="onReset"
+        >{{ t("reset_filter_setting") }}</el-button
+      >
+      <el-select
+        class="sort-select"
+        v-model="filterState.form.sort"
+        @change="getNewList"
+      >
+        <el-option
+          v-for="(option, index) of sortOptions"
+          :key="index"
+          :label="option.label"
+          :value="option.value"
+        ></el-option>
+      </el-select>
+      <el-input
+        class="search-input"
+        v-model="filterState.form.keyword"
+        :prefix-icon="Search"
+        :placeholder="t('keyword_search_placeholder')"
+        @change="getNewList"
+      ></el-input>
       <div class="tree-wrapper">
-        <el-tree :data="filterState.tree" show-checkbox />
+        <el-tree :data="tagsOptions" show-checkbox default-expand-all />
       </div>
     </div>
-    <div class="list-column">
+    <div class="list-column" v-loading="listState.isLoading">
       <AutoGrid :list="listState.list">
         <template #default="{ item }: { item: WorkshopItem }">
           <WorkshopItemCard :item="item" @click="onCardClick(item)" />
@@ -21,14 +46,6 @@
           layout="sizes, total, prev, pager, next"
           :total="paginationState.total"
         />
-        <el-select class="sort-select" v-model="sortState.current">
-          <el-option
-            v-for="(option, index) of sortState.options"
-            :key="index"
-            :label="option.label"
-            :value="option.value"
-          ></el-option>
-        </el-select>
       </div>
     </div>
     <WorkshopItemDetailColumn
@@ -52,52 +69,26 @@ import AutoGrid from "../../components/AutoGrid.vue";
 import { rpc } from "../../modules/rpc";
 import WorkshopItemCard from "./components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
+import { useSortOptions } from "./composables/useSortOptions";
+import { useTagsOptions } from "./composables/useTagsOptions";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
+import { useI18n } from "../../modules/i18n";
+
+const { t } = useI18n();
 
 const winApi = rpc.use<Methods>("models-window");
 
-const filterState = reactive({
-  tree: [
-    {
-      label: "年龄分级",
-      children: [
-        {
-          label: "全年龄",
-        },
-        {
-          label: "家长指导级",
-        },
-        {
-          label: "成人",
-        },
-      ],
-    },
-    {
-      label: "类型",
-      children: [
-        {
-          label: "动漫",
-        },
-        {
-          label: "游戏",
-        },
-        {
-          label: "虚拟主播",
-        },
-        {
-          label: "其他",
-        },
-      ],
-    },
-  ],
-});
+const { tagsOptions } = useTagsOptions(["Age Rating", "Models"]);
 
-const sortState = reactive({
-  current: "title",
-  options: [
-    { label: "按名称排序", value: "title" },
-    { label: "按订阅日期排序", value: "subscription-time" },
-  ],
+const { sortOptions } = useSortOptions();
+
+const DEFAULT_FILTER_FORM = {
+  sort: `${UGCQueryType.RankedByVote}`,
+  keyword: "",
+};
+
+const filterState = reactive({
+  form: structuredClone(DEFAULT_FILTER_FORM),
 });
 
 const paginationState = reactive({
@@ -114,13 +105,23 @@ const listState = reactive({
 });
 
 async function getList() {
+  console.log("getList");
   try {
     listState.isLoading = true;
+    const currentSortOption = sortOptions.value.find(
+      (option) => option.value == filterState.form.sort
+    );
     const res = (await winApi.getAllItems(
       paginationState.currentPage,
-      UGCQueryType.RankedByPublicationDate,
-      UGCType.Items
+      currentSortOption?.queryType ?? UGCQueryType.RankedByPublicationDate,
+      UGCType.Items,
+      {
+        rankedByTrendDays: currentSortOption?.day,
+        searchText: filterState.form.keyword || undefined,
+        // matchAnyTag: , // TODO: tags
+      }
     )) as WorkshopPageResult;
+    console.log("res", res);
     listState.list = res.items as WorkshopItem[];
     paginationState.total = res.totalResults;
     listState.isReady = true;
@@ -134,6 +135,11 @@ async function getList() {
 async function getNewList() {
   paginationState.currentPage = 1;
   await getList();
+}
+
+function onReset() {
+  filterState.form = structuredClone(DEFAULT_FILTER_FORM);
+  getNewList();
 }
 
 const focusState = reactive({

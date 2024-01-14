@@ -24,7 +24,7 @@
 					"background": {
 						"activeOnStart": true,
 						"beginsPattern": "VITE",
-						"endsPattern": "ready in"
+						"endsPattern": "(ready in)|(hmr update)"
 					}
 				}
 			],

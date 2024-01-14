@@ -14,8 +14,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@ai-zen/steamworks.js':
-        specifier: ^0.3.6-dev.9
-        version: 0.3.6-dev.9
+        specifier: ^0.3.6-dev.12
+        version: 0.3.6-dev.12
       '@electron-forge/cli':
         specifier: ^6.4.2
         version: 6.4.2
@@ -141,8 +141,8 @@ packages:
       vue: 3.3.4
     dev: false
 
-  /@ai-zen/steamworks.js@0.3.6-dev.9:
-    resolution: {integrity: sha512-EHB+SW6Am6JOXm3r4CzFdU/XBK+y2J4suV/LP/AKBchvzZ/mvdOplDGo4WreVrNGIX2F72kWtxOUwbBoK4pvfg==}
+  /@ai-zen/steamworks.js@0.3.6-dev.12:
+    resolution: {integrity: sha512-5EQr/1UfHLL3fD4IxwqSWLiv0GQtTaiwUpgz83MswTopoUxEnvfZCQzvTQS1Q+wdmsumEz+TYnJNM1BsqUbUFQ==}
     engines: {node: '>= 14'}
     dependencies:
       '@types/node': 20.8.0

@@ -1,13 +1,13 @@
 <template>
   <div class="models-window">
     <el-tabs class="tabs" v-model="activeName">
-      <el-tab-pane label="我的模型" name="MyModels">
+      <el-tab-pane :label="t('models_window.my_models')" name="MyModels">
         <MyModels></MyModels>
       </el-tab-pane>
-      <el-tab-pane label="创意工坊" name="Workshop">
+      <el-tab-pane :label="t('models_window.workshop')" name="Workshop">
         <Workshop></Workshop>
       </el-tab-pane>
-      <el-tab-pane label="发布" name="Publish">
+      <el-tab-pane :label="t('models_window.publish')" name="Publish">
         <Publish></Publish>
       </el-tab-pane>
     </el-tabs>
@@ -19,6 +19,9 @@ import { ref } from "vue";
 import MyModels from "./MyModels.vue";
 import Workshop from "./Workshop.vue";
 import Publish from "./Publish.vue";
+import { useI18n } from "../../modules/i18n";
+
+const { t } = useI18n();
 
 const activeName = ref("MyModels");
 </script>

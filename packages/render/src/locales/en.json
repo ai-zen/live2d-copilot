@@ -1,0 +1,50 @@
+{
+    "models_window": {
+        "my_models": "My Models",
+        "workshop": "Workshop",
+        "publish": "Publish"
+    },
+    "reset_filter_setting": "Reset filter setting",
+    "keyword_search_placeholder": "Please enter keywords for search",
+    "tags_categories": {
+        "models": "Models",
+        "plugins": "Plugins",
+        "age_rating": "Age Rating"
+    },
+    "tags": {
+        "game_character": "Game Character",
+        "anime_character": "Anime Character",
+        "v_tuber": "Vtuber",
+        "other": "Other",
+        "chat_plugin": "Chat Plugin",
+        "tool": "Tool",
+        "everyone": "Everyone",
+        "questionable": "Questionable",
+        "mature": "Mature"
+    },
+    "ugc_query_type": {
+        "ranked_by_vote": "Ranked By Vote",
+        "ranked_by_publication_date": "Ranked By Publication Date",
+        "accepted_for_game_ranked_by_acceptance_date": "Accepted For Game Ranked By Acceptance Date",
+        "ranked_by_trend": "Ranked By Trend",
+        "ranked_by_trend_7": "Trend By Past 7 Days",
+        "ranked_by_trend_30": "Trend By Past 30 Days",
+        "ranked_by_trend_365": "Trend By Past 365 Days",
+        "favorited_by_friends_ranked_by_publication_date": "Favorited By Friends Ranked By Publication Date",
+        "created_by_friends_ranked_by_publication_date": "Created By Friends Ranked By Publication Date",
+        "ranked_by_num_times_reported": "Ranked By Number of Times Reported",
+        "created_by_followed_users_ranked_by_publication_date": "Created By Followed Users Ranked By Publication Date",
+        "not_yet_rated": "Not Yet Rated",
+        "ranked_by_total_votes_asc": "Ranked By Total Votes Ascending",
+        "ranked_by_votes_up": "Ranked By Votes Up",
+        "ranked_by_text_search": "Ranked By Text Search",
+        "ranked_by_total_unique_subscriptions": "Ranked By Total Unique Subscriptions",
+        "ranked_by_playtime_trend": "Ranked By Playtime Trend",
+        "ranked_by_total_playtime": "Ranked By Total Playtime",
+        "ranked_by_average_playtime_trend": "Ranked By Average Playtime Trend",
+        "ranked_by_lifetime_average_playtime": "Ranked By Lifetime Average Playtime",
+        "ranked_by_playtime_sessions_trend": "Ranked By Playtime Sessions Trend",
+        "ranked_by_lifetime_playtime_sessions": "Ranked By Lifetime Playtime Sessions",
+        "ranked_by_last_updated_date": "Ranked By Last Updated Date"
+    }
+}
