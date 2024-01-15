@@ -14,8 +14,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@ai-zen/steamworks.js':
-        specifier: ^0.3.6-dev.12
-        version: 0.3.6-dev.12
+        specifier: ^0.3.6-dev.15
+        version: 0.3.6-dev.15
       '@electron-forge/cli':
         specifier: ^6.4.2
         version: 6.4.2
@@ -141,8 +141,8 @@ packages:
       vue: 3.3.4
     dev: false
 
-  /@ai-zen/steamworks.js@0.3.6-dev.12:
-    resolution: {integrity: sha512-5EQr/1UfHLL3fD4IxwqSWLiv0GQtTaiwUpgz83MswTopoUxEnvfZCQzvTQS1Q+wdmsumEz+TYnJNM1BsqUbUFQ==}
+  /@ai-zen/steamworks.js@0.3.6-dev.15:
+    resolution: {integrity: sha512-W+KU+J9gDWiMSIt5SqXPuh7HW1qaAmL+rHG0LdX0zsYXHM877VyZjegSIatJMiVecxLCFcYCwFe5SQsBA0N2nA==}
     engines: {node: '>= 14'}
     dependencies:
       '@types/node': 20.8.0
@@ -4130,6 +4130,7 @@ packages:
 
   /wrappy@1.0.2:
     resolution: {integrity: sha512-l4Sp/DRseor9wL6EvV2+TuQn63dMkPjZ/sp9XkghTEbV9KlPS1xUsZ3u7/IQO4wxtcFB4bgpQPRcR3QCvezPcQ==}
+    requiresBuild: true
     dev: true
 
   /xmlbuilder@15.1.1:

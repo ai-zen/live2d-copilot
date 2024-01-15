@@ -1,5 +1,6 @@
 import steamworks, { Client } from "@ai-zen/steamworks.js";
 import { workshop } from "@ai-zen/steamworks.js/client";
+import { dialog } from "electron";
 import {
   UGCQueryType,
   UGCType,
@@ -16,7 +17,16 @@ export class SteamworksManager {
   _client: Omit<Client, "init" | "runCallbacks"> | null = null;
 
   async init() {
-    this._client = steamworks.init(this.APP_ID);
+    try {
+      this._client = steamworks.init(this.APP_ID);
+    } catch (error) {
+      console.error("[steamworksManager.ts] init error", error);
+      dialog.showMessageBox({
+        type: "warning",
+        message:
+          "This project relies on Steam. Please start Steam first, otherwise some features may not work properly.",
+      });
+    }
   }
 
   get client() {

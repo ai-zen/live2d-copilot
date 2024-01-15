@@ -21,6 +21,7 @@
   "license": "MIT",
   "devDependencies": {
     "@ai-zen/event-bus": "^1.0.1",
+    "@ai-zen/steamworks.js": "^0.3.6-dev.15",
     "@electron-forge/cli": "^6.4.2",
     "@electron-forge/maker-deb": "^6.4.2",
     "@electron-forge/maker-rpm": "^6.4.2",
@@ -34,7 +35,6 @@
     "esbuild": "^0.19.4",
     "live2d-copilot-shader": "workspace:^",
     "mime": "^3.0.0",
-    "@ai-zen/steamworks.js": "^0.3.6-dev.12",
     "typescript": "^5.2.2",
     "web-message-rpc": "^1.0.5"
   }
