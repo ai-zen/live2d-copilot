@@ -13,7 +13,7 @@ export class SteamworksManager {
   static instance = new SteamworksManager();
   private constructor() {}
 
-  APP_ID = 2570090;
+  APP_ID = 2570090; // You can change to 480, If you are not on the developer whitelist(Steam) for this project.
   _client: Omit<Client, "init" | "runCallbacks"> | null = null;
 
   async init() {
