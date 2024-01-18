@@ -1,7 +1,10 @@
 <template>
   <div class="modules-list">
     <div class="filter-column">
-      <el-input :prefix-icon="Search" placeholder="请输入关键字搜索"></el-input>
+      <el-input
+        :prefix-icon="Search"
+        :placeholder="t('keyword_search_placeholder')"
+      ></el-input>
       <div class="tree-wrapper">
         <el-tree :data="filterState.tree" show-checkbox />
       </div>
@@ -58,7 +61,7 @@
 import { Search } from "@element-plus/icons-vue";
 import type { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/live2DModelsManager";
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
-import { WorkshopItem } from "live2d-copilot-shader/src/Steamworks";
+import { WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
 import { computed, onMounted, onUnmounted, reactive } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
 import { rpc } from "../../modules/rpc";
@@ -67,6 +70,9 @@ import SystemItemDetailColumn from "./components/SystemItemDetailColumn.vue";
 import WorkshopItemCard from "./components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
+import { useI18n } from "../../modules/i18n";
+
+const { t } = useI18n();
 
 enum MyItemType {
   SystemItem = 0,

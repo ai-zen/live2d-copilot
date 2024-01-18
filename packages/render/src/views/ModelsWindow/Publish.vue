@@ -1,37 +1,41 @@
 <template>
   <div class="publish">
-    <el-form class="form" :model="form" label-width="100px" ref="formRef">
+    <el-form class="form" :model="form" label-width="144px" ref="formRef">
       <el-form-item
         prop="publishType"
-        label="发布类型"
+        :label="t('publish_page.publish_type')"
         :rules="{ required: true }"
       >
         <el-radio-group v-model="form.publishType">
-          <el-radio :label="PublishType.Add">发布新项目</el-radio>
-          <el-radio :label="PublishType.Update">更新已有项目</el-radio>
+          <el-radio :label="PublishType.Add">{{
+            t("publish_page.publish_type_add")
+          }}</el-radio>
+          <el-radio :label="PublishType.Update">{{
+            t("publish_page.publish_type_update")
+          }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item
         prop="itemId"
         v-if="form.publishType == PublishType.Update"
-        label="项目ID"
-        :rules="{ required: true, message: '更新已有项目时需要填写项目ID' }"
+        :label="t('publish_page.item_id')"
+        :rules="{ required: true, message: t('publish_page.item_id_required') }"
       >
         <el-input
-          placeholder="如果您想更新一个现有项目，需要填写此ID"
+          :placeholder="t('publish_page.item_id_placeholder')"
           v-model="form.itemId"
         ></el-input>
       </el-form-item>
       <el-form-item
         prop="contentPath"
-        label="文件夹"
+        :label="t('publish_page.content_path')"
         :rules="{
           required: true,
-          message: '您需要选择一个文件夹用来上传到创意工坊',
+          message: t('publish_page.content_path_required'),
         }"
       >
         <el-input
-          placeholder="请输入或者选择文件夹绝对路径"
+          :placeholder="t('publish_page.content_path_placeholder')"
           v-model="form.contentPath"
         ></el-input>
         <el-button
@@ -39,52 +43,94 @@
           plain
           style="margin-top: 6px"
           @click="selectContentDir"
-          >+ 选择文件夹</el-button
+          >{{ t("publish_page.content_path_select_dir") }}</el-button
         >
       </el-form-item>
       <el-form-item
         prop="previewPath"
-        label="预览图"
+        :label="t('publish_page.preview_path')"
         :rules="{
           required: true,
-          message: '您需要为此项目提供一张图片',
+          message: t('publish_page.preview_path_required'),
         }"
         @click="selectPreviewFile"
       >
         <el-input
-          placeholder="请输入或者选择预览图绝对路径"
+          :placeholder="t('publish_page.preview_path_placeholder')"
           v-model="form.previewPath"
         ></el-input>
         <el-row align="middle" style="margin-top: 6px">
-          <el-button type="primary" plain>+ 选择图片</el-button>
+          <el-button type="primary" plain>{{
+            t("publish_page.preview_path_select_file")
+          }}</el-button>
           <div class="tips">
             <el-icon class="icon"><InfoFilled /></el-icon>
-            预览图尺寸为 512x512 像素，png 格式
+            {{ t("publish_page.preview_path_size_limit") }}
           </div>
         </el-row>
       </el-form-item>
       <el-form-item
         prop="title"
-        label="项目标题"
-        :rules="{ required: true, message: '请填写项目标题' }"
+        :label="t('publish_page.item_title')"
+        :rules="{
+          required: true,
+          message: t('publish_page.item_title_required'),
+        }"
       >
-        <el-input placeholder="请输入项目标题" v-model="form.title"></el-input>
+        <el-input
+          :placeholder="t('publish_page.item_title_placeholder')"
+          v-model="form.title"
+        ></el-input>
       </el-form-item>
-      <el-form-item prop="description" label="项目描述">
+      <el-form-item
+        prop="description"
+        :label="t('publish_page.item_description')"
+      >
         <el-input
           type="textarea"
-          placeholder="请输入项目描述"
+          :placeholder="t('publish_page.item_description_placeholder')"
           v-model="form.description"
         ></el-input>
       </el-form-item>
-      <!-- <el-form-item prop="tags" label="标签">
-        TODO: radio-group of Age Rating Tags
-        TODO: checkbox-group of Models Tags
-      </el-form-item> -->
-      <!-- <el-form-item prop="tags" label="标签">
+      <el-form-item
+        prop="ageRatingTag"
+        :label="t('publish_page.age_rating_tag')"
+        :rules="{
+          required: true,
+          message: t('publish_page.age_rating_tag_required'),
+        }"
+      >
+        <el-radio-group v-model="form.ageRatingTag">
+          <el-radio
+            v-for="option of tagsGroupRecord[TagsCategories.AgeRating].children"
+            :key="option.value"
+            :label="option.value"
+            >{{ option.label }}</el-radio
+          >
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item
+        prop="modelsTags"
+        :label="t('publish_page.model_tags')"
+        :rules="{
+          required: true,
+          type: 'array',
+          message: t('publish_page.model_tags_required'),
+        }"
+      >
+        <el-checkbox-group v-model="form.modelsTags">
+          <el-checkbox
+            v-for="option of tagsGroupRecord[TagsCategories.Models].children"
+            :key="option.value"
+            :label="option.value"
+            >{{ option.label }}</el-checkbox
+          >
+        </el-checkbox-group>
+      </el-form-item>
+      <!-- <el-form-item prop="customTags" :label="t('publish_page.custom_tags')">
         <el-row>
           <el-tag
-            v-for="tag in form.tags"
+            v-for="tag in form.customTags"
             :key="tag"
             closable
             :disable-transitions="false"
@@ -99,30 +145,47 @@
             size="small"
             @keyup.enter="onInputConfirm"
             @blur="onInputConfirm"
-            placeholder="请输入标签内容"
+            :placeholder="t('publish_page.custom_tag_placeholder')"
           />
           <el-button v-else type="success" plain size="small" @click="addTag">
-            + 新标签
+            {{ t("publish_page.custom_tag_add") }}
           </el-button>
         </el-row>
       </el-form-item> -->
-      <el-form-item prop="changeNote" label="变更日志">
+      <el-form-item prop="changeNote" :label="t('publish_page.change_note')">
         <el-input
           type="textarea"
-          placeholder="请输入变更日志"
+          :placeholder="t('publish_page.change_note_placeholder')"
           v-model="form.changeNote"
         ></el-input>
       </el-form-item>
-      <el-form-item prop="visibility" label="更改可见性">
+      <el-form-item
+        prop="visibility"
+        :label="t('publish_page.visibility')"
+        :rules="{
+          required: true,
+          message: t('publish_page.visibility_required'),
+        }"
+      >
         <el-radio-group v-model="form.visibility">
-          <el-radio :label="UgcItemVisibility.Public">公开</el-radio>
-          <el-radio :label="UgcItemVisibility.FriendsOnly">仅限好友</el-radio>
-          <el-radio :label="UgcItemVisibility.Private">隐藏</el-radio>
-          <el-radio :label="UgcItemVisibility.Unlisted">非公开</el-radio>
+          <el-radio :label="UgcItemVisibility.Public">{{
+            t("publish_page.visibility_options.public")
+          }}</el-radio>
+          <el-radio :label="UgcItemVisibility.FriendsOnly">{{
+            t("publish_page.visibility_options.friends_only")
+          }}</el-radio>
+          <el-radio :label="UgcItemVisibility.Private">{{
+            t("publish_page.visibility_options.private")
+          }}</el-radio>
+          <el-radio :label="UgcItemVisibility.Unlisted">{{
+            t("publish_page.visibility_options.unlisted")
+          }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">发布</el-button>
+        <el-button type="primary" @click="onSubmit">{{
+          t("publish_page.submit")
+        }}</el-button>
       </el-form-item>
     </el-form>
 
@@ -144,18 +207,20 @@
         "
       >
         <el-progress :percentage="getProgressPercentage"></el-progress>
-        <div class="title">上传中...</div>
+        <div class="title">{{ t("publish_page.uploading") }}</div>
       </template>
     </div>
 
     <div class="result-wrapper" v-if="publishState.isSuccess">
       <el-result
         icon="success"
-        title="发布成功！"
+        :title="t('publish_page.publish_success')"
         :sub-title="publishState.successMessage"
       >
         <template #extra>
-          <el-button type="primary" @click="back">返回</el-button>
+          <el-button type="primary" @click="back">{{
+            t("publish_page.back")
+          }}</el-button>
         </template>
       </el-result>
     </div>
@@ -163,11 +228,13 @@
     <div class="result-wrapper" v-if="publishState.isError">
       <el-result
         icon="error"
-        title="发布失败！"
+        :title="t('publish_page.publish_error')"
         :sub-title="publishState.errorMessage"
       >
         <template #extra>
-          <el-button type="primary" @click="back">返回</el-button>
+          <el-button type="primary" @click="back">{{
+            t("publish_page.back")
+          }}</el-button>
         </template>
       </el-result>
     </div>
@@ -182,13 +249,24 @@ import {
   UgcItemVisibility,
   UpdateStatus,
   UpdateProgress,
-} from "live2d-copilot-shader/src/Steamworks";
+  UgcUpdate,
+} from "live2d-copilot-shared/src/Steamworks";
 import { computed, nextTick, reactive, ref, toRaw } from "vue";
 import { rpc } from "../../modules/rpc";
+import {
+  useTagsOptions,
+  TagsCategories,
+  AgeRatingTags,
+} from "./composables/useTagsOptions";
+import { useI18n } from "../../modules/i18n";
+
+const { t } = useI18n();
 
 const winApi = rpc.use<Methods>("models-window");
 
 const formRef = ref<null | InstanceType<typeof ElForm>>(null);
+
+const { tagsGroupRecord } = useTagsOptions(["Age Rating", "Models"]);
 
 enum PublishType {
   Add = 0,
@@ -204,7 +282,8 @@ const DEFAULT_FORM = {
   contentPath: "",
   previewPath: "",
   changeNote: "",
-  tags: [] as string[],
+  ageRatingTag: AgeRatingTags.Everyone,
+  modelsTags: [] as string[],
 };
 
 const form = reactive(structuredClone(DEFAULT_FORM));
@@ -217,7 +296,7 @@ const form = reactive(structuredClone(DEFAULT_FORM));
 // });
 
 // const onTagClose = (tag: string) => {
-//   form.tags.splice(form.tags.indexOf(tag), 1);
+//   form.customTags.splice(form.customTags.indexOf(tag), 1);
 // };
 
 // function addTag() {
@@ -229,7 +308,7 @@ const form = reactive(structuredClone(DEFAULT_FORM));
 
 // const onInputConfirm = () => {
 //   if (newTagState.value) {
-//     form.tags.push(newTagState.value);
+//     form.customTags.push(newTagState.value);
 //   }
 //   newTagState.isShow = false;
 //   newTagState.value = "";
@@ -252,7 +331,7 @@ async function selectPreviewFile() {
   try {
     const result = await winApi.showOpenDialog({
       properties: ["openFile"],
-      filters: [{ extensions: ["png"], name: "图片" }],
+      filters: [{ extensions: ["png"], name: t("publish_page.image") }],
     });
     if (result.filePaths[0]) {
       form.previewPath = result.filePaths[0];
@@ -275,7 +354,7 @@ async function onSubmit() {
   try {
     await formRef.value?.validate();
   } catch (error) {
-    ElMessage.error("请确保所有信息填写正确！");
+    ElMessage.error(t("publish_page.submit_validate_error_message"));
     return;
   }
 
@@ -294,39 +373,67 @@ async function onSubmit() {
       itemId = BigInt(form.itemId);
     }
 
-    if (!itemId) throw new Error("未获取有效itemId");
+    if (!itemId) throw new Error(t("publish_page.no_valid_item_id_obtained"));
 
     result = await winApi.updateItem(
       itemId,
-      toRaw<any>(form),
+      <UgcUpdate>{
+        title: form.title,
+        description: form.description,
+        contentPath: form.contentPath,
+        previewPath: form.previewPath,
+        tags: (() => {
+          const tags = [...form.modelsTags];
+          if (form.ageRatingTag) tags.push(form.ageRatingTag);
+          return tags;
+        })(),
+        visibility: form.visibility,
+        changeNote: form.changeNote,
+      },
       (data) => {
         console.log("progressCallback", data);
         publishState.progressPayload = data as unknown as UpdateProgress;
       },
       500
     );
-    if (!result) throw new Error("未返回有效结果");
+    if (!result) throw new Error(t("publish_page.no_valid_results_returned"));
 
     Object.assign(form, DEFAULT_FORM);
     publishState.isPublishing = false;
     publishState.isSuccess = true;
     publishState.successMessage = `ID ${result?.itemId}`;
-    await nextTick(); // 等待两刻后清除验证信息
+    await nextTick(); // Wait for two tick before clear validate messages.
     await nextTick();
     formRef.value?.clearValidate();
   } catch (error: any) {
     publishState.isPublishing = false;
     publishState.isError = true;
-    publishState.errorMessage = error?.message || "未知错误";
+    publishState.errorMessage =
+      error?.message || t("publish_page.unknown_error");
   }
 }
 
 const steps = [
-  { value: UpdateStatus.PreparingConfig, label: "准备配置" },
-  { value: UpdateStatus.PreparingContent, label: "准备内容" },
-  { value: UpdateStatus.UploadingContent, label: "上传内容" },
-  { value: UpdateStatus.UploadingPreviewFile, label: "上传文件" },
-  { value: UpdateStatus.CommittingChanges, label: "提交变更记录" },
+  {
+    value: UpdateStatus.PreparingConfig,
+    label: t("publish_page.update_status.preparing_config"),
+  },
+  {
+    value: UpdateStatus.PreparingContent,
+    label: t("publish_page.update_status.preparing_content"),
+  },
+  {
+    value: UpdateStatus.UploadingContent,
+    label: t("publish_page.update_status.uploading_content"),
+  },
+  {
+    value: UpdateStatus.UploadingPreviewFile,
+    label: t("publish_page.update_status.uploading_preview_file"),
+  },
+  {
+    value: UpdateStatus.CommittingChanges,
+    label: t("publish_page.update_status.committing_changes"),
+  },
 ];
 
 const getProgressPercentage = computed(() => {
@@ -372,6 +479,7 @@ function back() {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  z-index: 1;
   .el-steps {
     width: 600px;
   }
@@ -397,6 +505,7 @@ function back() {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  z-index: 1;
 }
 
 .upload-area {

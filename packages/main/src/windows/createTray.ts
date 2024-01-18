@@ -3,36 +3,44 @@ import path from "node:path";
 import { createModelsWindow } from "./createModelsWindow";
 import { createPluginsWindow } from "./createPluginsWindow";
 import { createSettingWindow } from "./createSettingWindow";
+import { i18n } from "../modules/i18n";
 
 export function createTray() {
   const tray = new Tray(path.resolve(__dirname, "logo.png"));
-  const contextMenu = Menu.buildFromTemplate([
-    {
-      label: "模型",
-      click() {
-        createModelsWindow();
-      },
-    },
-    {
-      label: "插件",
-      click() {
-        createPluginsWindow();
-      },
-    },
-    {
-      label: "设置",
-      click() {
-        createSettingWindow();
-      },
-    },
-    {
-      label: "退出",
-      click() {
-        app.quit();
-      },
-    },
-  ]);
 
-  tray.setToolTip("This is my application.");
-  tray.setContextMenu(contextMenu);
+  function updateTray() {
+    const contextMenu = Menu.buildFromTemplate([
+      {
+        label: i18n.t("tray.models"),
+        click() {
+          createModelsWindow();
+        },
+      },
+      {
+        label: i18n.t("tray.plugins"),
+        click() {
+          createPluginsWindow();
+        },
+      },
+      {
+        label: i18n.t("tray.settings"),
+        click() {
+          createSettingWindow();
+        },
+      },
+      {
+        label: i18n.t("tray.exit"),
+        click() {
+          app.quit();
+        },
+      },
+    ]);
+
+    tray.setToolTip("Live2D Copilot");
+    tray.setContextMenu(contextMenu);
+  }
+
+  updateTray();
+
+  i18n.eventBus.on("langChange", updateTray);
 }

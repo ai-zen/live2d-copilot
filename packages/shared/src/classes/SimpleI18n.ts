@@ -1,5 +1,3 @@
-import { reactive } from "vue";
-
 export class SimpleI18n {
   state: {
     lang: string;
@@ -8,7 +6,7 @@ export class SimpleI18n {
   };
 
   constructor(initState: SimpleI18n["state"]) {
-    this.state = reactive(initState);
+    this.state = initState;
   }
 
   static getValueByPath(obj: any, path: string) {

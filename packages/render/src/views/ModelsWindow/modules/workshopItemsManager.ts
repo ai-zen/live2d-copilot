@@ -4,7 +4,7 @@ import {
   DownloadInfo,
   InstallInfo,
   ItemState,
-} from "live2d-copilot-shader/src/Steamworks";
+} from "live2d-copilot-shared/src/Steamworks";
 import { reactive, watch } from "vue";
 import { rpc } from "../../../modules/rpc";
 

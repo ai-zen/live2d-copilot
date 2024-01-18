@@ -1,4 +1,4 @@
-import { UGCQueryType } from "live2d-copilot-shader/src/Steamworks";
+import { UGCQueryType } from "live2d-copilot-shared/src/Steamworks";
 import { computed } from "vue";
 import { useI18n } from "../../../modules/i18n";
 

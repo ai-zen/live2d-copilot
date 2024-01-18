@@ -28,7 +28,15 @@
         @change="getNewList"
       ></el-input>
       <div class="tree-wrapper">
-        <el-tree :data="tagsOptions" show-checkbox default-expand-all />
+        <el-tree
+          :data="tagsOptions"
+          show-checkbox
+          default-expand-all
+          :default-checked-keys="nodesKeys"
+          @check="onTreeNodeCheck"
+          node-key="value"
+          ref="filterTreeRef"
+        />
       </div>
     </div>
     <div class="list-column" v-loading="listState.isLoading">
@@ -62,27 +70,36 @@ import {
   UGCQueryType,
   UGCType,
   WorkshopItem,
+  WorkshopItemQueryConfig,
   WorkshopPageResult,
-} from "live2d-copilot-shader/src/Steamworks";
-import { onMounted, reactive } from "vue";
+} from "live2d-copilot-shared/src/Steamworks";
+import { onMounted, reactive, ref } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
 import { rpc } from "../../modules/rpc";
 import WorkshopItemCard from "./components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
 import { useSortOptions } from "./composables/useSortOptions";
-import { useTagsOptions } from "./composables/useTagsOptions";
+import { TagsCategories, useTagsOptions } from "./composables/useTagsOptions";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
 import { useI18n } from "../../modules/i18n";
+import { ElTree } from "element-plus";
 
 const { t } = useI18n();
 
 const winApi = rpc.use<Methods>("models-window");
 
-const { tagsOptions } = useTagsOptions(["Age Rating", "Models"]);
+const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
+
+const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions([
+  TagsCategories.AgeRating,
+  TagsCategories.Models,
+]);
 
 const { sortOptions } = useSortOptions();
 
 const DEFAULT_FILTER_FORM = {
+  requiredTags: [...tagsFlattened.value] as string[],
+  excludedTags: [] as string[],
   sort: `${UGCQueryType.RankedByVote}`,
   keyword: "",
 };
@@ -111,15 +128,20 @@ async function getList() {
     const currentSortOption = sortOptions.value.find(
       (option) => option.value == filterState.form.sort
     );
+
     const res = (await winApi.getAllItems(
       paginationState.currentPage,
       currentSortOption?.queryType ?? UGCQueryType.RankedByPublicationDate,
       UGCType.Items,
-      {
-        rankedByTrendDays: currentSortOption?.day,
-        searchText: filterState.form.keyword || undefined,
-        // matchAnyTag: , // TODO: tags
-      }
+      JSON.parse(
+        JSON.stringify(<WorkshopItemQueryConfig>{
+          rankedByTrendDays: currentSortOption?.day,
+          searchText: filterState.form.keyword || undefined,
+          matchAnyTag: true,
+          requiredTags: filterState.form.requiredTags,
+          excludedTags: filterState.form.excludedTags,
+        })
+      )
     )) as WorkshopPageResult;
     console.log("res", res);
     listState.list = res.items as WorkshopItem[];
@@ -148,6 +170,15 @@ const focusState = reactive({
 
 async function onCardClick(item: WorkshopItem) {
   focusState.current = item;
+}
+
+function onTreeNodeCheck() {
+  const nodes = filterTreeRef.value?.getCheckedNodes(true);
+  filterState.form.requiredTags = nodes?.map((node) => node.value) ?? [];
+  filterState.form.excludedTags = tagsFlattened.value.filter(
+    (tag) => !filterState.form.requiredTags.includes(tag)
+  );
+  getNewList();
 }
 
 onMounted(async () => {

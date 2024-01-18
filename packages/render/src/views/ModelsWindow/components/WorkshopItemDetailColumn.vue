@@ -4,13 +4,17 @@
       <div class="detail-scroll-content">
         <img class="image" :src="item.additional?.previewUrl" />
         <div class="content">
+          <div class="title">{{ item.title }}</div>
+          <div class="desc">{{ item.description }}</div>
           <div class="count-row">
             <el-rate :modelValue="getRate(item)" disabled />
+          </div>
+          <div class="count-row">
             <div class="count-subscription">
-              {{ item.additional?.numSubscriptions }}订阅
+              {{ t("count_subscription", item.additional?.numSubscriptions) }}
             </div>
             <div class="count-collection">
-              {{ item.additional?.numFavorites }}收藏
+              {{ t("count_collection", item.additional?.numSubscriptions) }}
             </div>
           </div>
           <div class="button-row">
@@ -23,7 +27,7 @@
                 workshopItemsManager.isUnsubscribing(item.publishedFileId)
               "
               @click="workshopItemsManager.unsubscribe(item.publishedFileId)"
-              >取消订阅</el-button
+              >{{ t("unsubscribe") }}</el-button
             >
             <el-button
               v-else
@@ -34,11 +38,9 @@
                 workshopItemsManager.isSubscribing(item.publishedFileId)
               "
               @click="workshopItemsManager.subscribe(item.publishedFileId)"
-              >订阅</el-button
+              >{{ t("subscribe") }}</el-button
             >
           </div>
-          <div class="title">{{ item.title }}</div>
-          <div class="desc">{{ item.description }}</div>
         </div>
       </div>
     </div>
@@ -46,10 +48,13 @@
 </template>
 
 <script setup lang="ts">
-import { WorkshopItem } from "live2d-copilot-shader/src/Steamworks";
+import { WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
 import { workshopItemsManager } from "../modules/workshopItemsManager";
+import { useI18n } from "../../../modules/i18n";
 
 defineProps<{ item: WorkshopItem }>();
+
+const { t } = useI18n();
 
 function getRate(item: WorkshopItem) {
   const { numUpvotes, numDownvotes } = item;

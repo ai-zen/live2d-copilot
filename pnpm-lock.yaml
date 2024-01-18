@@ -49,9 +49,9 @@ importers:
       esbuild:
         specifier: ^0.19.4
         version: 0.19.4
-      live2d-copilot-shader:
+      live2d-copilot-shared:
         specifier: workspace:^
-        version: link:../shader
+        version: link:../shared
       mime:
         specifier: ^3.0.0
         version: 3.0.0
@@ -92,9 +92,9 @@ importers:
       live2d-copilot-main:
         specifier: workspace:^
         version: link:../main
-      live2d-copilot-shader:
+      live2d-copilot-shared:
         specifier: workspace:^
-        version: link:../shader
+        version: link:../shared
       sass:
         specifier: ^1.69.4
         version: 1.69.4
@@ -108,7 +108,7 @@ importers:
         specifier: ^1.8.5
         version: 1.8.15(typescript@5.2.2)
 
-  packages/shader: {}
+  packages/shared: {}
 
 packages:
 

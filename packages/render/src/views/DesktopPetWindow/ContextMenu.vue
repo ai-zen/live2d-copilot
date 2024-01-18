@@ -41,6 +41,9 @@ import { computed, nextTick, onMounted, onUnmounted, reactive } from "vue";
 import { rpc } from "../../modules/rpc";
 import { sleep } from "../../utils/sleep";
 import { guiController } from "./modules/guiController";
+import { useI18n } from "../../modules/i18n";
+
+const { t } = useI18n();
 
 const winApi = rpc.use<Methods>("desktop-pet-window");
 
@@ -73,7 +76,7 @@ interface MenuItem {
 
 const menu = computed<MenuItem[]>(() => [
   {
-    title: "插件",
+    title: t("context_menu.plugins"),
     icon: Cpu,
     click(_item: MenuItem) {
       winApi.openPluginsWindow();
@@ -81,7 +84,7 @@ const menu = computed<MenuItem[]>(() => [
     },
   },
   {
-    title: "聊天",
+    title: t("context_menu.chat"),
     icon: ChatLineRound,
     click(_item: MenuItem) {
       guiController.openChat();
@@ -89,7 +92,7 @@ const menu = computed<MenuItem[]>(() => [
     },
   },
   {
-    title: "设置",
+    title: t("context_menu.settings"),
     icon: Setting,
     click(_item: MenuItem) {
       winApi.openSettingWindow();
@@ -97,7 +100,7 @@ const menu = computed<MenuItem[]>(() => [
     },
   },
   {
-    title: "退出",
+    title: t("context_menu.exit"),
     icon: Back,
     click(_item: MenuItem) {
       closeMenu();
@@ -105,7 +108,7 @@ const menu = computed<MenuItem[]>(() => [
     },
   },
   {
-    title: "角色",
+    title: t("context_menu.models"),
     icon: MagicStick,
     click(_item: MenuItem) {
       winApi.openModelsWindow();
@@ -114,7 +117,7 @@ const menu = computed<MenuItem[]>(() => [
   },
   {
     type: "close",
-    title: "关闭菜单",
+    title: t("context_menu.close"),
     icon: Close,
     click(_item: MenuItem) {
       closeMenu();

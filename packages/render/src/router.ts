@@ -3,27 +3,29 @@ import DesktopPetWindow from "./views/DesktopPetWindow/index.vue";
 import ModelsWindow from "./views/ModelsWindow/index.vue";
 import PluginsWindow from "./views/PluginsWindow/index.vue";
 import SettingWindow from "./views/SettingWindow/index.vue";
+import { i18n } from "./modules/i18n";
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/desktop-pet-window",
     component: DesktopPetWindow,
-    meta: { title: "Live2D Copilot" },
+    meta: { title: i18n.t("windows_title.desktop_pet") },
+    // This window title should be dynamically set based on the current model.
   },
   {
     path: "/models-window",
     component: ModelsWindow,
-    meta: { title: "模型" },
+    meta: { title: i18n.t("windows_title.models") },
   },
   {
     path: "/plugins-window",
     component: PluginsWindow,
-    meta: { title: "插件" },
+    meta: { title: i18n.t("windows_title.plugins") },
   },
   {
     path: "/setting-window",
     component: SettingWindow,
-    meta: { title: "设置" },
+    meta: { title: i18n.t("windows_title.settings") },
   },
 ];
 

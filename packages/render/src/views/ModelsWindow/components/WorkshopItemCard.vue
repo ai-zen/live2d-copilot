@@ -28,10 +28,13 @@
 </template>
 
 <script setup lang="ts">
-import { ItemState, WorkshopItem } from "live2d-copilot-shader/src/Steamworks";
+import { ItemState, WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
 import { workshopItemsManager } from "../modules/workshopItemsManager";
+import { useI18n } from "../../../modules/i18n";
 
 defineProps<{ item: WorkshopItem }>();
+
+const { t } = useI18n();
 
 function formatDownloadProgress(item: WorkshopItem) {
   const statusData = workshopItemsManager.getCachedItemStatusData(
@@ -51,13 +54,13 @@ function formatItemStateText(item: WorkshopItem) {
   );
   if (!statusData?.itemState) return "";
   const stateTextList: [ItemState, string][] = [
-    [ItemState.NONE, "无状态"],
-    [ItemState.SUBSCRIBED, "已订阅"],
-    [ItemState.LEGACY_ITEM, "遗留项目"],
-    [ItemState.INSTALLED, "已安装"],
-    [ItemState.NEEDS_UPDATE, "需要更新"],
-    [ItemState.DOWNLOADING, "下载中"],
-    [ItemState.DOWNLOAD_PENDING, "下载排队中"],
+    [ItemState.NONE, t("item_state.none")],
+    [ItemState.SUBSCRIBED, t("item_state.subscribed")],
+    [ItemState.LEGACY_ITEM, t("item_state.legacy_item")],
+    [ItemState.INSTALLED, t("item_state.installed")],
+    [ItemState.NEEDS_UPDATE, t("item_state.needs_update")],
+    [ItemState.DOWNLOADING, t("item_state.downloading")],
+    [ItemState.DOWNLOAD_PENDING, t("item_state.download_pending")],
   ];
   return stateTextList
     .filter(([bit]) => bit & statusData.itemState)

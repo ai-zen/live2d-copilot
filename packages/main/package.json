@@ -33,7 +33,7 @@
     "electron": "^26.5.0",
     "electron-squirrel-startup": "^1.0.0",
     "esbuild": "^0.19.4",
-    "live2d-copilot-shader": "workspace:^",
+    "live2d-copilot-shared": "workspace:^",
     "mime": "^3.0.0",
     "typescript": "^5.2.2",
     "web-message-rpc": "^1.0.5"

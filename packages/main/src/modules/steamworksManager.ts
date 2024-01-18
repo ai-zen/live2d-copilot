@@ -7,7 +7,7 @@ import {
   UgcUpdate,
   UpdateProgress,
   WorkshopItemQueryConfig,
-} from "live2d-copilot-shader/src/Steamworks";
+} from "live2d-copilot-shared/src/Steamworks";
 
 export class SteamworksManager {
   static instance = new SteamworksManager();
