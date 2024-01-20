@@ -1,18 +1,18 @@
 import { WebMessageRPC } from "web-message-rpc";
 import "../electron-env.d.ts";
 
-let handel: (_event: any, payload: any) => void;
+let handle: (_event: any, payload: any) => void;
 
 export const rpc = new WebMessageRPC(
   {
     addEventListener: (callback) => {
-      handel = (_event, payload) => {
+      handle = (_event, payload) => {
         callback(payload);
       };
-      window.electronAPI?.onRpcEvent(handel);
+      window.electronAPI?.onRpcEvent(handle);
     },
     removeEventListener: (_callback) => {
-      window.electronAPI?.offRpcEvent(handel);
+      window.electronAPI?.offRpcEvent(handle);
     },
     postMessage: (payload) => {
       window.electronAPI?.emitRpcEvent(payload);

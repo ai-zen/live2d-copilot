@@ -14,18 +14,18 @@ export class BrowserWindowEx extends BrowserWindow {
 
   private constructor(options: BrowserWindowExConstructorOptions) {
     super(options);
-    let handel: (_event: IpcMainEvent, payload: any) => void;
+    let handle: (_event: IpcMainEvent, payload: any) => void;
     this.name = options.name;
     this.rpc = new WebMessageRPC(
       {
         addEventListener: (callback) => {
-          handel = (_event, payload) => {
+          handle = (_event, payload) => {
             callback(payload);
           };
-          this.webContents.ipc.on("rpc-event", handel);
+          this.webContents.ipc.on("rpc-event", handle);
         },
         removeEventListener: (_callback) => {
-          this.webContents.ipc.off("rpc-event", handel);
+          this.webContents.ipc.off("rpc-event", handle);
         },
         postMessage: (payload) => {
           this.webContents.send("rpc-event", payload);
@@ -88,7 +88,7 @@ export class BrowserWindowEx extends BrowserWindow {
       process.env.BUILD_MODE == "development" ||
       process.env.BUILD_MODE == "prerelease"
     ) {
-      win.webContents.openDevTools({ mode: "undocked" });
+      win.webContents.openDevTools({ mode: "undocked", activate: false });
     }
 
     return win;

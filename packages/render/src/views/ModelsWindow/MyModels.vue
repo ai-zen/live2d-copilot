@@ -59,18 +59,18 @@
 
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
-import type { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/live2DModelsManager";
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
-import { WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
+import type { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
+import type { WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
 import { computed, onMounted, onUnmounted, reactive } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
+import { useI18n } from "../../modules/i18n";
 import { rpc } from "../../modules/rpc";
 import SystemItemCard from "./components/SystemItemCard.vue";
 import SystemItemDetailColumn from "./components/SystemItemDetailColumn.vue";
 import WorkshopItemCard from "./components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
-import { useI18n } from "../../modules/i18n";
 
 const { t } = useI18n();
 

@@ -6,6 +6,8 @@ import { steamworksManager } from "./modules/steamworksManager";
 import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
 import { createLoadingWindow } from "./windows/createLoadingWindow";
 import { createTray } from "./windows/createTray";
+import { settingManager } from "./modules/settingManager";
+import { i18n } from "./modules/i18n";
 
 console.log("process.versions.modules", process.versions.modules);
 
@@ -34,7 +36,13 @@ async function main() {
     // Init Steamworks.
     await steamworksManager.init();
 
-    // Load Live2D Manager Config
+    // Load Settings.
+    await settingManager.loadSetting();
+
+    // Init i18n.
+    await i18n.init();
+
+    // Load Live2D Model Manager configs.
     await live2DModelManager.loadConfig();
 
     // Release Live2D Models Files to UserData.

@@ -7,6 +7,11 @@ import { useSystemMouseMoveEvent } from "./composables/useSystemMouseMoveEvent";
 import { createModelsWindow } from "./createModelsWindow";
 import { createPluginsWindow } from "./createPluginsWindow";
 import { createSettingWindow } from "./createSettingWindow";
+import { settingManager } from "../modules/settingManager";
+import {
+  Setting,
+  SettingMethodsByMain,
+} from "live2d-copilot-shared/src/Setting";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
 
@@ -26,6 +31,9 @@ export async function createDesktopPetWindow() {
       hasShadow: false,
       fullscreen: true,
       movable: false,
+      skipTaskbar: true,
+      focusable: false,
+      alwaysOnTop: (await settingManager.getSetting()).alwaysOnTop,
     }
   );
 
@@ -37,7 +45,6 @@ export async function createDesktopPetWindow() {
   // Once the window is ready after creation.
   win.once("ready-to-show", () => {
     win.show();
-    win.focus();
   });
 
   // Auto set IgnoreMouseEvents by alpha.
@@ -46,6 +53,33 @@ export async function createDesktopPetWindow() {
   // Sending system level mouse movement events to web contents
   useSystemMouseMoveEvent(win);
 
+  // Get the web contents api
+  const webApi = win.rpc.use(win.name);
+
+  // Handle current model change event
+  function onCurrentModelChange() {
+    // Forward the currentModelChange event to a webpage
+    webApi.onCurrentModelChange();
+  }
+
+  // Handle setting change event
+  function onSettingChange(data: Setting) {
+    // Set the alwaysOnTop property of the window to the value of the setting
+    if (win?.isAlwaysOnTop() !== data.alwaysOnTop) {
+      win?.setAlwaysOnTop(data.alwaysOnTop);
+    }
+  }
+
+  // Bind event listeners.
+  live2DModelManager.eventBus.on("currentModelChange", onCurrentModelChange);
+  settingManager.eventBus.on("change", onSettingChange);
+
+  // Unbind event listeners.
+  win.on("close", () => {
+    live2DModelManager.eventBus.off("currentModelChange", onCurrentModelChange);
+    settingManager.eventBus.off("change", onSettingChange);
+  });
+
   return win;
 }
 
@@ -53,24 +87,9 @@ export async function createDesktopPetWindow() {
  * Preload of the desktop pet window
  */
 function preload(win: BrowserWindowEx) {
-  const webApi = win.rpc.use(win.name);
-
-  /**
-   * Forward the current model change event to a webpage
-   */
-  function onCurrentModelChange(...args: any[]) {
-    webApi.onCurrentModelChange(args);
-  }
-
-  // Bind event listeners.
-  live2DModelManager.eventBus.on("current model change", onCurrentModelChange);
-
-  // Unbind event listeners.
-  win.on("close", () => {
-    live2DModelManager.eventBus.off(
-      "current model change",
-      onCurrentModelChange
-    );
+  win.rpc.register<SettingMethodsByMain>("setting", {
+    getSetting: settingManager.getSetting.bind(settingManager),
+    setSetting: settingManager.setSetting.bind(settingManager),
   });
 
   /**

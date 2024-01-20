@@ -3,8 +3,7 @@ import {
   LAppLive2DManagerModule,
   LAppModelModule,
 } from "@ai-zen/live2d-vue";
-import { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/live2DModelsManager";
-import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
+import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
 import { ShallowRef, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { rpc } from "../../../modules/rpc";
 import { toLocalURI } from "../../../utils/toLocalURI";
@@ -30,7 +29,9 @@ export function useCurrentModel({
   managerRef,
   delegateRef,
 }: {
-  winApi: Methods;
+  winApi: {
+    getCurrentProfile: () => Promise<Live2DModelProfileEx | null>;
+  };
   managerRef: ShallowRef<LAppLive2DManagerModule.LAppLive2DManager | null>;
   delegateRef: ShallowRef<LAppDelegateModule.LAppDelegate | null>;
 }) {
@@ -139,7 +140,7 @@ export function useCurrentModel({
   }
 
   // Handle System mouse move event
-  rpc.register({
+  const methods = rpc.register({
     onSystemMouseMoveEvent(
       point: { x: number; y: number },
       winRect: { x: number; y: number; w: number; h: number }
@@ -154,6 +155,10 @@ export function useCurrentModel({
         viewY - modelMatrix.getTranslateY()
       );
     },
+  });
+
+  onUnmounted(() => {
+    rpc.deregister(methods);
   });
 
   // Bind event listeners.

@@ -1,38 +1,14 @@
+import EventBus from "@ai-zen/event-bus";
 import { app } from "electron";
 import fsp from "fs/promises";
+import type {
+  Live2DModelManagerConfig,
+  Live2DModelPathInfo,
+  Live2DModelProfile,
+  Live2DModelProfileEx,
+} from "live2d-copilot-shared/src/Live2DModels";
 import path from "path";
 import { copyFolder } from "../utils/fs";
-import EventBus from "@ai-zen/event-bus";
-
-export interface Live2DModelManagerConfig {
-  current: string; // Path to the current Live2D model
-}
-
-export interface Live2DModelPathInfo {
-  modelName: string; // Name of the Live2D model
-  modelDir: string; // Directory of the Live2D model
-  modelFileName: string; // File name of the Live2D model
-  modelPath: string; // Full path to the Live2D model
-}
-
-export interface Live2DModelProfile {
-  Version: 1;
-  Model3: string; // File name of the Live2D model profile in .model3.json format
-  Preview: string; // Preview Image
-  Title: string;
-  Description: string;
-  Skins: {
-    Name: string; // Name of the skin
-    Mapping: Record<string, string>; // Mapping of skin components
-  }[];
-}
-
-export interface Live2DModelProfileEx extends Live2DModelProfile {
-  _ModelDir: string; // Directory of the Live2D model
-  _ModelFileName: string; // File name of the Live2D model profile in .model3.json format
-  _ModelName: string; // Name of the Live2D model
-  _ModelPath: string; // Full path to the Live2D model
-}
 
 export class Live2DModelsManager {
   static instance = new Live2DModelsManager();
@@ -108,8 +84,9 @@ export class Live2DModelsManager {
   async loadProfile(modelDir: string) {
     try {
       const profilePath = path.join(modelDir, "profile.json"); // Construct the path to the profile file
-      const json = await fsp.readFile(profilePath, { encoding: "utf-8" }); // Read the profile file
-      const profile = JSON.parse(json) as Live2DModelProfile; // Parse the profile file content as JSON
+      const profile = await fsp
+        .readFile(profilePath, { encoding: "utf-8" }) // Read the profile file
+        .then(JSON.parse); // Parse the profile file content as JSON
       const profileEx: Live2DModelProfileEx = {
         ...profile,
         _ModelDir: modelDir,
@@ -150,7 +127,7 @@ export class Live2DModelsManager {
   async setCurrent(model3: string) {
     this.configState.data.current = model3;
     await this.saveConfig();
-    this.eventBus.emit("current model change");
+    this.eventBus.emit("currentModelChange", model3);
   }
 
   async getCurrentProfile(): Promise<Live2DModelProfileEx | null> {
@@ -182,7 +159,7 @@ export class Live2DModelsManager {
     contentPath: string;
     previewPath: string;
   }) {
-    const profileJsonPath = path.join(info.contentPath, "profile.json");
+    const profilePath = path.join(info.contentPath, "profile.json");
     let profile: Live2DModelProfile = {
       Version: 1,
       Model3: "",
@@ -192,7 +169,9 @@ export class Live2DModelsManager {
       Skins: [],
     };
     try {
-      const json = await fsp.readFile(profileJsonPath, { encoding: "utf-8" });
+      const json = await fsp
+        .readFile(profilePath, { encoding: "utf-8" }) // Read the profile file
+        .then(JSON.parse); // Parse the profile file content as JSON
       profile = JSON.parse(json);
     } catch {}
     const files = await fsp.readdir(info.contentPath);
@@ -207,7 +186,7 @@ export class Live2DModelsManager {
     if (source != dest) {
       await fsp.cp(source, dest);
     }
-    await fsp.writeFile(profileJsonPath, JSON.stringify(profile, null, 4), {
+    await fsp.writeFile(profilePath, JSON.stringify(profile, null, 4), {
       encoding: "utf-8",
     });
   }

@@ -36,6 +36,6 @@
     "live2d-copilot-shared": "workspace:^",
     "mime": "^3.0.0",
     "typescript": "^5.2.2",
-    "web-message-rpc": "^1.0.5"
+    "web-message-rpc": "^1.0.6-alpha.0"
   }
 }

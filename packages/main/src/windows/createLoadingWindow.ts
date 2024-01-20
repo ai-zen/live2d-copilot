@@ -30,7 +30,6 @@ export async function createLoadingWindow() {
   // Once the window is ready after creation
   win.once("ready-to-show", () => {
     win.show();
-    win.focus();
   });
 
   return win;

@@ -59,8 +59,8 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
       web-message-rpc:
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^1.0.6-alpha.0
+        version: 1.0.6-alpha.0
 
   packages/render:
     dependencies:
@@ -83,8 +83,8 @@ importers:
         specifier: ^4.2.5
         version: 4.2.5(vue@3.3.4)
       web-message-rpc:
-        specifier: ^1.0.5
-        version: 1.0.5
+        specifier: ^1.0.6-alpha.0
+        version: 1.0.6-alpha.0
     devDependencies:
       '@vitejs/plugin-vue':
         specifier: ^4.2.3
@@ -114,6 +114,9 @@ packages:
 
   /@ai-zen/event-bus@1.0.1:
     resolution: {integrity: sha512-toCOVAMFKR5e5pavc6fG/7HrBJmcSovFq+pAtzjc8gIK9/1rKRGz9sDG1CJtEWC7fLaR0AHAfBCH5zz7zQIROA==}
+
+  /@ai-zen/lazy-promise@1.0.1:
+    resolution: {integrity: sha512-O3C10w6MQnz3JOJcjkV1Bollq0cM34vR4htQxl2pihYKmmempr0ObXgKNldVQ7w/4G7Xa7/Pmzglcay99MGUaw==}
 
   /@ai-zen/live2d-app@1.0.4:
     resolution: {integrity: sha512-3NUTsfQo7YM3+DQDOBN8U6C8RyiNSAE55hL9PiBsR0CyVlx9hJWxZbDkizoL72AmUa7Kk0zc8rzTDNztbelqbA==}
@@ -4055,8 +4058,10 @@ packages:
       defaults: 1.0.4
     dev: true
 
-  /web-message-rpc@1.0.5:
-    resolution: {integrity: sha512-peVw54K+CpQTpbY4Zf8xdXrQ82ZHImWkpuL6N8cBS51ZRHNIso7NZ5mLFAXXFLvvudPnKmISCn5DQXTfoUIASQ==}
+  /web-message-rpc@1.0.6-alpha.0:
+    resolution: {integrity: sha512-Zko7yke++suJ44JLY8ewE1z0SgL19CmubPxaL/v/odWTjBjn3O4nyahsV4sNKGfLZ8PeHi8usD5oZlkgg67Yhw==}
+    dependencies:
+      '@ai-zen/lazy-promise': 1.0.1
 
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
