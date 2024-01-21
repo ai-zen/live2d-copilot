@@ -1,4 +1,4 @@
-export const enum UgcItemVisibility {
+export enum UgcItemVisibility {
   Public = 0,
   FriendsOnly = 1,
   Private = 2,
@@ -111,9 +111,7 @@ export interface PlayerSteamId {
   steamId32: string;
   accountId: number;
 }
-
-export interface WorkshopItemAdditionalInformation {
-  previewUrl?: string;
+export interface WorkshopItemStatistic {
   numSubscriptions?: bigint;
   numFavorites?: bigint;
   numFollowers?: bigint;
@@ -128,7 +126,6 @@ export interface WorkshopItemAdditionalInformation {
   numSecondsPlayedDuringTimePeriod?: bigint;
   numPlaytimeSessionsDuringTimePeriod?: bigint;
 }
-
 export interface WorkshopItem {
   publishedFileId: bigint;
   creatorAppId?: number;
@@ -140,6 +137,9 @@ export interface WorkshopItem {
   timeCreated: number;
   /** Time updated in unix epoch seconds format */
   timeUpdated: number;
+  /** Time when the user added the published item to their list (not always applicable), provided in Unix epoch format (time since Jan 1st, 1970). */
+  timeAddedToUserList: number;
+  visibility: UgcItemVisibility;
   banned: boolean;
   acceptedForUse: boolean;
   tags: Array<string>;
@@ -148,14 +148,35 @@ export interface WorkshopItem {
   numUpvotes: number;
   numDownvotes: number;
   numChildren: number;
-  additional?: WorkshopItemAdditionalInformation;
+  previewUrl?: string;
+  statistics: WorkshopItemStatistic;
 }
 
-export interface WorkshopPageResult {
-  items: Array<WorkshopItem | undefined | null>;
+export interface WorkshopPaginatedResult {
+  items: WorkshopItem[];
   returnedResults: number;
   totalResults: number;
   wasCached: boolean;
+}
+
+export interface WorkshopItemsResult {
+  items: WorkshopItem[];
+  wasCached: boolean;
+}
+
+export interface WorkshopItemQueryConfig {
+  cachedResponseMaxAge?: number;
+  includeMetadata?: boolean;
+  includeLongDescription?: boolean;
+  includeAdditionalPreviews?: boolean;
+  onlyIds?: boolean;
+  onlyTotal?: boolean;
+  language?: string;
+  matchAnyTag?: boolean;
+  requiredTags?: Array<string>;
+  excludedTags?: Array<string>;
+  searchText?: string;
+  rankedByTrendDays?: number;
 }
 
 export interface InstallInfo {

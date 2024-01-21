@@ -39,6 +39,7 @@
         />
       </div>
     </div>
+
     <div class="list-column" v-loading="listState.isLoading">
       <AutoGrid :list="listState.list">
         <template #default="{ item }: { item: WorkshopItem }">
@@ -53,9 +54,12 @@
           :page-sizes="paginationState.pageSizes"
           layout="sizes, total, prev, pager, next"
           :total="paginationState.total"
+          @current-change="onCurrentChange"
+          @size-change="onSizeChange"
         />
       </div>
     </div>
+
     <WorkshopItemDetailColumn
       v-if="focusState.current"
       :item="focusState.current"
@@ -71,7 +75,7 @@ import {
   UGCType,
   WorkshopItem,
   WorkshopItemQueryConfig,
-  WorkshopPageResult,
+  WorkshopPaginatedResult,
 } from "live2d-copilot-shared/src/Steamworks";
 import { onMounted, reactive, ref } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
@@ -142,7 +146,7 @@ async function getList() {
           excludedTags: filterState.form.excludedTags,
         })
       )
-    )) as WorkshopPageResult;
+    )) as unknown as WorkshopPaginatedResult;
     console.log("res", res);
     listState.list = res.items as WorkshopItem[];
     paginationState.total = res.totalResults;
@@ -159,17 +163,17 @@ async function getNewList() {
   await getList();
 }
 
-function onReset() {
-  filterState.form = structuredClone(DEFAULT_FILTER_FORM);
+function onSizeChange() {
   getNewList();
 }
 
-const focusState = reactive({
-  current: null as WorkshopItem | null,
-});
+function onCurrentChange() {
+  getList();
+}
 
-async function onCardClick(item: WorkshopItem) {
-  focusState.current = item;
+function onReset() {
+  filterState.form = structuredClone(DEFAULT_FILTER_FORM);
+  getNewList();
 }
 
 function onTreeNodeCheck() {
@@ -179,6 +183,14 @@ function onTreeNodeCheck() {
     (tag) => !filterState.form.requiredTags.includes(tag)
   );
   getNewList();
+}
+
+const focusState = reactive({
+  current: null as WorkshopItem | null,
+});
+
+async function onCardClick(item: WorkshopItem) {
+  focusState.current = item;
 }
 
 onMounted(async () => {

@@ -1,15 +1,46 @@
 <template>
   <div class="modules-list">
     <div class="filter-column">
+      <el-button
+        class="reset-filter-button"
+        type="primary"
+        plain
+        @click="onReset"
+        >{{ t("reset_filter_setting") }}</el-button
+      >
+      <el-select
+        class="sort-select"
+        v-model="filterState.form.sort"
+        @change="getNewList"
+      >
+        <el-option
+          v-for="(option, index) of sortOptions"
+          :key="index"
+          :label="option.label"
+          :value="option.value"
+        ></el-option>
+      </el-select>
       <el-input
+        class="search-input"
+        v-model="filterState.form.keyword"
         :prefix-icon="Search"
         :placeholder="t('keyword_search_placeholder')"
+        @change="getNewList"
       ></el-input>
       <div class="tree-wrapper">
-        <el-tree :data="filterState.tree" show-checkbox />
+        <el-tree
+          :data="tagsOptions"
+          show-checkbox
+          default-expand-all
+          :default-checked-keys="nodesKeys"
+          @check="onTreeNodeCheck"
+          node-key="value"
+          ref="filterTreeRef"
+        />
       </div>
     </div>
-    <div class="list-column">
+
+    <div class="list-column" v-loading="listState.isLoading">
       <AutoGrid :list="renderList">
         <template #default="{ item }: { item: MyItem }">
           <SystemItemCard
@@ -32,17 +63,9 @@
           :page-sizes="paginationState.pageSizes"
           layout="sizes, total, prev, pager, next"
           :total="paginationState.total"
-          @size-change="onSizeChange"
           @current-change="onCurrentChange"
+          @size-change="onSizeChange"
         />
-        <el-select class="sort-select" v-model="sortState.current">
-          <el-option
-            v-for="(option, index) of sortState.options"
-            :key="index"
-            :label="option.label"
-            :value="option.value"
-          ></el-option>
-        </el-select>
       </div>
     </div>
 
@@ -59,10 +82,11 @@
 
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
+import { ElTree } from "element-plus";
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
 import type { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
 import type { WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
-import { computed, onMounted, onUnmounted, reactive } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
 import { useI18n } from "../../modules/i18n";
 import { rpc } from "../../modules/rpc";
@@ -70,6 +94,7 @@ import SystemItemCard from "./components/SystemItemCard.vue";
 import SystemItemDetailColumn from "./components/SystemItemDetailColumn.vue";
 import WorkshopItemCard from "./components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
+import { TagsCategories, useTagsOptions } from "./composables/useTagsOptions";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
 
 const { t } = useI18n();
@@ -86,49 +111,40 @@ interface MyItem {
 }
 
 const winApi = rpc.use<Methods>("models-window");
+const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
+
+const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions([
+  TagsCategories.AgeRating,
+  TagsCategories.Models,
+]);
+
+enum MyModelsSortType {
+  RankedByName,
+  RankedBySubscriptionTime,
+}
+
+const sortOptions = computed(() => [
+  {
+    label: t("sort_type.ranked_by_name"),
+    value: MyModelsSortType.RankedByName,
+    queryType: MyModelsSortType.RankedByName,
+  },
+  {
+    label: t("sort_type.ranked_by_subscription_time"),
+    value: MyModelsSortType.RankedBySubscriptionTime,
+    queryType: MyModelsSortType.RankedBySubscriptionTime,
+  },
+]);
+
+const DEFAULT_FILTER_FORM = {
+  requiredTags: [...tagsFlattened.value] as string[],
+  excludedTags: [] as string[],
+  sort: MyModelsSortType.RankedByName,
+  keyword: "",
+};
 
 const filterState = reactive({
-  tree: [
-    {
-      label: "年龄分级",
-      children: [
-        {
-          label: "全年龄",
-        },
-        {
-          label: "家长指导级",
-        },
-        {
-          label: "成人",
-        },
-      ],
-    },
-    {
-      label: "类型",
-      children: [
-        {
-          label: "动漫",
-        },
-        {
-          label: "游戏",
-        },
-        {
-          label: "虚拟主播",
-        },
-        {
-          label: "其他",
-        },
-      ],
-    },
-  ],
-});
-
-const sortState = reactive({
-  current: "title",
-  options: [
-    { label: "按名称排序", value: "title" },
-    { label: "按订阅日期排序", value: "subscription-time" },
-  ],
+  form: structuredClone(DEFAULT_FILTER_FORM),
 });
 
 const paginationState = reactive({
@@ -152,6 +168,42 @@ const renderList = computed(() => {
   );
 });
 
+function listSort(list: MyItem[], sortType: MyModelsSortType) {
+  switch (sortType) {
+    case MyModelsSortType.RankedByName:
+      list.sort((a, b) => {
+        let aName =
+          a.type == MyItemType.SystemItem
+            ? a.systemItem!.Title
+            : a.workshopItem!.title;
+        let bName =
+          b.type == MyItemType.SystemItem
+            ? b.systemItem!.Title
+            : b.workshopItem!.title;
+        return aName.localeCompare(bName);
+      });
+      break;
+    case MyModelsSortType.RankedBySubscriptionTime:
+      // TODO: Use accurate subscription time.
+      list.sort((a, b) => {
+        let aTime =
+          a.type == MyItemType.SystemItem
+            ? 0
+            : workshopItemsManager.getCachedItemStatusData(
+                a.workshopItem!.publishedFileId
+              )?.installInfo?.timestamp || Infinity;
+        let bTime =
+          b.type == MyItemType.SystemItem
+            ? 0
+            : workshopItemsManager.getCachedItemStatusData(
+                b.workshopItem!.publishedFileId
+              )?.installInfo?.timestamp || Infinity;
+        return aTime - bTime;
+      });
+      break;
+  }
+}
+
 async function getList() {
   try {
     listState.isLoading = true;
@@ -164,7 +216,7 @@ async function getList() {
     await workshopItemsManager.updateSubscribedItemsStatusData();
     console.log("itemsRes", itemsRes);
     const subscribedItems = itemsRes?.items ?? [];
-    listState.list = [
+    const list = [
       ...profiles.map(
         (profile): MyItem => ({
           type: MyItemType.SystemItem,
@@ -174,10 +226,12 @@ async function getList() {
       ...subscribedItems.map(
         (item): MyItem => ({
           type: MyItemType.WorkshopItem,
-          workshopItem: item!,
+          workshopItem: item as unknown as WorkshopItem,
         })
       ),
     ];
+    listSort(list, filterState.form.sort);
+    listState.list = list;
     paginationState.total = listState.list.length;
     listState.isReady = true;
   } catch (error) {
@@ -191,9 +245,27 @@ async function getNewList() {
   await getList();
 }
 
-function onSizeChange() {}
+function onSizeChange() {
+  getNewList();
+}
 
-function onCurrentChange() {}
+function onCurrentChange() {
+  getList();
+}
+
+function onReset() {
+  filterState.form = structuredClone(DEFAULT_FILTER_FORM);
+  getNewList();
+}
+
+function onTreeNodeCheck() {
+  const nodes = filterTreeRef.value?.getCheckedNodes(true);
+  filterState.form.requiredTags = nodes?.map((node) => node.value) ?? [];
+  filterState.form.excludedTags = tagsFlattened.value.filter(
+    (tag) => !filterState.form.requiredTags.includes(tag)
+  );
+  getNewList();
+}
 
 const focusState = reactive({
   currentItemType: null as MyItemType | null,
@@ -270,8 +342,11 @@ async function onItemSubscribed(itemId: bigint) {
     await workshopItemsManager.updateItemStatusData(itemId);
     listState.list.push({
       type: MyItemType.WorkshopItem,
-      workshopItem: item,
+      workshopItem: item as unknown as WorkshopItem,
     });
+
+    // May need to be sorted.
+    // listSort(listState.list, filterState.form.sort);
   }
 }
 

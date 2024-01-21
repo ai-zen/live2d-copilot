@@ -11,6 +11,10 @@
         "plugins": "Plugins",
         "age_rating": "Age Rating"
     },
+    "sort_type": {
+        "ranked_by_name": "Ranked by Name",
+        "ranked_by_subscription_time": "Ranked by Subscription Time"
+    },
     "tags": {
         "game_character": "Game Character",
         "anime_character": "Anime Character",

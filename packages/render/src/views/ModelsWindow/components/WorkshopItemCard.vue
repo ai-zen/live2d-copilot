@@ -5,7 +5,7 @@
       'is-current': false,
     }"
   >
-    <img class="image" :src="item.additional?.previewUrl" />
+    <img class="image" :src="item.previewUrl" />
     <div class="content">
       <div class="title">{{ item.title }}</div>
     </div>

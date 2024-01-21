@@ -2,7 +2,7 @@
   <div class="detail-column">
     <div class="detail-scroll-wrapper">
       <div class="detail-scroll-content">
-        <img class="image" :src="item.additional?.previewUrl" />
+        <img class="image" :src="item.previewUrl" />
         <div class="content">
           <div class="title">{{ item.title }}</div>
           <div class="desc">{{ item.description }}</div>
@@ -11,10 +11,10 @@
           </div>
           <div class="count-row">
             <div class="count-subscription">
-              {{ t("count_subscription", item.additional?.numSubscriptions) }}
+              {{ t("count_subscription", item.statistics?.numSubscriptions) }}
             </div>
             <div class="count-collection">
-              {{ t("count_collection", item.additional?.numSubscriptions) }}
+              {{ t("count_collection", item.statistics?.numFavorites) }}
             </div>
           </div>
           <div class="button-row">

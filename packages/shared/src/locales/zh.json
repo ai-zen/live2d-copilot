@@ -22,6 +22,10 @@
         "questionable": "家长指导级",
         "mature": "成人"
     },
+    "sort_type": {
+        "ranked_by_name": "按名称排序",
+        "ranked_by_subscription_time": "按订阅时间排序"
+    },
     "ugc_query_type": {
         "ranked_by_vote": "按投票排名",
         "ranked_by_publication_date": "按发布日期排名",
