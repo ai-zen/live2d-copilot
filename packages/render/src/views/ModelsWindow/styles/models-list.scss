@@ -66,6 +66,16 @@
       box-sizing: border-box;
       padding: 0 10px;
 
+      .tags-row {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 3px;
+        margin: -3px;
+        .el-tag {
+          margin: 3px;
+        }
+      }
+
       .count-row {
         height: 36px;
         display: flex;

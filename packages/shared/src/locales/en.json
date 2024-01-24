@@ -1,30 +1,33 @@
 {
     "models_window": {
-        "my_models": "My Models",
+        "installed": "Installed",
         "workshop": "Workshop",
         "publish": "Publish"
     },
     "reset_filter_setting": "Reset Filter Setting",
     "keyword_search_placeholder": "Enter keyword to search",
-    "tags_categories": {
-        "models": "Models",
-        "plugins": "Plugins",
-        "age_rating": "Age Rating"
-    },
     "sort_type": {
         "ranked_by_name": "Ranked by Name",
         "ranked_by_subscription_time": "Ranked by Subscription Time"
     },
+    "tags_categories": {
+        "item_type_tags": "Item Type",
+        "age_rating_tags": "Age Rating",
+        "models_tags": "Models"
+    },
     "tags": {
-        "game_character": "Game Character",
-        "anime_character": "Anime Character",
-        "v_tuber": "V-Tuber",
-        "other": "Other",
-        "chat_plugin": "Chat Plugin",
-        "tool": "Tool",
+        "models": "Models",
+        "plugins": "Plugins",
+        "gui_tools": "Mini Tools",
+        "chat_presets": "Chat Presets",
+        "chat_tools": "Chat Tools",
         "everyone": "Everyone",
         "questionable": "Parental Guidance",
-        "mature": "Adult"
+        "mature": "Adult",
+        "game_character": "Game Character",
+        "anime_character": "Anime Character",
+        "v_tuber": "VTuber",
+        "other": "Other"
     },
     "ugc_query_type": {
         "ranked_by_vote": "Ranked by Vote",
@@ -82,13 +85,15 @@
         "item_title_placeholder": "Enter the item title",
         "item_description": "Item Description",
         "item_description_placeholder": "Enter the item description",
-        "age_rating_tag": "Age Rating Tag",
-        "age_rating_tag_required": "Please select the age rating tag",
-        "model_tags": "Model Tags",
-        "model_tags_required": "Please select model tags",
+        "item_type_tags": "Item Type Tag",
+        "type_tags_required": "Please select the item type tag",
+        "age_rating_tags": "Age Rating Tag",
+        "age_rating_tags_required": "Please select the age rating tag",
+        "models_tags": "Model Tags",
+        "models_tags_required": "Please select model tags",
         "custom_tags": "Custom Tags",
-        "custom_tag_placeholder": "Enter the tag content",
-        "custom_tag_add": "+ Add a tag",
+        "custom_tags_placeholder": "Enter the tag content",
+        "custom_tags_add": "+ Add a tag",
         "change_note": "Change Note",
         "change_note_placeholder": "Enter the change note",
         "visibility": "Visibility",

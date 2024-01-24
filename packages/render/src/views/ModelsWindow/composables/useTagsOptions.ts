@@ -2,27 +2,30 @@ import { computed } from "vue";
 import { useI18n } from "../../../modules/i18n";
 
 export enum TagsCategories {
-  AgeRating = "Age Rating",
-  Models = "Models",
-  Plugins = "Plugins",
+  ItemTypeTags = "item_type_tags",
+  AgeRatingTags = "age_rating_tags",
+  ModelsTags = "models_tags",
+}
+
+export enum ItemTypeTags {
+  Models = "models",
+  Plugins = "plugins",
+  GuiTools = "gui_tools",
+  ChatPresets = "chat_presets",
+  ChatTools = "chat_tools",
 }
 
 export enum AgeRatingTags {
-  Everyone = "Everyone",
-  Questionable = "Questionable",
-  Mature = "Mature",
+  Everyone = "everyone",
+  Questionable = "questionable",
+  Mature = "mature",
 }
 
 export enum ModelsTags {
-  GameCharacter = "Game Character",
-  AnimeCharacter = "Anime Character",
-  VTuber = "VTuber",
-  Other = "Other",
-}
-
-export enum PluginsTags {
-  ChatPlugin = "ChatPlugin",
-  Tool = "Tool",
+  GameCharacter = "game_character",
+  AnimeCharacter = "anime_character",
+  VTuber = "v_tuber",
+  Other = "other",
 }
 
 export function useTagsOptions(categories: string[]) {
@@ -31,8 +34,8 @@ export function useTagsOptions(categories: string[]) {
   const tagsOptions = computed(() => {
     return [
       {
-        label: t("tags_categories.age_rating"),
-        value: TagsCategories.AgeRating,
+        label: t("tags_categories.age_rating_tags"),
+        value: TagsCategories.AgeRatingTags,
         children: [
           {
             label: t("tags.everyone"),
@@ -49,8 +52,8 @@ export function useTagsOptions(categories: string[]) {
         ],
       },
       {
-        label: t("tags_categories.models"),
-        value: TagsCategories.Models,
+        label: t("tags_categories.models_tags"),
+        value: TagsCategories.ModelsTags,
         children: [
           {
             label: t("tags.game_character"),
@@ -71,16 +74,28 @@ export function useTagsOptions(categories: string[]) {
         ],
       },
       {
-        label: t("tags_categories.plugins"),
-        value: TagsCategories.Plugins,
+        label: t("tags_categories.item_type_tags"),
+        value: TagsCategories.ItemTypeTags,
         children: [
           {
-            label: t("tags.chat_plugin"),
-            value: PluginsTags.ChatPlugin,
+            label: t("tags.models"),
+            value: ItemTypeTags.Models,
           },
           {
-            label: t("tags.tool"),
-            value: PluginsTags.Tool,
+            label: t("tags.plugins"),
+            value: ItemTypeTags.Plugins,
+          },
+          {
+            label: t("tags.gui_tools"),
+            value: ItemTypeTags.GuiTools,
+          },
+          {
+            label: t("tags.chat_presets"),
+            value: ItemTypeTags.ChatPresets,
+          },
+          {
+            label: t("tags.chat_tools"),
+            value: ItemTypeTags.ChatTools,
           },
         ],
       },
@@ -112,4 +127,14 @@ export function useTagsOptions(categories: string[]) {
     tagsFlattened,
     nodesKeys,
   };
+}
+
+export function getExcludedTagsByItemType(itemType: ItemTypeTags) {
+  return [
+    ItemTypeTags.Models,
+    ItemTypeTags.Plugins,
+    ItemTypeTags.GuiTools,
+    ItemTypeTags.ChatPresets,
+    ItemTypeTags.ChatTools,
+  ].filter((tag) => tag != itemType);
 }

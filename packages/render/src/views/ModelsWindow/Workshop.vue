@@ -83,7 +83,12 @@ import { rpc } from "../../modules/rpc";
 import WorkshopItemCard from "./components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
 import { useSortOptions } from "./composables/useSortOptions";
-import { TagsCategories, useTagsOptions } from "./composables/useTagsOptions";
+import {
+  ItemTypeTags,
+  TagsCategories,
+  useTagsOptions,
+  getExcludedTagsByItemType,
+} from "./composables/useTagsOptions";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
 import { useI18n } from "../../modules/i18n";
 import { ElTree } from "element-plus";
@@ -95,8 +100,8 @@ const winApi = rpc.use<Methods>("models-window");
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
 const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions([
-  TagsCategories.AgeRating,
-  TagsCategories.Models,
+  TagsCategories.AgeRatingTags,
+  TagsCategories.ModelsTags,
 ]);
 
 const { sortOptions } = useSortOptions();
@@ -143,12 +148,15 @@ async function getList() {
           searchText: filterState.form.keyword || undefined,
           matchAnyTag: true,
           requiredTags: filterState.form.requiredTags,
-          excludedTags: filterState.form.excludedTags,
+          excludedTags: [
+            ...getExcludedTagsByItemType(ItemTypeTags.Models),
+            ...filterState.form.excludedTags,
+          ],
         })
       )
     )) as unknown as WorkshopPaginatedResult;
     console.log("res", res);
-    listState.list = res.items as WorkshopItem[];
+    listState.list = res.items.filter((item) => item) as WorkshopItem[];
     paginationState.total = res.totalResults;
     listState.isReady = true;
   } catch (error) {
@@ -173,6 +181,7 @@ function onCurrentChange() {
 
 function onReset() {
   filterState.form = structuredClone(DEFAULT_FILTER_FORM);
+  filterTreeRef.value?.setCheckedKeys(filterState.form.requiredTags);
   getNewList();
 }
 

@@ -16,13 +16,14 @@ export class Live2DModelsManager {
 
   MODELS_DIR = path.join(app.getPath("userData"), "Live2D Models"); // Directory to store Live2D models
   CONFIG_PATH = path.join(this.MODELS_DIR, "config.json"); // Path to the config file storing Live2D model information
+  DEFAULT_MODEL3 = path.resolve(this.MODELS_DIR, "./Mao/Mao.model3.json");
 
   configState = {
     isLoading: false, // Whether the config file is currently being loaded
     isSaving: false, // Whether the config file is currently being saved
     isReady: false, // Whether the config file is ready for use
     data: {
-      current: path.resolve(this.MODELS_DIR, "./Mao/Mao.model3.json"), // Default value for the current Live2D model
+      current: this.DEFAULT_MODEL3, // Default value for the current Live2D model
     } as Live2DModelManagerConfig,
   };
 
@@ -114,7 +115,8 @@ export class Live2DModelsManager {
   async getCurrent(): Promise<Live2DModelPathInfo | null> {
     if (!this.configState.isReady)
       await this.eventBus.promise("config state ready"); // Wait for the config state to be ready before continuing
-    const { current } = this.configState.data; // Get the path to the current Live2D model from the config state
+    let { current } = this.configState.data; // Get the path to the current Live2D model from the config state
+    if (!current) current = this.DEFAULT_MODEL3; // If no current model is set, use the default model path
     try {
       const stat = await fsp.stat(current); // Get the file stats for the current Live2D model
       if (!stat.isFile()) throw new Error(`"${current}" is not a file.`); // Throw an error if the current Live2D model is not a file

@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { Live2DModelProfileEx } from "live2d-copilot-main/src/modules/live2DModelsManager";
+import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
 import { toLocalURI } from "../../../utils/toLocalURI";
 import { useI18n } from "../../../modules/i18n";
 

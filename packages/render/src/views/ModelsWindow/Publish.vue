@@ -93,16 +93,17 @@
         ></el-input>
       </el-form-item>
       <el-form-item
-        prop="ageRatingTag"
-        :label="t('publish_page.age_rating_tag')"
+        prop="itemTypeTag"
+        :label="t('publish_page.item_type_tags')"
         :rules="{
           required: true,
-          message: t('publish_page.age_rating_tag_required'),
+          message: t('publish_page.item_type_tags_required'),
         }"
       >
-        <el-radio-group v-model="form.ageRatingTag">
+        <el-radio-group v-model="form.itemTypeTag" disabled>
           <el-radio
-            v-for="option of tagsGroupRecord[TagsCategories.AgeRating].children"
+            v-for="option of tagsGroupRecord[TagsCategories.ItemTypeTags]
+              .children"
             :key="option.value"
             :label="option.value"
             >{{ option.label }}</el-radio
@@ -110,23 +111,59 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item
+        prop="ageRatingTag"
+        :label="t('publish_page.age_rating_tags')"
+        :rules="{
+          required: true,
+          message: t('publish_page.age_rating_tags_required'),
+        }"
+      >
+        <el-radio-group v-model="form.ageRatingTag">
+          <el-radio
+            v-for="option of tagsGroupRecord[TagsCategories.AgeRatingTags]
+              .children"
+            :key="option.value"
+            :label="option.value"
+            >{{ option.label }}</el-radio
+          >
+        </el-radio-group>
+      </el-form-item>
+      <el-form-item
+        prop="modelsTag"
+        :label="t('publish_page.models_tags')"
+        :rules="{
+          required: true,
+          message: t('publish_page.models_tags_required'),
+        }"
+      >
+        <el-radio-group v-model="form.modelsTag">
+          <el-radio
+            v-for="option of tagsGroupRecord[TagsCategories.ModelsTags]
+              .children"
+            :key="option.value"
+            :label="option.value"
+            >{{ option.label }}</el-radio
+          >
+        </el-radio-group>
+      </el-form-item>
+      <!-- <el-form-item
         prop="modelsTags"
-        :label="t('publish_page.model_tags')"
+        :label="t('publish_page.models_tags')"
         :rules="{
           required: true,
           type: 'array',
-          message: t('publish_page.model_tags_required'),
+          message: t('publish_page.models_tags_required'),
         }"
       >
         <el-checkbox-group v-model="form.modelsTags">
           <el-checkbox
-            v-for="option of tagsGroupRecord[TagsCategories.Models].children"
+            v-for="option of tagsGroupRecord[TagsCategories.ModelsTags].children"
             :key="option.value"
             :label="option.value"
             >{{ option.label }}</el-checkbox
           >
         </el-checkbox-group>
-      </el-form-item>
+      </el-form-item> -->
       <!-- <el-form-item prop="customTags" :label="t('publish_page.custom_tags')">
         <el-row>
           <el-tag
@@ -145,10 +182,10 @@
             size="small"
             @keyup.enter="onInputConfirm"
             @blur="onInputConfirm"
-            :placeholder="t('publish_page.custom_tag_placeholder')"
+            :placeholder="t('publish_page.custom_tags_placeholder')"
           />
           <el-button v-else type="success" plain size="small" @click="addTag">
-            {{ t("publish_page.custom_tag_add") }}
+            {{ t("publish_page.custom_tags_add") }}
           </el-button>
         </el-row>
       </el-form-item> -->
@@ -191,7 +228,7 @@
 
     <div class="publish-wrapper" v-if="publishState.isPublishing">
       <el-steps
-        :active="publishState.progressPayload?.status"
+        :active="(publishState.progressPayload?.status ?? 0) - 1"
         align-center
         finish-status="success"
       >
@@ -257,6 +294,8 @@ import {
   useTagsOptions,
   TagsCategories,
   AgeRatingTags,
+  ModelsTags,
+  ItemTypeTags,
 } from "./composables/useTagsOptions";
 import { useI18n } from "../../modules/i18n";
 
@@ -266,7 +305,11 @@ const winApi = rpc.use<Methods>("models-window");
 
 const formRef = ref<null | InstanceType<typeof ElForm>>(null);
 
-const { tagsGroupRecord } = useTagsOptions(["Age Rating", "Models"]);
+const { tagsGroupRecord } = useTagsOptions([
+  TagsCategories.AgeRatingTags,
+  TagsCategories.ModelsTags,
+  TagsCategories.ItemTypeTags,
+]);
 
 enum PublishType {
   Add = 0,
@@ -282,8 +325,9 @@ const DEFAULT_FORM = {
   contentPath: "",
   previewPath: "",
   changeNote: "",
+  itemTypeTag: ItemTypeTags.Models,
   ageRatingTag: AgeRatingTags.Everyone,
-  modelsTags: [] as string[],
+  modelsTag: ModelsTags.Other,
 };
 
 const form = reactive(structuredClone(DEFAULT_FORM));
@@ -383,7 +427,9 @@ async function onSubmit() {
         contentPath: form.contentPath,
         previewPath: form.previewPath,
         tags: (() => {
-          const tags = [...form.modelsTags];
+          let tags = [];
+          if (form.itemTypeTag) tags.push(form.itemTypeTag);
+          if (form.modelsTag) tags.push(form.modelsTag);
           if (form.ageRatingTag) tags.push(form.ageRatingTag);
           return tags;
         })(),
@@ -413,7 +459,7 @@ async function onSubmit() {
   }
 }
 
-const steps = [
+const steps = computed(() => [
   {
     value: UpdateStatus.PreparingConfig,
     label: t("publish_page.update_status.preparing_config"),
@@ -434,7 +480,7 @@ const steps = [
     value: UpdateStatus.CommittingChanges,
     label: t("publish_page.update_status.committing_changes"),
   },
-];
+]);
 
 const getProgressPercentage = computed(() => {
   if (!publishState.progressPayload) return 0;

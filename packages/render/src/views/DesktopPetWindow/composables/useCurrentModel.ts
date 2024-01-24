@@ -3,6 +3,7 @@ import {
   LAppLive2DManagerModule,
   LAppModelModule,
 } from "@ai-zen/live2d-vue";
+import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
 import { ShallowRef, onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { rpc } from "../../../modules/rpc";
@@ -29,9 +30,7 @@ export function useCurrentModel({
   managerRef,
   delegateRef,
 }: {
-  winApi: {
-    getCurrentProfile: () => Promise<Live2DModelProfileEx | null>;
-  };
+  winApi: Methods;
   managerRef: ShallowRef<LAppLive2DManagerModule.LAppLive2DManager | null>;
   delegateRef: ShallowRef<LAppDelegateModule.LAppDelegate | null>;
 }) {

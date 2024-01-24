@@ -42,7 +42,7 @@
 
     <div class="list-column" v-loading="listState.isLoading">
       <AutoGrid :list="renderList">
-        <template #default="{ item }: { item: MyItem }">
+        <template #default="{ item }: { item: InstalledItem }">
           <SystemItemCard
             v-if="item.systemItem"
             :item="item.systemItem"
@@ -85,7 +85,10 @@ import { Search } from "@element-plus/icons-vue";
 import { ElTree } from "element-plus";
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
 import type { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
-import type { WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
+import type {
+  WorkshopItem,
+  WorkshopItemsResult,
+} from "live2d-copilot-shared/src/Steamworks";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import AutoGrid from "../../components/AutoGrid.vue";
 import { useI18n } from "../../modules/i18n";
@@ -94,18 +97,22 @@ import SystemItemCard from "./components/SystemItemCard.vue";
 import SystemItemDetailColumn from "./components/SystemItemDetailColumn.vue";
 import WorkshopItemCard from "./components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
-import { TagsCategories, useTagsOptions } from "./composables/useTagsOptions";
+import {
+  ItemTypeTags,
+  TagsCategories,
+  useTagsOptions,
+} from "./composables/useTagsOptions";
 import { workshopItemsManager } from "./modules/workshopItemsManager";
 
 const { t } = useI18n();
 
-enum MyItemType {
+enum InstalledItemType {
   SystemItem = 0,
   WorkshopItem,
 }
 
-interface MyItem {
-  type: MyItemType;
+interface InstalledItem {
+  type: InstalledItemType;
   workshopItem?: WorkshopItem;
   systemItem?: Live2DModelProfileEx;
 }
@@ -114,11 +121,11 @@ const winApi = rpc.use<Methods>("models-window");
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
 const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions([
-  TagsCategories.AgeRating,
-  TagsCategories.Models,
+  TagsCategories.AgeRatingTags,
+  TagsCategories.ModelsTags,
 ]);
 
-enum MyModelsSortType {
+enum InstalledSortType {
   RankedByName,
   RankedBySubscriptionTime,
 }
@@ -126,20 +133,20 @@ enum MyModelsSortType {
 const sortOptions = computed(() => [
   {
     label: t("sort_type.ranked_by_name"),
-    value: MyModelsSortType.RankedByName,
-    queryType: MyModelsSortType.RankedByName,
+    value: InstalledSortType.RankedByName,
+    queryType: InstalledSortType.RankedByName,
   },
   {
     label: t("sort_type.ranked_by_subscription_time"),
-    value: MyModelsSortType.RankedBySubscriptionTime,
-    queryType: MyModelsSortType.RankedBySubscriptionTime,
+    value: InstalledSortType.RankedBySubscriptionTime,
+    queryType: InstalledSortType.RankedBySubscriptionTime,
   },
 ]);
 
 const DEFAULT_FILTER_FORM = {
   requiredTags: [...tagsFlattened.value] as string[],
   excludedTags: [] as string[],
-  sort: MyModelsSortType.RankedByName,
+  sort: InstalledSortType.RankedByName,
   keyword: "",
 };
 
@@ -155,7 +162,7 @@ const paginationState = reactive({
 });
 
 const listState = reactive({
-  list: [] as MyItem[],
+  list: [] as InstalledItem[],
   isLoading: false,
   isReady: false,
 });
@@ -168,32 +175,57 @@ const renderList = computed(() => {
   );
 });
 
-function listSort(list: MyItem[], sortType: MyModelsSortType) {
-  switch (sortType) {
-    case MyModelsSortType.RankedByName:
-      list.sort((a, b) => {
+function listFilter(list: InstalledItem[]) {
+  return list.filter((item) => {
+    switch (item.type) {
+      case InstalledItemType.SystemItem:
+        return true;
+      case InstalledItemType.WorkshopItem:
+        return (
+          item.workshopItem?.tags.includes(ItemTypeTags.Models) &&
+          filterState.form.requiredTags.some((requiredTag) =>
+            item.workshopItem?.tags.find(
+              (tag) => tag.toLocaleLowerCase() == requiredTag.toLowerCase()
+            )
+          ) &&
+          !filterState.form.excludedTags.some((excludedTag) =>
+            item.workshopItem?.tags.find(
+              (tag) => tag.toLocaleLowerCase() == excludedTag.toLowerCase()
+            )
+          ) &&
+          item.workshopItem?.title.includes(filterState.form.keyword)
+        );
+    }
+  });
+}
+
+function listSort(list: InstalledItem[]) {
+  const listCloned = list.slice();
+  switch (filterState.form.sort) {
+    case InstalledSortType.RankedByName:
+      listCloned.sort((a, b) => {
         let aName =
-          a.type == MyItemType.SystemItem
+          a.type == InstalledItemType.SystemItem
             ? a.systemItem!.Title
             : a.workshopItem!.title;
         let bName =
-          b.type == MyItemType.SystemItem
+          b.type == InstalledItemType.SystemItem
             ? b.systemItem!.Title
             : b.workshopItem!.title;
         return aName.localeCompare(bName);
       });
       break;
-    case MyModelsSortType.RankedBySubscriptionTime:
+    case InstalledSortType.RankedBySubscriptionTime:
       // TODO: Use accurate subscription time.
-      list.sort((a, b) => {
+      listCloned.sort((a, b) => {
         let aTime =
-          a.type == MyItemType.SystemItem
+          a.type == InstalledItemType.SystemItem
             ? 0
             : workshopItemsManager.getCachedItemStatusData(
                 a.workshopItem!.publishedFileId
               )?.installInfo?.timestamp || Infinity;
         let bTime =
-          b.type == MyItemType.SystemItem
+          b.type == InstalledItemType.SystemItem
             ? 0
             : workshopItemsManager.getCachedItemStatusData(
                 b.workshopItem!.publishedFileId
@@ -202,36 +234,43 @@ function listSort(list: MyItem[], sortType: MyModelsSortType) {
       });
       break;
   }
+  return listCloned;
 }
 
 async function getList() {
   try {
     listState.isLoading = true;
+
+    // Get system items.
     const profiles = await winApi.loadProfiles();
-    const subscribedIds = await workshopItemsManager.getSubscribedIds();
-    // TODO: There is a known issue that when passing an empty array (subscribedIds), the function will never return.
-    const itemsRes = subscribedIds?.length
-      ? await winApi.getItems(subscribedIds)
+    const systemItems = profiles.map(
+      (item): InstalledItem => ({
+        type: InstalledItemType.SystemItem,
+        systemItem: item,
+      })
+    );
+
+    // Get workshop subscribed items.
+    const ids = await workshopItemsManager.getSubscribedIds();
+    const res = ids?.length
+      ? // There is a known issue that when passing an empty array (ids), the function will never return.
+        ((await winApi.getItems(ids)) as unknown as WorkshopItemsResult)
       : null;
     await workshopItemsManager.updateSubscribedItemsStatusData();
-    console.log("itemsRes", itemsRes);
-    const subscribedItems = itemsRes?.items ?? [];
-    const list = [
-      ...profiles.map(
-        (profile): MyItem => ({
-          type: MyItemType.SystemItem,
-          systemItem: profile,
-        })
-      ),
-      ...subscribedItems.map(
-        (item): MyItem => ({
-          type: MyItemType.WorkshopItem,
-          workshopItem: item as unknown as WorkshopItem,
-        })
-      ),
-    ];
-    listSort(list, filterState.form.sort);
+    const items = res?.items ?? [];
+    const workshopItems = items.map(
+      (item): InstalledItem => ({
+        type: InstalledItemType.WorkshopItem,
+        workshopItem: item,
+      })
+    );
+
+    let list = [...systemItems, ...workshopItems];
+    list = listFilter(list);
+    list = listSort(list);
     listState.list = list;
+    console.log("listState.list", listState.list);
+
     paginationState.total = listState.list.length;
     listState.isReady = true;
   } catch (error) {
@@ -255,6 +294,7 @@ function onCurrentChange() {
 
 function onReset() {
   filterState.form = structuredClone(DEFAULT_FILTER_FORM);
+  filterTreeRef.value?.setCheckedKeys(filterState.form.requiredTags);
   getNewList();
 }
 
@@ -268,17 +308,17 @@ function onTreeNodeCheck() {
 }
 
 const focusState = reactive({
-  currentItemType: null as MyItemType | null,
+  currentItemType: null as InstalledItemType | null,
   currentWorkshopItem: null as WorkshopItem | null,
   currentSystemItem: null as Live2DModelProfileEx | null,
 });
 
-function onCardClick(item: MyItem) {
+function onCardClick(item: InstalledItem) {
   useItem(item);
 }
 
-async function useItem(item: MyItem) {
-  if (item.type == MyItemType.SystemItem) {
+async function useItem(item: InstalledItem) {
+  if (item.type == InstalledItemType.SystemItem) {
     focusState.currentWorkshopItem = null;
     focusState.currentSystemItem = item.systemItem!;
     await winApi.setCurrent(item.systemItem!._ModelPath);
@@ -317,9 +357,9 @@ async function getCurrentUsedProfile() {
 
 function focusCurrentUsedItem() {
   listState.list.forEach((item) => {
-    if (item.type == MyItemType.SystemItem) {
+    if (item.type == InstalledItemType.SystemItem) {
       if (item.systemItem?._ModelDir == usedState.currentProfile?._ModelDir) {
-        focusState.currentItemType = MyItemType.SystemItem;
+        focusState.currentItemType = InstalledItemType.SystemItem;
         focusState.currentSystemItem = item.systemItem!;
       }
     } else {
@@ -329,7 +369,7 @@ function focusCurrentUsedItem() {
       if (
         statusData?.installInfo?.folder == usedState.currentProfile?._ModelDir
       ) {
-        focusState.currentItemType = MyItemType.WorkshopItem;
+        focusState.currentItemType = InstalledItemType.WorkshopItem;
         focusState.currentWorkshopItem = item.workshopItem!;
       }
     }
@@ -341,7 +381,7 @@ async function onItemSubscribed(itemId: bigint) {
   if (item) {
     await workshopItemsManager.updateItemStatusData(itemId);
     listState.list.push({
-      type: MyItemType.WorkshopItem,
+      type: InstalledItemType.WorkshopItem,
       workshopItem: item as unknown as WorkshopItem,
     });
 

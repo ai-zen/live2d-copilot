@@ -6,8 +6,13 @@
         <div class="content">
           <div class="title">{{ item.title }}</div>
           <div class="desc">{{ item.description }}</div>
-          <div class="count-row">
+          <div class="rate-row">
             <el-rate :modelValue="getRate(item)" disabled />
+          </div>
+          <div class="tags-row">
+            <el-tag v-for="(tag, index) of item.tags" :key="index" round>{{
+              t(`tags.${tag.toLowerCase()}`)
+            }}</el-tag>
           </div>
           <div class="count-row">
             <div class="count-subscription">

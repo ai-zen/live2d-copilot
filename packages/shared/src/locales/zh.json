@@ -1,30 +1,33 @@
 {
     "models_window": {
-        "my_models": "我的模型",
+        "installed": "已安装",
         "workshop": "创意工坊",
         "publish": "发布"
     },
     "reset_filter_setting": "重置筛选设置",
     "keyword_search_placeholder": "请输入关键字搜索",
-    "tags_categories": {
-        "models": "模型",
-        "plugins": "插件",
-        "age_rating": "年龄分级"
-    },
-    "tags": {
-        "game_character": "游戏角色",
-        "anime_character": "动画角色",
-        "v_tuber": "虚拟主播",
-        "other": "其他",
-        "chat_plugin": "聊天插件",
-        "tool": "工具",
-        "everyone": "所有人",
-        "questionable": "家长指导级",
-        "mature": "成人"
-    },
     "sort_type": {
         "ranked_by_name": "按名称排序",
         "ranked_by_subscription_time": "按订阅时间排序"
+    },
+    "tags_categories": {
+        "item_type_tags": "物品类型",
+        "age_rating_tags": "年龄分级",
+        "models_tags": "模型标签"
+    },
+    "tags": {
+        "models": "模型",
+        "plugins": "插件",
+        "gui_tools": "小工具",
+        "chat_presets": "聊天预设",
+        "chat_tools": "聊天工具",
+        "everyone": "全年龄",
+        "questionable": "家长指导级",
+        "mature": "成人",
+        "game_character": "游戏角色",
+        "anime_character": "动漫角色",
+        "v_tuber": "虚拟主播",
+        "other": "其他"
     },
     "ugc_query_type": {
         "ranked_by_vote": "按投票排名",
@@ -82,13 +85,15 @@
         "item_title_placeholder": "请输入物品标题",
         "item_description": "物品描述",
         "item_description_placeholder": "请输入物品描述",
-        "age_rating_tag": "年龄分级标签",
-        "age_rating_tag_required": "请选择年龄分级标签",
-        "model_tags": "模型标签",
-        "model_tags_required": "请选择模型标签",
+        "item_type_tags": "物品类型标签",
+        "type_tags_required": "请选择物品类型标签",
+        "age_rating_tags": "年龄分级标签",
+        "age_rating_tags_required": "请选择年龄分级标签",
+        "models_tags": "模型标签",
+        "models_tags_required": "请选择模型标签",
         "custom_tags": "自定义标签",
-        "custom_tag_placeholder": "请输入标签内容",
-        "custom_tag_add": "+ 新标签",
+        "custom_tags_placeholder": "请输入标签内容",
+        "custom_tags_add": "+ 新标签",
         "change_note": "更新日志",
         "change_note_placeholder": "请输入更新日志",
         "visibility": "可见性",

@@ -1,8 +1,8 @@
 <template>
   <div class="models-window">
     <el-tabs class="tabs" v-model="activeName">
-      <el-tab-pane :label="t('models_window.my_models')" name="MyModels">
-        <MyModels></MyModels>
+      <el-tab-pane :label="t('models_window.installed')" name="Installed">
+        <Installed></Installed>
       </el-tab-pane>
       <el-tab-pane :label="t('models_window.workshop')" name="Workshop">
         <Workshop></Workshop>
@@ -16,14 +16,14 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import MyModels from "./MyModels.vue";
+import Installed from "./Installed.vue";
 import Workshop from "./Workshop.vue";
 import Publish from "./Publish.vue";
 import { useI18n } from "../../modules/i18n";
 
 const { t } = useI18n();
 
-const activeName = ref("MyModels");
+const activeName = ref("Installed");
 </script>
 
 <style lang="scss" scoped>
