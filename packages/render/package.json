@@ -9,15 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-zen/async-queue": "^1.0.2",
     "@ai-zen/event-bus": "^1.0.1",
     "@ai-zen/live2d-vue": "^1.0.11",
     "@element-plus/icons-vue": "^2.1.0",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "element-plus": "^2.4.1",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
     "web-message-rpc": "^1.0.6-alpha.0"
   },
   "devDependencies": {
+    "@types/json-schema": "^7.0.15",
     "@vitejs/plugin-vue": "^4.2.3",
     "live2d-copilot-main": "workspace:^",
     "live2d-copilot-shared": "workspace:^",

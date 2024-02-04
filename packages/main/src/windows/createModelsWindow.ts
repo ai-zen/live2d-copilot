@@ -4,7 +4,7 @@ import { live2DModelManager } from "../modules/live2DModelsManager";
 import { staticServeManager } from "../modules/staticServeManager";
 import { steamworksManager } from "../modules/steamworksManager";
 import { settingManager } from "../modules/settingManager";
-import { SettingMethodsByMain } from "live2d-copilot-shared/src/Setting";
+import { SettingMethodsMainAPI } from "live2d-copilot-shared/src/Setting";
 
 export const MODELS_ROUTE_PATH = `/models-window`;
 
@@ -38,7 +38,7 @@ export async function createModelsWindow() {
  * Preload of the desktop pet window
  */
 function preload(win: BrowserWindowEx) {
-  win.rpc.register<SettingMethodsByMain>("setting", {
+  win.rpc.register<SettingMethodsMainAPI>("setting", {
     getSetting: settingManager.getSetting.bind(settingManager),
     setSetting: settingManager.setSetting.bind(settingManager),
   });

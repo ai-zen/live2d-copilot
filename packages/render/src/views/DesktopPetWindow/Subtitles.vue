@@ -1,0 +1,141 @@
+<template>
+  <div
+    ref="moveableElRef"
+    class="subtitles-wrapper"
+    :style="{
+      '--model-x': `${modelPosition.deviceX}px`,
+      '--model-y': `${modelPosition.deviceY}px`,
+      '--model-scale': `${modelPosition.relativeScale}`,
+      '--offset-x': `${transform.OffsetX}px`,
+      '--offset-y': `${transform.OffsetY}px`,
+      '--scale': `${transform.Scale}`,
+    }"
+  >
+    <transition name="fade">
+      <div class="subtitles-content" v-if="state.currentText">
+        {{ state.currentText }}
+      </div>
+    </transition>
+  </div>
+</template>
+
+<script setup lang="ts">
+import {
+  Live2DModelPosition,
+  SubtitlesTransform,
+} from "live2d-copilot-shared/src/Live2DModels";
+import { PropType, reactive } from "vue";
+import { sleep } from "../../utils/sleep";
+import { useMoveable } from "./composables/useMoveable";
+
+const emit = defineEmits<{
+  (e: "update:transform", value: SubtitlesTransform): void;
+}>();
+
+const props = defineProps({
+  modelPosition: {
+    required: true,
+    type: Object as PropType<Live2DModelPosition>,
+  },
+  transform: {
+    type: Object as PropType<SubtitlesTransform>,
+    default: () => {
+      return new SubtitlesTransform();
+    },
+  },
+});
+
+const { moveableElRef } = useMoveable({
+  getModelScale: () => props.modelPosition.relativeScale || 1,
+  getTransform: () => props.transform,
+  onUpdate: (newValue: SubtitlesTransform) =>
+    emit("update:transform", newValue),
+});
+
+const state = reactive({
+  currentText: "",
+});
+
+function displayText(text: string) {
+  let isCancel = false;
+
+  (async () => {
+    state.currentText = "";
+    for (const char of text.split("")) {
+      if (isCancel) return;
+      state.currentText += char;
+      await sleep(50);
+    }
+  })();
+
+  return () => {
+    isCancel = true;
+  };
+}
+
+let cancelLastText: undefined | (() => void);
+
+async function push(text: string) {
+  cancelLastText?.();
+  cancelLastText = displayText(text);
+}
+
+async function clear() {
+  cancelLastText?.();
+  state.currentText = "";
+}
+
+function isHasPending() {
+  return Boolean(state.currentText);
+}
+
+defineExpose({
+  isHasPending,
+  push,
+  clear,
+});
+</script>
+
+<style lang="scss" scoped>
+.subtitles-wrapper {
+  --model-x: 0px;
+  --model-y: 0px;
+  --model-scale: 1;
+  --offset-x: 0px;
+  --offset-y: 0px;
+  --scale: 1;
+  position: absolute;
+  left: var(--model-x);
+  top: var(--model-y);
+  transform: translate(
+      calc(-50% + var(--offset-x) * var(--model-scale)),
+      calc(-50% + var(--offset-y) * var(--model-scale))
+    )
+    scale(calc(var(--scale) * var(--model-scale)));
+  cursor: grab;
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+.subtitles-content {
+  background-color: var(--el-mask-color);
+  border-radius: 6px;
+  border: 2px thin var(--el-border-color);
+  color: var(--el-text-color-primary);
+  box-shadow: var(--el-box-shadow);
+  font-size: 14px;
+  padding: 6px 8px;
+  font-weight: bold;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

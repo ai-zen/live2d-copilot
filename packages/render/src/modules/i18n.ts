@@ -1,14 +1,9 @@
 import EventBus from "@ai-zen/event-bus";
-import {
-  Setting,
-  SettingMethodsByMain,
-  SettingMethodsByRender,
-} from "live2d-copilot-shared/src/Setting";
 import { SimpleI18n } from "live2d-copilot-shared/src/classes/SimpleI18n";
 import en from "live2d-copilot-shared/src/locales/en.json";
 import zh from "live2d-copilot-shared/src/locales/zh.json";
-import { reactive } from "vue";
-import { rpc } from "../modules/rpc";
+import { reactive, watch } from "vue";
+import { settingManager } from "./setting";
 
 export class RenderSimpleI18n extends SimpleI18n {
   static instance = new RenderSimpleI18n({
@@ -22,24 +17,16 @@ export class RenderSimpleI18n extends SimpleI18n {
 
   eventBus = new EventBus();
 
-  constructor(initState: SimpleI18n["state"]) {
+  private constructor(initState: SimpleI18n["state"]) {
     super(reactive(initState) as SimpleI18n["state"]);
-  }
 
-  async init() {
-    rpc.register<SettingMethodsByRender>("setting", {
-      // When the lang option in the settings is changed.
-      onSettingChange: (newSetting: Setting) => {
-        console.log("[i18n.ts] onSettingChange", newSetting);
-        // Change the lang of the i18n module.
-        this.setLang(newSetting.lang);
+    watch(
+      () => settingManager.state.data?.lang,
+      (newLang) => {
+        if (newLang) this.setLang(newLang);
       },
-    });
-
-    // Get setting.
-    const setting = await rpc.use<SettingMethodsByMain>("setting").getSetting();
-    // Change lang
-    this.setLang(setting.lang);
+      { immediate: true }
+    );
   }
 
   setLang(lang: string) {

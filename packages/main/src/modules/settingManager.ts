@@ -5,7 +5,7 @@ import path from "node:path";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 import {
   Setting,
-  SettingMethodsByRender,
+  SettingMethodsRenderAPI,
 } from "live2d-copilot-shared/src/Setting";
 
 export class SettingManager {
@@ -18,10 +18,12 @@ export class SettingManager {
     isLoading: false, // Whether the setting file is currently being loaded
     isSaving: false, // Whether the setting file is currently being saved
     isReady: false, // Whether the setting file is ready for use
-    data: {
+    data: <Setting>{
       lang: "en", // Default language
       alwaysOnTop: true,
-    } as Setting,
+      currentChatClient: "AIZen",
+      chatClientConfigs: {},
+    },
   };
 
   eventBus = new EventBus(); // Event bus for notifying state changes
@@ -97,7 +99,7 @@ export class SettingManager {
       // Only the registered getSetting method allows the window to read the settings content.
       if (win.rpc.callMap.has("setting:getSetting")) {
         // Emit change event to the window.
-        win.rpc.use<SettingMethodsByRender>("setting").onSettingChange(data);
+        win.rpc.use<SettingMethodsRenderAPI>("setting").onSettingChange(data);
       }
     });
 

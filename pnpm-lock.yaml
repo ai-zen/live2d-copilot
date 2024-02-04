@@ -64,6 +64,9 @@ importers:
 
   packages/render:
     dependencies:
+      '@ai-zen/async-queue':
+        specifier: ^1.0.2
+        version: 1.0.2
       '@ai-zen/event-bus':
         specifier: ^1.0.1
         version: 1.0.1
@@ -73,6 +76,9 @@ importers:
       '@element-plus/icons-vue':
         specifier: ^2.1.0
         version: 2.1.0(vue@3.3.4)
+      '@microsoft/fetch-event-source':
+        specifier: ^2.0.1
+        version: 2.0.1
       element-plus:
         specifier: ^2.4.1
         version: 2.4.1(vue@3.3.4)
@@ -86,6 +92,9 @@ importers:
         specifier: ^1.0.6-alpha.0
         version: 1.0.6-alpha.0
     devDependencies:
+      '@types/json-schema':
+        specifier: ^7.0.15
+        version: 7.0.15
       '@vitejs/plugin-vue':
         specifier: ^4.2.3
         version: 4.3.4(vite@4.4.9)(vue@3.3.4)
@@ -111,6 +120,10 @@ importers:
   packages/shared: {}
 
 packages:
+
+  /@ai-zen/async-queue@1.0.2:
+    resolution: {integrity: sha512-i316ZK5dSbtqgfNhI9ZOg/chi3jBq1xyn4Lr/QIjCWYlK58bDRhotvA91kwiVNt4Vmh7eQLxf/aArpWTMz244g==}
+    dev: false
 
   /@ai-zen/event-bus@1.0.1:
     resolution: {integrity: sha512-toCOVAMFKR5e5pavc6fG/7HrBJmcSovFq+pAtzjc8gIK9/1rKRGz9sDG1CJtEWC7fLaR0AHAfBCH5zz7zQIROA==}
@@ -972,6 +985,10 @@ packages:
       cross-spawn: 7.0.3
     dev: true
 
+  /@microsoft/fetch-event-source@2.0.1:
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
+    dev: false
+
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -1056,6 +1073,10 @@ packages:
 
   /@types/http-cache-semantics@4.0.2:
     resolution: {integrity: sha512-FD+nQWA2zJjh4L9+pFXqWOi0Hs1ryBCfI+985NjluQ1p8EYtoLvjLOKidXBtZ4/IcxDX4o8/E8qDS3540tNliw==}
+    dev: true
+
+  /@types/json-schema@7.0.15:
+    resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
     dev: true
 
   /@types/keyv@3.1.4:

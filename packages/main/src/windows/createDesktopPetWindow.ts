@@ -10,7 +10,7 @@ import { createSettingWindow } from "./createSettingWindow";
 import { settingManager } from "../modules/settingManager";
 import {
   Setting,
-  SettingMethodsByMain,
+  SettingMethodsMainAPI,
 } from "live2d-copilot-shared/src/Setting";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
@@ -19,6 +19,9 @@ export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
  * Create desktop pet window
  */
 export async function createDesktopPetWindow() {
+  // Get setting.
+  const setting = await settingManager.getSetting();
+
   // Create window.
   const win = BrowserWindowEx.create(
     `${staticServeManager.origin}${DESKTOP_PET_ROUTE_PATH}`,
@@ -31,9 +34,10 @@ export async function createDesktopPetWindow() {
       hasShadow: false,
       fullscreen: true,
       movable: false,
-      skipTaskbar: true,
-      focusable: false,
-      alwaysOnTop: (await settingManager.getSetting()).alwaysOnTop,
+      minimizable: false,
+      maximizable: false,
+      // skipTaskbar: true,
+      alwaysOnTop: setting.alwaysOnTop,
     }
   );
 
@@ -66,6 +70,7 @@ export async function createDesktopPetWindow() {
   function onSettingChange(data: Setting) {
     // Set the alwaysOnTop property of the window to the value of the setting
     if (win?.isAlwaysOnTop() !== data.alwaysOnTop) {
+      win?.focus();
       win?.setAlwaysOnTop(data.alwaysOnTop);
     }
   }
@@ -87,7 +92,7 @@ export async function createDesktopPetWindow() {
  * Preload of the desktop pet window
  */
 function preload(win: BrowserWindowEx) {
-  win.rpc.register<SettingMethodsByMain>("setting", {
+  win.rpc.register<SettingMethodsMainAPI>("setting", {
     getSetting: settingManager.getSetting.bind(settingManager),
     setSetting: settingManager.setSetting.bind(settingManager),
   });
@@ -110,6 +115,11 @@ function preload(win: BrowserWindowEx) {
      */
     getCurrentProfile:
       live2DModelManager.getCurrentProfile.bind(live2DModelManager),
+
+    /**
+     * Save Live2D model profile.
+     */
+    saveProfile: live2DModelManager.saveProfile.bind(live2DModelManager),
 
     /**
      * Quit app.

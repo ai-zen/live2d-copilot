@@ -13,3 +13,15 @@ export async function waitFrames(count: number) {
     await nextFrame();
   }
 }
+
+export async function waitAudioEnd(audio: HTMLAudioElement) {
+  await new Promise((resolve, reject) => {
+    try {
+      audio.onended = resolve;
+      audio.onerror = reject;
+      audio.play().then(() => {});
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
