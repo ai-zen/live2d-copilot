@@ -12,14 +12,16 @@
     :model-position="positionRef"
     v-model:transform="profileRef.ChatInputTransform"
     @update:transform="saveProfileWithDebounce"
-    :chatContext="chatContext"
+    @send="sendMessage"
     ref="chatInputRef"
   />
   <ContextMenu />
 </template>
 
 <script setup lang="ts">
+import { ChatAL } from "@ai-zen/chats-core";
 import {
+  LAppDefineModule,
   LAppDelegateModule,
   LAppLive2DManagerModule,
   Live2D,
@@ -34,7 +36,7 @@ import { useChat } from "./composables/useChat";
 import { useCurrentModel } from "./composables/useCurrentModel";
 import { useSentence } from "./composables/useSentence";
 import { useTTS } from "./composables/useTTS";
-import { sleep, waitAudioEnd } from "../../utils/sleep";
+import { useVoicePlay } from "./composables/useVoicePlay";
 
 type LAppLive2DManager = LAppLive2DManagerModule.LAppLive2DManager;
 type LAppDelegate = LAppDelegateModule.LAppDelegate;
@@ -50,6 +52,7 @@ const {
   loadCurrentModel,
   currentModelPositionRef: positionRef,
   currentModelProfileRef: profileRef,
+  currentModelRef,
   saveProfileWithDebounce,
 } = useCurrentModel({
   winApi,
@@ -74,49 +77,75 @@ rpc.register("desktop-pet-window", {
   },
 });
 
-const chatContext = useChat({
-  onDeltaContent(delta_content) {
-    sentenceContext.inputQueue.push(delta_content);
+const chatController = useChat({
+  onDeltaContent(deltaContent) {
+    sentenceController.inputQueue.push(deltaContent);
   },
-  onFinally() {
-    sentenceContext.inputQueue.push(null);
-    // The `null` indicates that the request has ended,
-    // and even if no punctuation marks are matched,
-    // the sentence will be output.
+  onParsed() {
+    sentenceController.inputQueue.push(null); // Push null to end the sentence
   },
 });
 
-const sentenceContext = useSentence();
+const sentenceController = useSentence({
+  onSentence({ text }) {
+    ttsController.inputQueue.push(text);
+  },
+});
 
-const ttsContext = useTTS();
+const ttsController = useTTS({
+  onVoice(voice) {
+    voicePlayController.inputQueue.push(voice);
+  },
+});
 
-(async function () {
-  for await (const sentence of sentenceContext.outputQueue) {
-    ttsContext.inputQueue.push(sentence.text);
-  }
-})();
-
-(async function () {
-  for await (const voice of ttsContext.outputQueue) {
-    subtitlesRef.value?.push(voice.text);
-    if (voice.audio) await waitAudioEnd(voice.audio);
-    if (!ttsContext.outputQueue.size) {
-      if (!voice.audio) await sleep(3000);
-      subtitlesRef.value?.clear();
+const voicePlayController = useVoicePlay({
+  onPlay(voice) {
+    // 显示字幕
+    subtitlesRef.value?.push(voice.text, voice.audio!.duration * 1000 ?? 1000);
+    // 模型相关操作
+    if (currentModelRef.value) {
+      // 启动模型的闲置动作
+      currentModelRef.value.startMotion(
+        "Idle",
+        0,
+        LAppDefineModule.PriorityForce
+      );
+      // 对口型
+      currentModelRef.value._wavFileHandler.start(voice.audio!.src);
+      // 停用模型的随机动作
+      currentModelRef.value._enabledRandomIdleMotion = false;
     }
-  }
-})();
+  },
+  onPlayed() {
+    // 如果播放结束后没有更多音频
+    if (!voicePlayController.inputQueue.size) {
+      // 模型相关操作
+      if (currentModelRef.value) {
+        // 重新启用随机动画
+        currentModelRef.value._enabledRandomIdleMotion = true;
+      }
+    }
+  },
+});
+
+function sendMessage(content: string) {
+  console.log("sendMessage", content);
+  chatController.send(content);
+}
 
 watch(
   () => profileRef.value?.Chat?.Prompt,
-  (currentModelPrompt) => {
-    chatContext.abort();
-    chatContext.init();
-    if (currentModelPrompt) {
-      chatContext.chatState.messages.push(
-        chatContext.createSystemMessage(currentModelPrompt)
-      );
+  (prompt) => {
+    chatController.abort();
+    chatController.init();
+    if (prompt) {
+      chatController.setMessages([
+        { role: ChatAL.Role.System, content: prompt },
+      ]);
     }
+  },
+  {
+    immediate: true,
   }
 );
 </script>

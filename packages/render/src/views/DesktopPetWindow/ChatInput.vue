@@ -1,6 +1,5 @@
 <template>
   <div
-    ref="moveableElRef"
     class="chat-input-wrapper"
     :style="{
       '--model-x': `${modelPosition.deviceX}px`,
@@ -13,23 +12,53 @@
   >
     <div class="chat-input">
       <div class="chat-input-icon"></div>
-      <textarea class="chat-input-textarea" v-model="newMessage"> </textarea>
-      <div class="send-button" @click="send">send</div>
+      <el-input
+        class="chat-input-textarea"
+        type="textarea"
+        v-model="newMessage"
+        resize="none"
+        rows="3"
+      >
+      </el-input>
+      <div class="chat-actions">
+        <el-button
+          class="move-button"
+          size="small"
+          plain
+          circle
+          type="primary"
+          :ref="(btn: any) => moveableElRef = btn.$el"
+        >
+          <el-icon><Rank /></el-icon>
+        </el-button>
+        <el-button
+          class="send-button"
+          size="small"
+          plain
+          round
+          type="primary"
+          @click="send"
+        >
+          <el-icon><Promotion /></el-icon>
+        </el-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import {
-  Live2DModelPosition,
   ChatInputTransform,
+  Live2DModelPosition,
 } from "live2d-copilot-shared/src/Live2DModels";
 import { PropType, ref } from "vue";
 import { useMoveable } from "./composables/useMoveable";
-import { useChat } from "./composables/useChat";
+import { Rank, Promotion } from "@element-plus/icons-vue";
+import { ElButton } from "element-plus";
 
 const emit = defineEmits<{
   (e: "update:transform", value: ChatInputTransform): void;
+  (e: "send", value: string): void;
 }>();
 
 const props = defineProps({
@@ -44,10 +73,6 @@ const props = defineProps({
       return new ChatInputTransform();
     },
   },
-  chatContext: {
-    required: true,
-    type: Object as PropType<ReturnType<typeof useChat>>,
-  },
 });
 
 const { moveableElRef } = useMoveable({
@@ -60,7 +85,7 @@ const { moveableElRef } = useMoveable({
 const newMessage = ref("");
 
 function send() {
-  props.chatContext.sendNewMessage(newMessage.value);
+  emit("send", newMessage.value);
   newMessage.value = "";
 }
 </script>
@@ -87,7 +112,28 @@ function send() {
   }
 }
 
+.chat-actions {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  display: flex;
+  align-items: center;
+}
+
+// .move-button {
+// }
+
 .send-button {
-  background-color: #fff;
+  margin-left: 6px;
+}
+
+.chat-input-textarea {
+  width: 240px;
+  :deep() {
+    .el-textarea__inner {
+      background-color: var(--el-mask-color);
+      border-radius: 10px;
+    }
+  }
 }
 </style>

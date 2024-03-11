@@ -1,49 +1,48 @@
 <template>
-  <div>
-    <el-form v-if="formState.form">
-      <el-form-item prop="lang" label="language">
-        <el-select v-model="formState.form.lang">
-          <el-option value="zh" label="简体中文"></el-option>
-          <el-option value="en" label="English"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item prop="alwaysOnTop" label="alwaysOnTop">
-        <el-switch v-model="formState.form.alwaysOnTop"></el-switch>
-      </el-form-item>
-    </el-form>
+  <div class="models-window">
+    <el-tabs class="tabs" v-model="activeName">
+      <el-tab-pane :label="t('setting_window.application')" name="Application">
+        <Application></Application>
+      </el-tab-pane>
+    </el-tabs>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Setting } from "live2d-copilot-shared/src/Setting";
-import { nextTick, reactive, watch } from "vue";
-import { settingManager } from "../../modules/setting";
+import { ref } from "vue";
+import Application from "./Application.vue";
+import { useI18n } from "../../modules/i18n";
 
-const formState = reactive({
-  form: null as Setting | null,
-  isSyncing: false,
-});
+const { t } = useI18n();
 
-watch(
-  () => formState.form,
-  () => {
-    if (formState.isSyncing) return;
-    settingManager.state.data = JSON.parse(JSON.stringify(formState.form));
-    settingManager.saveSetting();
-  },
-  { deep: true }
-);
-
-watch(
-  () => settingManager.state.data,
-  async (newSetting) => {
-    formState.isSyncing = true;
-    formState.form = JSON.parse(JSON.stringify(newSetting));
-    await nextTick();
-    formState.isSyncing = false;
-  },
-  { immediate: true }
-);
+const activeName = ref("Application");
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+.models-window {
+  width: 100%;
+  height: 100%;
+}
+
+.tabs:deep() {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  .el-tabs__content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    .el-tab-pane {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  .el-tabs__header {
+    margin: 0px;
+  }
+  .el-tabs__item.el-tabs__item {
+    padding: 0 20px;
+  }
+}
+</style>

@@ -7,7 +7,7 @@ import { settingManager } from "./setting";
 
 export class RenderSimpleI18n extends SimpleI18n {
   static instance = new RenderSimpleI18n({
-    lang: "en",
+    lang: localStorage.getItem("lang") || "en",
     fallbackLang: "en",
     locales: {
       en,
@@ -32,6 +32,7 @@ export class RenderSimpleI18n extends SimpleI18n {
   setLang(lang: string) {
     this.state.lang = lang;
     this.eventBus.emit("langChange", lang);
+    localStorage.setItem("lang", lang);
   }
 
   setLocales(locale: SimpleI18n["state"]["locales"]) {

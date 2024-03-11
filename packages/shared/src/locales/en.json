@@ -4,6 +4,9 @@
         "workshop": "Workshop",
         "publish": "Publish"
     },
+    "setting_window": {
+        "application": "Application"
+    },
     "reset_filter_setting": "Reset Filter Setting",
     "keyword_search_placeholder": "Enter keyword to search",
     "sort_type": {
@@ -145,5 +148,9 @@
     "count_subscription": "{0} Subscriptions",
     "count_collection": "{0} Collections",
     "subscribe": "Subscribe",
-    "unsubscribe": "Unsubscribe"
+    "unsubscribe": "Unsubscribe",
+    "application_page": {
+        "lang": "Language",
+        "always_on_top": "Always On Top"
+    }
 }

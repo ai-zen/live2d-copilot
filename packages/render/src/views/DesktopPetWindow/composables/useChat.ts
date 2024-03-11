@@ -1,156 +1,97 @@
-import { ChatAL } from "live2d-copilot-shared/src/ChatAL";
-import { computed, reactive, shallowReactive, watch } from "vue";
-import * as ChatClients from "../../../classes/ChatClients";
-import { ChatClientBase } from "../../../classes/ChatClients/ChatClientBase";
-import { settingManager } from "../../../modules/setting";
+import { Chat, ChatAL, CommonEndpoint } from "@ai-zen/chats-core";
+import { shallowRef } from "vue";
 
 export function useChat(options: {
-  onDeltaContent(delta_content: string): void;
-  onFinally(): void;
+  onDeltaContent?(deltaContent: string): void;
+  onParsed?(receiver: ChatAL.Message): void;
 }) {
-  const chatState = reactive({
-    messages: [] as ChatAL.Message[],
-  });
-
-  const chatClientState = shallowReactive({
-    name: null as string | null,
-    client: null as ChatClientBase | null,
-  });
+  let chatInstanceRef = shallowRef<Chat>();
 
   function init() {
-    chatState.messages = [];
-  }
+    chatInstanceRef.value?.events.destroy();
 
-  function abort() {
-    chatClientState.client?.abort();
-  }
-
-  function createSystemMessage(content = "") {
-    return reactive({
-      role: ChatAL.Role.System,
-      content,
-      status: ChatAL.MessageStatus.Completed,
-    });
-  }
-
-  function createAssistantMessage(content = "") {
-    return reactive({
-      role: ChatAL.Role.Assistant,
-      content,
-      status: ChatAL.MessageStatus.Pending,
-    });
-  }
-
-  function createUserMessage(content = "") {
-    return reactive({
-      role: ChatAL.Role.User,
-      content,
-      status: ChatAL.MessageStatus.Completed,
-    });
-  }
-
-  async function sendNewMessage(newMessage: string) {
-    const userMessage = createUserMessage(newMessage);
-    const assistantMessage = createAssistantMessage();
-    chatState.messages.push(userMessage, assistantMessage);
-    await send(assistantMessage);
-  }
-
-  async function send(pendingMsg?: ChatAL.Message) {
-    if (!chatClientState.client) return;
-
-    const messages: ChatAL.Message[] = chatState.messages
-      .filter((message) => message.status == ChatAL.MessageStatus.Completed)
-      .map((message) => ({
-        role: message.role,
-        content: message.content,
-        tool_calls: message.tool_calls?.length ? message.tool_calls : undefined,
-      }));
-
-    const { tool_calls } = chatClientState.client.send({
-      messages,
-      onOpen() {
-        pendingMsg!.status = ChatAL.MessageStatus.Writing;
-      },
-      onDeltaContent(delta_content) {
-        pendingMsg!.content += delta_content;
-        options.onDeltaContent(delta_content);
-      },
-      onFinishReason(finish_reason) {
-        pendingMsg!.finish_reason = finish_reason;
-      },
-      onError(error) {
-        pendingMsg!.status = ChatAL.MessageStatus.Failed;
-        pendingMsg!.content = error.message;
-      },
-      onDone() {
-        pendingMsg!.status = ChatAL.MessageStatus.Completed;
-      },
-      onFinally() {
-        options.onFinally();
-      },
-    });
-
-    if (tool_calls?.length) {
-      pendingMsg!.tool_calls = tool_calls;
-    }
-
-    // wait the request to completed.
-    // await promise;
-
-    // if (pendingMsg!.tool_calls?.length) {
-    //   const results = await handleToolCalls(pendingMsg!.tool_calls!);
-    //   const toolCallsMessage = createToolCallsMessage(results);
-    //   const assistantMessage = createAssistantMessage();
-    //   chatState.messages.push(toolCallsMessage, assistantMessage);
-    //   await send(assistantMessage);
-    // }
-  }
-
-  const isHasPendingMessage = computed(() =>
-    chatState.messages.some(
-      (msg) => msg.status === ChatAL.MessageStatus.Pending
-    )
-  );
-
-  watch(
-    () => settingManager.state.data,
-    (newSetting) => {
-      if (!newSetting) return;
-
-      const name = newSetting.currentChatClient;
-      let config = newSetting.chatClientConfigs?.[name] as any;
-
-      if (name == "AIZen") {
-        config ??= {
+    chatInstanceRef.value = new Chat({
+      messages: [],
+      model_key: "GPT35Turbo_0631",
+      endpoints: [
+        new CommonEndpoint({
+          enabled_models_keys: ["GPT35Turbo_0631"],
           url: "https://api.ai-zen.cn/llm/chat/gpt-35-turbo-001",
-          headers: { "Content-Type": "application/json" },
-        };
-      }
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: {},
+        }),
+      ],
+    });
 
-      const isChanged =
-        JSON.stringify({
-          name: chatClientState.name,
-          config: chatClientState.client?.config,
-        }) !== JSON.stringify({ name, config });
+    chatInstanceRef.value?.events.on("chunk", onChunk);
+    chatInstanceRef.value?.events.on("parsed", onParsed);
+  }
 
-      if (isChanged) {
-        chatClientState.name = name;
-        chatClientState.client = new ChatClients[name]({ config });
-      }
-    },
-    { immediate: true }
-  );
+  /**
+   * 响应流式数据片段
+   */
+  function onChunk(chunk: ChatAL.StreamResponseData) {
+    if (chunk?.choices?.[0]?.delta?.content) {
+      options.onDeltaContent?.(chunk.choices[0].delta.content as string);
+    }
+  }
+
+  /**
+   * 响应一轮对话的流式数据解析完毕（通常在请求完成之后）
+   */
+  function onParsed(receiver: ChatAL.Message) {
+    options.onParsed?.(receiver);
+  }
+
+  /**
+   * 修剪消息列表
+   */
+  function trimMessages() {
+    if (!chatInstanceRef.value) return;
+
+    const systemMessages = chatInstanceRef.value.messages.filter(
+      (x) => x.role == ChatAL.Role.System
+    );
+    const otherMessages = chatInstanceRef.value.messages.filter(
+      (x) => x.role != ChatAL.Role.System
+    );
+    chatInstanceRef.value.messages = [
+      ...systemMessages,
+      ...otherMessages.slice(-5),
+    ];
+  }
+
+  /**
+   * 发送新消息
+   */
+  function send(newMessage: string) {
+    if (!chatInstanceRef.value) return;
+    trimMessages();
+    chatInstanceRef.value.sendUserMessage(newMessage);
+  }
+
+  /**
+   * 中止上一次发送
+   */
+  function abort() {
+    chatInstanceRef.value?.abortLastSend();
+  }
+
+  /**
+   * 设置消息列表
+   */
+  function setMessages(messages: ChatAL.Message[]) {
+    if (!chatInstanceRef.value) return;
+    chatInstanceRef.value.messages = messages;
+  }
 
   return {
+    chatInstanceRef,
     init,
+    send,
     abort,
-    createSystemMessage,
-    createAssistantMessage,
-    createUserMessage,
-    chatState,
-    chatClientState,
-    sendNewMessage,
-    isHasPendingMessage,
+    setMessages,
   };
 }

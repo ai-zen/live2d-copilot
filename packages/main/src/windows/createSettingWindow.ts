@@ -2,6 +2,7 @@ import { SettingMethodsMainAPI } from "live2d-copilot-shared/src/Setting";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 import { settingManager } from "../modules/settingManager";
 import { staticServeManager } from "../modules/staticServeManager";
+import { Menu } from "electron";
 
 export const SETTING_ROUTE_PATH = `/setting-window`;
 
@@ -16,6 +17,8 @@ export async function createSettingWindow() {
   );
 
   if (!win) return;
+
+  Menu.setApplicationMenu(null);
 
   // Preload of the window.
   preload(win);

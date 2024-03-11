@@ -5,12 +5,13 @@ export interface Sentence {
   text: string;
 }
 
-export function useSentence() {
+export function useSentence(options: {
+  onSentence?(sentence: Sentence): void;
+}) {
   // The `null` indicates that the request has ended,
   // and even if no punctuation marks are matched,
   // the sentence will be output.
   const inputQueue = new AsyncQueue<string | null>();
-  const outputQueue = new AsyncQueue<Sentence>();
 
   let buffer = "";
 
@@ -18,7 +19,7 @@ export function useSentence() {
     let text = buffer.trim();
 
     if (text.length) {
-      outputQueue.push({ style: undefined, text });
+      options.onSentence?.({ style: undefined, text });
     }
 
     buffer = "";
@@ -39,15 +40,12 @@ export function useSentence() {
         flush();
       }
     }
-
-    outputQueue.done();
   }
 
   run();
 
   return {
     inputQueue,
-    outputQueue,
     flush,
   };
 }

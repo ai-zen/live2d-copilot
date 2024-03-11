@@ -4,6 +4,9 @@
         "workshop": "创意工坊",
         "publish": "发布"
     },
+    "setting_window": {
+        "application": "应用程序"
+    },
     "reset_filter_setting": "重置筛选设置",
     "keyword_search_placeholder": "请输入关键字搜索",
     "sort_type": {
@@ -145,5 +148,9 @@
     "count_subscription": "{0}订阅",
     "count_collection": "{0}收藏",
     "subscribe": "订阅",
-    "unsubscribe": "取消订阅"
+    "unsubscribe": "取消订阅",
+    "application_page": {
+        "lang": "语言",
+        "always_on_top": "始终置顶"
+    }
 }

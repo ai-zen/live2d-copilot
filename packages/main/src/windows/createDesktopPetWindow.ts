@@ -1,4 +1,4 @@
-import { app } from "electron";
+import { app, screen } from "electron";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 import { live2DModelManager } from "../modules/live2DModelsManager";
 import { staticServeManager } from "../modules/staticServeManager";
@@ -32,7 +32,9 @@ export async function createDesktopPetWindow() {
       transparent: true,
       resizable: false,
       hasShadow: false,
-      fullscreen: true,
+      // fullscreen: true,
+      width: screen.getPrimaryDisplay().workAreaSize.width,
+      height: screen.getPrimaryDisplay().workAreaSize.height,
       movable: false,
       minimizable: false,
       maximizable: false,

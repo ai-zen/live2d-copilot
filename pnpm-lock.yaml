@@ -67,6 +67,9 @@ importers:
       '@ai-zen/async-queue':
         specifier: ^1.0.2
         version: 1.0.2
+      '@ai-zen/chats-core':
+        specifier: ^1.0.9
+        version: 1.0.9
       '@ai-zen/event-bus':
         specifier: ^1.0.1
         version: 1.0.1
@@ -125,6 +128,17 @@ packages:
     resolution: {integrity: sha512-i316ZK5dSbtqgfNhI9ZOg/chi3jBq1xyn4Lr/QIjCWYlK58bDRhotvA91kwiVNt4Vmh7eQLxf/aArpWTMz244g==}
     dev: false
 
+  /@ai-zen/chats-core@1.0.9:
+    resolution: {integrity: sha512-r7rMllXqZuuaDrKwIeaEZ95tECHY4fZhYyxLdtEL5x3/HquXfwVVPQPWY6BVYpp6++kpCAXYe/oHfDg7V2/wIg==}
+    dependencies:
+      '@ai-zen/async-queue': 1.0.2
+      '@ai-zen/event-bus': 1.0.1
+      '@ai-zen/node-fetch-event-source': 2.1.4
+      jose: 5.2.3
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /@ai-zen/event-bus@1.0.1:
     resolution: {integrity: sha512-toCOVAMFKR5e5pavc6fG/7HrBJmcSovFq+pAtzjc8gIK9/1rKRGz9sDG1CJtEWC7fLaR0AHAfBCH5zz7zQIROA==}
 
@@ -155,6 +169,14 @@ packages:
       '@ai-zen/live2d-app': 1.0.4
       '@ai-zen/live2d-core': 1.0.2
       vue: 3.3.4
+    dev: false
+
+  /@ai-zen/node-fetch-event-source@2.1.4:
+    resolution: {integrity: sha512-OHFwPJecr+qwlyX5CGmTvKAKPZAdZaxvx/XDqS1lx4I2ZAk9riU0XnEaRGOOAEFrdcLZ98O5yWqubwjaQc0umg==}
+    dependencies:
+      cross-fetch: 4.0.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /@ai-zen/steamworks.js@0.3.6-dev.16:
@@ -1651,6 +1673,14 @@ packages:
     resolution: {integrity: sha512-ty/fTekppD2fIwRvnZAVdeOiGd1c7YXEixbgJTNzqcxJWKQnjJ/V1bNEEE6hygpM3WjwHFUVK6HTjWSzV4a8sQ==}
     dev: true
 
+  /cross-fetch@4.0.0:
+    resolution: {integrity: sha512-e4a5N8lVvuLgAWgnCrLr2PP0YyDOTHa9H/Rj54dirp61qXnNq46m82bRhNqIA5VccJtWBvPTFRV3TtvHUKPB1g==}
+    dependencies:
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /cross-spawn-windows-exe@1.2.0:
     resolution: {integrity: sha512-mkLtJJcYbDCxEG7Js6eUnUNndWjyUZwJ3H7bErmmtOYU/Zb99DyUkpamuIZE0b3bhmJyZ7D90uS6f+CGxRRjOw==}
     engines: {node: '>= 10'}
@@ -2278,6 +2308,7 @@ packages:
 
   /gar@1.0.4:
     resolution: {integrity: sha512-w4n9cPWyP7aHxKxYHFQMegj7WIAsL/YX/C4Bs5Rr8s1H9M1rNtRWRsw+ovYMkXDQ5S4ZbYHsHAPmevPjPgw44w==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
     requiresBuild: true
     dev: true
     optional: true
@@ -2696,6 +2727,10 @@ packages:
       '@pkgjs/parseargs': 0.11.0
     dev: true
 
+  /jose@5.2.3:
+    resolution: {integrity: sha512-KUXdbctm1uHVL8BYhnyHkgp3zDX5KW8ZhAKVFEfUbU2P8Alpzjb+48hHvjOdQIyPshoblhzsuqOwEEAbtHVirA==}
+    dev: false
+
   /json-buffer@3.0.1:
     resolution: {integrity: sha512-4bV5BfR2mqfQTJm+V5tPPdf+ZpuhiIvTuAB5g8kcrXOZpTT/QwwVRWBywX1ozr6lEuPdbHxwaJlm9G6mI2sfSQ==}
     dev: true
@@ -3106,7 +3141,6 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
-    dev: true
 
   /node-gyp@9.4.0:
     resolution: {integrity: sha512-dMXsYP6gc9rRbejLXmTbVRYjAHw7ppswsKyMxuxJxxOHzluIO1rGp9TOQgjFJ+2MCqcOcQTOPB/8Xwhr+7s4Eg==}
@@ -3911,7 +3945,6 @@ packages:
 
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
-    dev: true
 
   /trim-repeated@1.0.0:
     resolution: {integrity: sha512-pkonvlKk8/ZuR0D5tLW8ljt5I8kmxp2XKymhepUeOdCEfKpZaktSArkLHZt76OB1ZvO9bssUsDty4SWhLvZpLg==}
@@ -4086,7 +4119,6 @@ packages:
 
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
-    dev: true
 
   /whatwg-fetch@3.6.19:
     resolution: {integrity: sha512-d67JP4dHSbm2TrpFj8AbO8DnL1JXL5J9u0Kq2xW6d0TFDbCA3Muhdt8orXC22utleTVj7Prqt82baN6RBvnEgw==}
@@ -4097,7 +4129,6 @@ packages:
     dependencies:
       tr46: 0.0.3
       webidl-conversions: 3.0.1
-    dev: true
 
   /which@1.3.1:
     resolution: {integrity: sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==}

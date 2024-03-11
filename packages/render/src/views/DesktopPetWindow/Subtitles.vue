@@ -56,41 +56,45 @@ const state = reactive({
   currentText: "",
 });
 
-function displayText(text: string) {
-  let isCancel = false;
+let lastTask: DisplayTask | null = null;
 
-  (async () => {
+class DisplayTask {
+  text: string;
+  duration: number;
+  canceled = false;
+  constructor(text: string, duration: number) {
+    this.text = text;
+    this.duration = duration;
+  }
+  async play() {
+    if (this.canceled) return;
     state.currentText = "";
-    for (const char of text.split("")) {
-      if (isCancel) return;
-      state.currentText += char;
-      await sleep(50);
+    for (const word of this.text) {
+      if (this.canceled) return;
+      await sleep(this.duration / this.text.length);
+      if (this.canceled) return;
+      state.currentText += word;
     }
-  })();
-
-  return () => {
-    isCancel = true;
-  };
+    await sleep(1000);
+    if (this.canceled) return;
+    state.currentText = "";
+  }
+  cancel() {
+    this.canceled = true;
+  }
 }
 
-let cancelLastText: undefined | (() => void);
-
-async function push(text: string) {
-  cancelLastText?.();
-  cancelLastText = displayText(text);
+async function push(text: string, duration: number) {
+  lastTask?.cancel();
+  lastTask = new DisplayTask(text, duration);
+  lastTask.play();
 }
 
 async function clear() {
-  cancelLastText?.();
   state.currentText = "";
 }
 
-function isHasPending() {
-  return Boolean(state.currentText);
-}
-
 defineExpose({
-  isHasPending,
   push,
   clear,
 });
@@ -139,3 +143,4 @@ defineExpose({
   opacity: 0;
 }
 </style>
+text: string; duration: number; text: string; duration: number;
