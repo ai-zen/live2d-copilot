@@ -1,8 +1,3 @@
-export interface SettingMethodsMainAPI extends Record<string, any> {
-  getSetting: () => Promise<Setting>;
-  setSetting: (setting: Setting) => Promise<void>;
-}
-
 export interface SettingMethodsRenderAPI extends Record<string, any> {
   onSettingChange: (setting: Setting) => void;
 }

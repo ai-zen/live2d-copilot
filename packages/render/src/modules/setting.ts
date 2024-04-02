@@ -1,7 +1,7 @@
 import EventBus from "@ai-zen/event-bus";
+import type { Methods } from "live2d-copilot-main/src/windows/preloads/setting";
 import {
   Setting,
-  SettingMethodsMainAPI,
   SettingMethodsRenderAPI,
 } from "live2d-copilot-shared/src/Setting";
 import { reactive } from "vue";
@@ -12,7 +12,7 @@ export class RenderSettingManager {
 
   eventBus = new EventBus();
 
-  winApi = rpc.use<SettingMethodsMainAPI>("setting");
+  winApi = rpc.use<Methods>("setting");
 
   state = reactive({
     isLoading: true,
