@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      '@ai-zen/steamworks.js':
+        specifier: ^0.3.6-dev.17
+        version: 0.3.6-dev.17
 
   packages/main:
     devDependencies:
@@ -14,8 +18,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       '@ai-zen/steamworks.js':
-        specifier: ^0.3.6-dev.16
-        version: 0.3.6-dev.16
+        specifier: ^0.3.6-dev.17
+        version: 0.3.6-dev.17
       '@electron-forge/cli':
         specifier: ^6.4.2
         version: 6.4.2
@@ -179,8 +183,8 @@ packages:
       - encoding
     dev: false
 
-  /@ai-zen/steamworks.js@0.3.6-dev.16:
-    resolution: {integrity: sha512-e5+4bhTJcM/bTML41TILtI8hAhCouJh3XRk+8WtodbW8KMqWlSkOXV1SIEV3wzgHQhOzJ1mWxayFOC9o5XpuYw==}
+  /@ai-zen/steamworks.js@0.3.6-dev.17:
+    resolution: {integrity: sha512-E6XX0uABZZ9V/ecjYezGF1+y7lfACjE11IFy3ztEInSbgbb65eHwnTKU6Wk9s2TpBXR0+yxkGrhSrz8WDeEShQ==}
     engines: {node: '>= 14'}
     dependencies:
       '@types/node': 20.8.0

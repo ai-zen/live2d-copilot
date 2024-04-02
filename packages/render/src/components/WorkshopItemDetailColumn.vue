@@ -24,14 +24,12 @@
           </div>
           <div class="button-row">
             <el-button
-              v-if="workshopItemsManager.isSubscribed(item.publishedFileId)"
+              v-if="workshop.isSubscribed(item.publishedFileId)"
               class="subscription-button"
               size="large"
               type="danger"
-              :loading="
-                workshopItemsManager.isUnsubscribing(item.publishedFileId)
-              "
-              @click="workshopItemsManager.unsubscribe(item.publishedFileId)"
+              :loading="workshop.isUnsubscribing(item.publishedFileId)"
+              @click="workshop.unsubscribe(item.publishedFileId)"
               >{{ t("unsubscribe") }}</el-button
             >
             <el-button
@@ -39,10 +37,8 @@
               class="subscription-button"
               size="large"
               type="primary"
-              :loading="
-                workshopItemsManager.isSubscribing(item.publishedFileId)
-              "
-              @click="workshopItemsManager.subscribe(item.publishedFileId)"
+              :loading="workshop.isSubscribing(item.publishedFileId)"
+              @click="workshop.subscribe(item.publishedFileId)"
               >{{ t("subscribe") }}</el-button
             >
           </div>
@@ -54,8 +50,8 @@
 
 <script setup lang="ts">
 import { WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
-import { workshopItemsManager } from "../modules/workshopItemsManager";
-import { useI18n } from "../../../modules/i18n";
+import { workshop } from "../modules/workshop";
+import { useI18n } from "../modules/i18n";
 
 defineProps<{ item: WorkshopItem }>();
 

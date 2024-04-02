@@ -1,5 +1,5 @@
 import { computed } from "vue";
-import { useI18n } from "../../../modules/i18n";
+import { useI18n } from "../modules/i18n";
 
 export enum TagsCategories {
   ItemTypeTags = "item_type_tags",

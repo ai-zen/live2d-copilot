@@ -1,3 +1,12 @@
+export interface SettingMethodsMainAPI extends Record<string, any> {
+  getSetting: () => Promise<Setting>;
+  setSetting: (setting: Setting) => Promise<void>;
+}
+
+export interface SettingMethodsRenderAPI extends Record<string, any> {
+  onSettingChange: (setting: Setting) => void;
+}
+
 export interface Setting {
   lang: string;
   alwaysOnTop: boolean;
@@ -24,13 +33,4 @@ export interface Setting {
       requestData: Record<string, any>;
     };
   };
-}
-
-export interface SettingMethodsMainAPI extends Record<string, any> {
-  getSetting: () => Promise<Setting>;
-  setSetting: (setting: Setting) => Promise<void>;
-}
-
-export interface SettingMethodsRenderAPI extends Record<string, any> {
-  onSettingChange: (setting: Setting) => void;
 }

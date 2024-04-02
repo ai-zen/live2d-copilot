@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
-import { toLocalURI } from "../../../utils/toLocalURI";
+import { toLocalURI } from "../utils/toLocalURI";
 
 defineProps<{ item: Live2DModelProfileEx }>();
 </script>

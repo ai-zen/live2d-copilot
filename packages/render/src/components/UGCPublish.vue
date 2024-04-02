@@ -92,6 +92,7 @@
           v-model="form.description"
         ></el-input>
       </el-form-item>
+
       <el-form-item
         prop="itemTypeTag"
         :label="t('publish_page.item_type_tags')"
@@ -110,6 +111,7 @@
           >
         </el-radio-group>
       </el-form-item>
+
       <el-form-item
         prop="ageRatingTag"
         :label="t('publish_page.age_rating_tags')"
@@ -128,6 +130,7 @@
           >
         </el-radio-group>
       </el-form-item>
+
       <el-form-item
         prop="modelsTag"
         :label="t('publish_page.models_tags')"
@@ -146,49 +149,7 @@
           >
         </el-radio-group>
       </el-form-item>
-      <!-- <el-form-item
-        prop="modelsTags"
-        :label="t('publish_page.models_tags')"
-        :rules="{
-          required: true,
-          type: 'array',
-          message: t('publish_page.models_tags_required'),
-        }"
-      >
-        <el-checkbox-group v-model="form.modelsTags">
-          <el-checkbox
-            v-for="option of tagsGroupRecord[TagsCategories.ModelsTags].children"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.label }}</el-checkbox
-          >
-        </el-checkbox-group>
-      </el-form-item> -->
-      <!-- <el-form-item prop="customTags" :label="t('publish_page.custom_tags')">
-        <el-row>
-          <el-tag
-            v-for="tag in form.customTags"
-            :key="tag"
-            closable
-            :disable-transitions="false"
-            @close="onTagClose(tag)"
-          >
-            {{ tag }}
-          </el-tag>
-          <el-input
-            v-if="newTagState.isShow"
-            ref="tagInputRef"
-            v-model="newTagState.value"
-            size="small"
-            @keyup.enter="onInputConfirm"
-            @blur="onInputConfirm"
-            :placeholder="t('publish_page.custom_tags_placeholder')"
-          />
-          <el-button v-else type="success" plain size="small" @click="addTag">
-            {{ t("publish_page.custom_tags_add") }}
-          </el-button>
-        </el-row>
-      </el-form-item> -->
+
       <el-form-item prop="changeNote" :label="t('publish_page.change_note')">
         <el-input
           type="textarea"
@@ -281,27 +242,31 @@
 <script setup lang="ts">
 import { InfoFilled } from "@element-plus/icons-vue";
 import { ElForm, ElInput, ElMessage } from "element-plus";
-import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
+import type { Methods as SteamworksAPIMethods } from "live2d-copilot-main/src/windows/preloads/steamworks";
 import {
   UgcItemVisibility,
   UpdateStatus,
   UpdateProgress,
   UgcUpdate,
 } from "live2d-copilot-shared/src/Steamworks";
-import { computed, nextTick, reactive, ref, toRaw } from "vue";
-import { rpc } from "../../modules/rpc";
+import { computed, nextTick, reactive, ref, toRaw, defineProps } from "vue";
+import { rpc } from "../modules/rpc";
 import {
   useTagsOptions,
   TagsCategories,
   AgeRatingTags,
   ModelsTags,
   ItemTypeTags,
-} from "./composables/useTagsOptions";
-import { useI18n } from "../../modules/i18n";
+} from "../composables/useUGCTagsOptions";
+import { useI18n } from "../modules/i18n";
+
+const props = defineProps<{
+  beforePublish: (form: typeof DEFAULT_FORM) => Promise<void>;
+}>();
 
 const { t } = useI18n();
 
-const winApi = rpc.use<Methods>("models-window");
+const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
 
 const formRef = ref<null | InstanceType<typeof ElForm>>(null);
 
@@ -332,35 +297,9 @@ const DEFAULT_FORM = {
 
 const form = reactive(structuredClone(DEFAULT_FORM));
 
-// const tagInputRef = ref<InstanceType<typeof ElInput>>();
-
-// const newTagState = reactive({
-//   value: "",
-//   isShow: false,
-// });
-
-// const onTagClose = (tag: string) => {
-//   form.customTags.splice(form.customTags.indexOf(tag), 1);
-// };
-
-// function addTag() {
-//   newTagState.isShow = true;
-//   nextTick(() => {
-//     tagInputRef.value?.input?.focus();
-//   });
-// }
-
-// const onInputConfirm = () => {
-//   if (newTagState.value) {
-//     form.customTags.push(newTagState.value);
-//   }
-//   newTagState.isShow = false;
-//   newTagState.value = "";
-// };
-
 async function selectContentDir() {
   try {
-    const result = await winApi.showOpenDialog({
+    const result = await steamworksApi.showOpenDialog({
       properties: ["openDirectory"],
     });
     if (result.filePaths[0]) {
@@ -373,7 +312,7 @@ async function selectContentDir() {
 
 async function selectPreviewFile() {
   try {
-    const result = await winApi.showOpenDialog({
+    const result = await steamworksApi.showOpenDialog({
       properties: ["openFile"],
       filters: [{ extensions: ["png"], name: t("publish_page.image") }],
     });
@@ -405,13 +344,13 @@ async function onSubmit() {
   try {
     publishState.isPublishing = true;
 
-    await winApi.buildProfile(toRaw(form));
+    await props.beforePublish(toRaw(form));
 
     let result: { itemId: bigint } | undefined;
-    let itemId = undefined;
+    let itemId: bigint | undefined = undefined;
 
     if (form.publishType == PublishType.Add) {
-      const result = await winApi.createItem();
+      const result = await steamworksApi.createItem();
       if (result?.itemId) itemId = result.itemId;
     } else {
       itemId = BigInt(form.itemId);
@@ -419,7 +358,7 @@ async function onSubmit() {
 
     if (!itemId) throw new Error(t("publish_page.no_valid_item_id_obtained"));
 
-    result = await winApi.updateItem(
+    result = await steamworksApi.updateItem(
       itemId,
       <UgcUpdate>{
         title: form.title,
@@ -427,7 +366,7 @@ async function onSubmit() {
         contentPath: form.contentPath,
         previewPath: form.previewPath,
         tags: (() => {
-          let tags = [];
+          let tags: string[] = [];
           if (form.itemTypeTag) tags.push(form.itemTypeTag);
           if (form.modelsTag) tags.push(form.modelsTag);
           if (form.ageRatingTag) tags.push(form.ageRatingTag);

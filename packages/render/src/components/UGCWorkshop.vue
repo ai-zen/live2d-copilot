@@ -1,5 +1,5 @@
 <template>
-  <div class="modules-list">
+  <div class="ugc-list-page">
     <div class="filter-column">
       <el-button
         class="reset-filter-button"
@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
-import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
+import type { Methods as SteamworksAPIMethods } from "live2d-copilot-main/src/windows/preloads/steamworks";
 import {
   UGCQueryType,
   UGCType,
@@ -78,24 +78,24 @@ import {
   WorkshopPaginatedResult,
 } from "live2d-copilot-shared/src/Steamworks";
 import { onMounted, reactive, ref } from "vue";
-import AutoGrid from "../../components/AutoGrid.vue";
-import { rpc } from "../../modules/rpc";
-import WorkshopItemCard from "./components/WorkshopItemCard.vue";
-import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
-import { useSortOptions } from "./composables/useSortOptions";
+import AutoGrid from "../components/AutoGrid.vue";
+import { rpc } from "../modules/rpc";
+import WorkshopItemCard from "../components/WorkshopItemCard.vue";
+import WorkshopItemDetailColumn from "../components/WorkshopItemDetailColumn.vue";
+import { useSortOptions } from "../composables/useUGCSortOptions";
 import {
   ItemTypeTags,
   TagsCategories,
   useTagsOptions,
   getExcludedTagsByItemType,
-} from "./composables/useTagsOptions";
-import { workshopItemsManager } from "./modules/workshopItemsManager";
-import { useI18n } from "../../modules/i18n";
+} from "../composables/useUGCTagsOptions";
+import { workshop } from "../modules/workshop";
+import { useI18n } from "../modules/i18n";
 import { ElTree } from "element-plus";
 
 const { t } = useI18n();
 
-const winApi = rpc.use<Methods>("models-window");
+const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
 
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
@@ -130,15 +130,15 @@ const listState = reactive({
   isReady: false,
 });
 
-async function getList() {
-  console.log("getList");
+async function loadList() {
+  console.log("loadList");
   try {
     listState.isLoading = true;
     const currentSortOption = sortOptions.value.find(
       (option) => option.value == filterState.form.sort
     );
 
-    const res = (await winApi.getAllItems(
+    const res = (await steamworksApi.getAllItems(
       paginationState.currentPage,
       currentSortOption?.queryType ?? UGCQueryType.RankedByPublicationDate,
       UGCType.Items,
@@ -168,7 +168,7 @@ async function getList() {
 
 async function getNewList() {
   paginationState.currentPage = 1;
-  await getList();
+  await loadList();
 }
 
 function onSizeChange() {
@@ -176,7 +176,7 @@ function onSizeChange() {
 }
 
 function onCurrentChange() {
-  getList();
+  loadList();
 }
 
 function onReset() {
@@ -204,9 +204,9 @@ async function onCardClick(item: WorkshopItem) {
 
 onMounted(async () => {
   getNewList();
-  await workshopItemsManager.getSubscribedIds();
-  await workshopItemsManager.updateSubscribedItemsStatusData();
+  await workshop.getSubscribedIds();
+  await workshop.updateSubscribedItemsStatusData();
 });
 </script>
 
-<style lang="scss" src="./styles/models-list.scss"></style>
+<style lang="scss" src="../styles/ugc-list-page.scss"></style>

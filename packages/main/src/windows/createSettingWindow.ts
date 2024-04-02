@@ -1,8 +1,7 @@
-import { SettingMethodsMainAPI } from "live2d-copilot-shared/src/Setting";
-import { BrowserWindowEx } from "../classes/BrowserWindowEx";
-import { settingManager } from "../modules/settingManager";
-import { staticServeManager } from "../modules/staticServeManager";
 import { Menu } from "electron";
+import { BrowserWindowEx } from "../classes/BrowserWindowEx";
+import { staticServeManager } from "../modules/staticServeManager";
+import { preload as preloadOfSetting } from "./preloads/setting";
 
 export const SETTING_ROUTE_PATH = `/setting-window`;
 
@@ -20,26 +19,8 @@ export async function createSettingWindow() {
 
   Menu.setApplicationMenu(null);
 
-  // Preload of the window.
-  preload(win);
+  // Preload of setting.
+  preloadOfSetting(win);
 
   return win;
 }
-
-/**
- * Preload of the desktop pet window
- */
-function preload(win: BrowserWindowEx) {
-  win.rpc.register<SettingMethodsMainAPI>("setting", {
-    getSetting: settingManager.getSetting.bind(settingManager),
-    setSetting: settingManager.setSetting.bind(settingManager),
-  });
-
-  const methods = win.rpc.register(win.name, {});
-
-  return {
-    methods,
-  };
-}
-
-export type Methods = ReturnType<typeof preload>["methods"];

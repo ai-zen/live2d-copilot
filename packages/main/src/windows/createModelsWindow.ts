@@ -1,10 +1,9 @@
-import { Menu, dialog } from "electron";
+import { Menu } from "electron";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 import { live2DModelManager } from "../modules/live2DModelsManager";
 import { staticServeManager } from "../modules/staticServeManager";
-import { steamworksManager } from "../modules/steamworksManager";
-import { settingManager } from "../modules/settingManager";
-import { SettingMethodsMainAPI } from "live2d-copilot-shared/src/Setting";
+import { preload as preloadOfSetting } from "./preloads/setting";
+import { preload as preloadOfSteamworks } from "./preloads/steamworks";
 
 export const MODELS_ROUTE_PATH = `/models-window`;
 
@@ -31,6 +30,12 @@ export async function createModelsWindow() {
   // Preload of the window.
   preload(win);
 
+  // Preload of setting.
+  preloadOfSetting(win);
+
+  // Preload of steamworks.
+  preloadOfSteamworks(win);
+
   return win;
 }
 
@@ -38,41 +43,14 @@ export async function createModelsWindow() {
  * Preload of the desktop pet window
  */
 function preload(win: BrowserWindowEx) {
-  win.rpc.register<SettingMethodsMainAPI>("setting", {
-    getSetting: settingManager.getSetting.bind(settingManager),
-    setSetting: settingManager.setSetting.bind(settingManager),
-  });
-
-  const methods = win.rpc.register(win.name, {
-    showOpenDialog(options: Electron.OpenDialogOptions) {
-      return dialog.showOpenDialog(options);
-    },
-
+  return win.rpc.register(win.name, {
     loadProfile: live2DModelManager.loadProfile.bind(live2DModelManager),
     loadProfiles: live2DModelManager.loadProfiles.bind(live2DModelManager),
     getCurrentProfile:
       live2DModelManager.getCurrentProfile.bind(live2DModelManager),
     setCurrent: live2DModelManager.setCurrent.bind(live2DModelManager),
     buildProfile: live2DModelManager.buildProfile.bind(live2DModelManager),
-
-    createItem: steamworksManager.createItem.bind(steamworksManager),
-    updateItem: steamworksManager.updateItem.bind(steamworksManager),
-    getAllItems: steamworksManager.getAllItems.bind(steamworksManager),
-    getItem: steamworksManager.getItem.bind(steamworksManager),
-    getItems: steamworksManager.getItems.bind(steamworksManager),
-    getSubscribedIds:
-      steamworksManager.getSubscribedIds.bind(steamworksManager),
-    subscribe: steamworksManager.subscribe.bind(steamworksManager),
-    unsubscribe: steamworksManager.unsubscribe.bind(steamworksManager),
-    download: steamworksManager.download.bind(steamworksManager),
-    downloadInfo: steamworksManager.downloadInfo.bind(steamworksManager),
-    installInfo: steamworksManager.installInfo.bind(steamworksManager),
-    itemState: steamworksManager.itemState.bind(steamworksManager),
   });
-
-  return {
-    methods,
-  };
 }
 
-export type Methods = ReturnType<typeof preload>["methods"];
+export type Methods = ReturnType<typeof preload>;

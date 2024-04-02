@@ -1,24 +1,26 @@
 import EventBus from "@ai-zen/event-bus";
-import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
+import type { Methods } from "live2d-copilot-main/src/windows/preloads/steamworks";
 import {
   DownloadInfo,
   InstallInfo,
   ItemState,
 } from "live2d-copilot-shared/src/Steamworks";
 import { reactive, watch } from "vue";
-import { rpc } from "../../../modules/rpc";
+import { rpc } from "../modules/rpc";
 
-const winApi = rpc.use<Methods>("models-window");
-
-interface WorkshopItemStatusData {
+export interface WorkshopItemStatusData {
   itemId: bigint;
   itemState: ItemState;
   downloadInfo: DownloadInfo | null;
   installInfo: InstallInfo | null;
 }
 
-export class WorkshopItemsManager {
-  static instance = new WorkshopItemsManager();
+export class Workshop {
+  static instance = new Workshop();
+
+  eventBus = new EventBus();
+
+  winApi = rpc.use<Methods>("steamworks");
 
   private constructor() {
     watch(
@@ -29,8 +31,6 @@ export class WorkshopItemsManager {
       }
     );
   }
-
-  eventBus = new EventBus();
 
   state = reactive({
     isLoading: false,
@@ -68,9 +68,9 @@ export class WorkshopItemsManager {
 
   async updateItemStatusData(itemId: bigint) {
     const [downloadInfo, installInfo, itemState] = await Promise.all([
-      winApi.downloadInfo(itemId),
-      winApi.installInfo(itemId),
-      winApi.itemState(itemId),
+      this.winApi.downloadInfo(itemId),
+      this.winApi.installInfo(itemId),
+      this.winApi.itemState(itemId),
     ]);
 
     const statusData: WorkshopItemStatusData = {
@@ -120,7 +120,7 @@ export class WorkshopItemsManager {
     try {
       this.state.isLoading = true;
       this.state.subscribedIds = reactive(
-        new Set(await winApi.getSubscribedIds())
+        new Set(await this.winApi.getSubscribedIds())
       );
       this.state.isReady = true;
       return Array.from(this.state.subscribedIds);
@@ -134,14 +134,16 @@ export class WorkshopItemsManager {
 
   async subscribe(itemId: bigint) {
     try {
+      this.eventBus.emit("before-subscribed", itemId);
       this.state.subscribing.add(itemId);
-      await winApi.subscribe(itemId);
+      await this.winApi.subscribe(itemId);
       this.state.subscribedIds.add(itemId);
-      const statusData = await this.updateItemStatusData(itemId);
+      let statusData = await this.updateItemStatusData(itemId);
       if (!statusData?.installInfo) {
         this.download(itemId);
       }
-      this.eventBus.emit("subscribed", itemId);
+      statusData = await this.updateItemStatusData(itemId);
+      this.eventBus.emit("subscribed", itemId, statusData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -151,12 +153,14 @@ export class WorkshopItemsManager {
 
   async unsubscribe(itemId: bigint) {
     try {
+      const statusData = this.state.statusDataMap.get(itemId);
+      this.eventBus.emit("before-unsubscribed", itemId, statusData);
       this.state.unsubscribing.add(itemId);
-      await winApi.unsubscribe(itemId);
+      await this.winApi.unsubscribe(itemId);
       this.state.subscribedIds.delete(itemId);
       this.state.statusDataMap.delete(itemId);
       // await this.updateItemStatusData(itemId);
-      this.eventBus.emit("unsubscribed", itemId);
+      this.eventBus.emit("unsubscribed", itemId, statusData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -183,7 +187,7 @@ export class WorkshopItemsManager {
 
   async download(itemId: bigint) {
     try {
-      await winApi.download(itemId, false);
+      await this.winApi.download(itemId, false);
       this.watchItem(itemId);
     } catch (error) {
       console.error(error);
@@ -191,4 +195,4 @@ export class WorkshopItemsManager {
   }
 }
 
-export const workshopItemsManager = WorkshopItemsManager.instance;
+export const workshop = Workshop.instance;

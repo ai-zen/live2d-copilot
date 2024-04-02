@@ -1,17 +1,15 @@
 import { app, screen } from "electron";
+import { Setting } from "live2d-copilot-shared/src/Setting";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 import { live2DModelManager } from "../modules/live2DModelsManager";
+import { settingManager } from "../modules/settingManager";
 import { staticServeManager } from "../modules/staticServeManager";
 import { useIgnoreMouseEventsByAlpha } from "./composables/useIgnoreMouseEventsByAlpha";
 import { useSystemMouseMoveEvent } from "./composables/useSystemMouseMoveEvent";
 import { createModelsWindow } from "./createModelsWindow";
 import { createPluginsWindow } from "./createPluginsWindow";
 import { createSettingWindow } from "./createSettingWindow";
-import { settingManager } from "../modules/settingManager";
-import {
-  Setting,
-  SettingMethodsMainAPI,
-} from "live2d-copilot-shared/src/Setting";
+import { preload as preloadOfSetting } from "./preloads/setting";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
 
@@ -47,6 +45,9 @@ export async function createDesktopPetWindow() {
 
   // Preload of the window.
   preload(win);
+
+  // Preload of setting.
+  preloadOfSetting(win);
 
   // Once the window is ready after creation.
   win.once("ready-to-show", () => {
@@ -94,15 +95,10 @@ export async function createDesktopPetWindow() {
  * Preload of the desktop pet window
  */
 function preload(win: BrowserWindowEx) {
-  win.rpc.register<SettingMethodsMainAPI>("setting", {
-    getSetting: settingManager.getSetting.bind(settingManager),
-    setSetting: settingManager.setSetting.bind(settingManager),
-  });
-
   /**
    * Registering methods for webpage calls
    */
-  const methods = win.rpc.register(win.name, {
+  return win.rpc.register(win.name, {
     /**
      * Close the loading window.
      */
@@ -151,10 +147,6 @@ function preload(win: BrowserWindowEx) {
       createSettingWindow();
     },
   });
-
-  return {
-    methods,
-  };
 }
 
-export type Methods = ReturnType<typeof preload>["methods"];
+export type Methods = ReturnType<typeof preload>;

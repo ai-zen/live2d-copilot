@@ -1,5 +1,5 @@
 <template>
-  <div class="modules-list">
+  <div class="ugc-list-page">
     <div class="filter-column">
       <el-button
         class="reset-filter-button"
@@ -11,7 +11,7 @@
       <el-select
         class="sort-select"
         v-model="filterState.form.sort"
-        @change="getNewList"
+        @change="loadNewList"
       >
         <el-option
           v-for="(option, index) of sortOptions"
@@ -25,7 +25,7 @@
         v-model="filterState.form.keyword"
         :prefix-icon="Search"
         :placeholder="t('keyword_search_placeholder')"
-        @change="getNewList"
+        @change="loadNewList"
       ></el-input>
       <div class="tree-wrapper">
         <el-tree
@@ -70,54 +70,64 @@
     </div>
 
     <SystemItemDetailColumn
-      v-if="focusState.currentSystemItem"
-      :item="focusState.currentSystemItem"
+      v-if="focusState.current?.type === InstalledItemType.SystemItem"
+      :item="focusState.current.systemItem!"
     />
     <WorkshopItemDetailColumn
-      v-if="focusState.currentWorkshopItem"
-      :item="focusState.currentWorkshopItem"
+      v-if="focusState.current?.type === InstalledItemType.WorkshopItem"
+      :item="focusState.current.workshopItem!"
     />
   </div>
 </template>
 
+<script lang="ts">
+export enum InstalledItemType {
+  SystemItem = 0,
+  WorkshopItem,
+}
+
+export interface InstalledItem {
+  type: InstalledItemType;
+  workshopItem?: WorkshopItem;
+  systemItem?: any;
+}
+</script>
+
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
 import { ElTree } from "element-plus";
-import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
-import type { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
+import type { Methods as SteamworksAPIMethods } from "live2d-copilot-main/src/windows/preloads/steamworks";
 import type {
   WorkshopItem,
   WorkshopItemsResult,
 } from "live2d-copilot-shared/src/Steamworks";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
-import AutoGrid from "../../components/AutoGrid.vue";
-import { useI18n } from "../../modules/i18n";
-import { rpc } from "../../modules/rpc";
-import SystemItemCard from "./components/SystemItemCard.vue";
-import SystemItemDetailColumn from "./components/SystemItemDetailColumn.vue";
-import WorkshopItemCard from "./components/WorkshopItemCard.vue";
-import WorkshopItemDetailColumn from "./components/WorkshopItemDetailColumn.vue";
+import AutoGrid from "../components/AutoGrid.vue";
+import { useI18n } from "../modules/i18n";
+import { rpc } from "../modules/rpc";
+import SystemItemCard from "../components/SystemItemCard.vue";
+import SystemItemDetailColumn from "../components/SystemItemDetailColumn.vue";
+import WorkshopItemCard from "../components/WorkshopItemCard.vue";
+import WorkshopItemDetailColumn from "../components/WorkshopItemDetailColumn.vue";
 import {
   ItemTypeTags,
   TagsCategories,
   useTagsOptions,
-} from "./composables/useTagsOptions";
-import { workshopItemsManager } from "./modules/workshopItemsManager";
+} from "../composables/useUGCTagsOptions";
+import { workshop } from "../modules/workshop";
+
+const props = defineProps<{
+  getSystemItems: () => Promise<any[]>;
+}>();
+
+const emit = defineEmits<{
+  (e: "ready"): void;
+  (e: "focus-item", item: InstalledItem): void;
+}>();
 
 const { t } = useI18n();
 
-enum InstalledItemType {
-  SystemItem = 0,
-  WorkshopItem,
-}
-
-interface InstalledItem {
-  type: InstalledItemType;
-  workshopItem?: WorkshopItem;
-  systemItem?: Live2DModelProfileEx;
-}
-
-const winApi = rpc.use<Methods>("models-window");
+const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
 const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions([
@@ -221,15 +231,13 @@ function listSort(list: InstalledItem[]) {
         let aTime =
           a.type == InstalledItemType.SystemItem
             ? 0
-            : workshopItemsManager.getCachedItemStatusData(
-                a.workshopItem!.publishedFileId
-              )?.installInfo?.timestamp || Infinity;
+            : workshop.getCachedItemStatusData(a.workshopItem!.publishedFileId)
+                ?.installInfo?.timestamp || Infinity;
         let bTime =
           b.type == InstalledItemType.SystemItem
             ? 0
-            : workshopItemsManager.getCachedItemStatusData(
-                b.workshopItem!.publishedFileId
-              )?.installInfo?.timestamp || Infinity;
+            : workshop.getCachedItemStatusData(b.workshopItem!.publishedFileId)
+                ?.installInfo?.timestamp || Infinity;
         return aTime - bTime;
       });
       break;
@@ -237,26 +245,19 @@ function listSort(list: InstalledItem[]) {
   return listCloned;
 }
 
-async function getList() {
+async function loadList() {
   try {
     listState.isLoading = true;
 
-    // Get system items.
-    const profiles = await winApi.loadProfiles();
-    const systemItems = profiles.map(
-      (item): InstalledItem => ({
-        type: InstalledItemType.SystemItem,
-        systemItem: item,
-      })
-    );
+    const systemItems = await props.getSystemItems();
 
     // Get workshop subscribed items.
-    const ids = await workshopItemsManager.getSubscribedIds();
+    const ids = await workshop.getSubscribedIds();
     const res = ids?.length
       ? // There is a known issue that when passing an empty array (ids), the function will never return.
-        ((await winApi.getItems(ids)) as unknown as WorkshopItemsResult)
+        ((await steamworksApi.getItems(ids)) as unknown as WorkshopItemsResult)
       : null;
-    await workshopItemsManager.updateSubscribedItemsStatusData();
+    await workshop.updateSubscribedItemsStatusData();
     const items = res?.items ?? [];
     const workshopItems = items.map(
       (item): InstalledItem => ({
@@ -279,23 +280,23 @@ async function getList() {
   }
 }
 
-async function getNewList() {
+async function loadNewList() {
   paginationState.currentPage = 1;
-  await getList();
+  await loadList();
 }
 
 function onSizeChange() {
-  getNewList();
+  loadNewList();
 }
 
 function onCurrentChange() {
-  getList();
+  loadList();
 }
 
 function onReset() {
   filterState.form = structuredClone(DEFAULT_FILTER_FORM);
   filterTreeRef.value?.setCheckedKeys(filterState.form.requiredTags);
-  getNewList();
+  loadNewList();
 }
 
 function onTreeNodeCheck() {
@@ -304,89 +305,29 @@ function onTreeNodeCheck() {
   filterState.form.excludedTags = tagsFlattened.value.filter(
     (tag) => !filterState.form.requiredTags.includes(tag)
   );
-  getNewList();
+  loadNewList();
 }
 
 const focusState = reactive({
-  currentItemType: null as InstalledItemType | null,
-  currentWorkshopItem: null as WorkshopItem | null,
-  currentSystemItem: null as Live2DModelProfileEx | null,
+  current: null as InstalledItem | null,
 });
 
 function onCardClick(item: InstalledItem) {
-  useItem(item);
+  focusItem(item);
 }
 
-async function useItem(item: InstalledItem) {
-  if (item.type == InstalledItemType.SystemItem) {
-    focusState.currentWorkshopItem = null;
-    focusState.currentSystemItem = item.systemItem!;
-    await winApi.setCurrent(item.systemItem!._ModelPath);
-  } else {
-    focusState.currentWorkshopItem = item.workshopItem!;
-    focusState.currentSystemItem = null;
-    const statusData = await workshopItemsManager.updateItemStatusData(
-      item.workshopItem!.publishedFileId
-    );
-    if (statusData?.installInfo?.folder) {
-      const profile = await winApi.loadProfile(statusData.installInfo.folder);
-      if (profile) {
-        await winApi.setCurrent(profile._ModelPath);
-      }
-    }
-  }
-  focusState.currentItemType = item.type;
-}
-
-const usedState = reactive({
-  currentProfile: null as Live2DModelProfileEx | null,
-  isLoading: false,
-  isReady: false,
-});
-
-async function getCurrentUsedProfile() {
-  try {
-    usedState.isLoading = true;
-    usedState.currentProfile = await winApi.getCurrentProfile();
-    usedState.isReady = true;
-  } catch (error) {
-  } finally {
-    usedState.isLoading = false;
-  }
-}
-
-function focusCurrentUsedItem() {
-  listState.list.forEach((item) => {
-    if (item.type == InstalledItemType.SystemItem) {
-      if (item.systemItem?._ModelDir == usedState.currentProfile?._ModelDir) {
-        focusState.currentItemType = InstalledItemType.SystemItem;
-        focusState.currentSystemItem = item.systemItem!;
-      }
-    } else {
-      const statusData = workshopItemsManager.getCachedItemStatusData(
-        item.workshopItem!.publishedFileId
-      );
-      if (
-        statusData?.installInfo?.folder == usedState.currentProfile?._ModelDir
-      ) {
-        focusState.currentItemType = InstalledItemType.WorkshopItem;
-        focusState.currentWorkshopItem = item.workshopItem!;
-      }
-    }
-  });
+async function focusItem(item: InstalledItem) {
+  focusState.current = item;
+  emit("focus-item", item);
 }
 
 async function onItemSubscribed(itemId: bigint) {
-  const item = await winApi.getItem(itemId);
+  const item = await steamworksApi.getItem(itemId);
   if (item) {
-    await workshopItemsManager.updateItemStatusData(itemId);
     listState.list.push({
       type: InstalledItemType.WorkshopItem,
       workshopItem: item as unknown as WorkshopItem,
     });
-
-    // May need to be sorted.
-    // listSort(listState.list, filterState.form.sort);
   }
 }
 
@@ -397,31 +338,27 @@ function onItemUnsubscribed(itemId: bigint) {
   if (index != -1) {
     listState.list.splice(index, 1);
   }
-
-  // If the unsubscribed item is currently in use, switch the currently in use item to the first item in the list.
-  const statusData = workshopItemsManager.getCachedItemStatusData(itemId);
-  if (
-    statusData?.installInfo?.folder == usedState.currentProfile?._ModelDir &&
-    listState.list[0]
-  ) {
-    useItem(listState.list[0]);
-  }
 }
 
 onMounted(async () => {
-  workshopItemsManager.eventBus.on("subscribed", onItemSubscribed);
-  workshopItemsManager.eventBus.on("unsubscribed", onItemUnsubscribed);
+  workshop.eventBus.on("subscribed", onItemSubscribed);
+  workshop.eventBus.on("unsubscribed", onItemUnsubscribed);
 
-  await getNewList();
-  await getCurrentUsedProfile();
+  await loadNewList();
 
-  focusCurrentUsedItem();
+  emit("ready");
 });
 
 onUnmounted(() => {
-  workshopItemsManager.eventBus.off("subscribed", onItemSubscribed);
-  workshopItemsManager.eventBus.off("unsubscribed", onItemUnsubscribed);
+  workshop.eventBus.off("subscribed", onItemSubscribed);
+  workshop.eventBus.off("unsubscribed", onItemUnsubscribed);
+});
+
+defineExpose({
+  focusItem,
+  listState,
+  focusState,
 });
 </script>
 
-<style lang="scss" src="./styles/models-list.scss"></style>
+<style lang="scss" src="../styles/ugc-list-page.scss"></style>

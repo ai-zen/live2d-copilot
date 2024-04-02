@@ -10,17 +10,14 @@
       <div class="title">{{ item.title }}</div>
     </div>
     <div
-      v-if="workshopItemsManager.isDownloading(item.publishedFileId)"
+      v-if="workshop.isDownloading(item.publishedFileId)"
       class="download-info"
     >
       <el-progress type="circle" :percentage="formatDownloadProgress(item)" />
     </div>
     <div
       class="status-info"
-      v-if="
-        workshopItemsManager.getCachedItemStatusData(item.publishedFileId)
-          ?.itemState
-      "
+      v-if="workshop.getCachedItemStatusData(item.publishedFileId)?.itemState"
     >
       {{ formatItemStateText(item) }}
     </div>
@@ -29,17 +26,15 @@
 
 <script setup lang="ts">
 import { ItemState, WorkshopItem } from "live2d-copilot-shared/src/Steamworks";
-import { workshopItemsManager } from "../modules/workshopItemsManager";
-import { useI18n } from "../../../modules/i18n";
+import { workshop } from "../modules/workshop";
+import { useI18n } from "../modules/i18n";
 
 defineProps<{ item: WorkshopItem }>();
 
 const { t } = useI18n();
 
 function formatDownloadProgress(item: WorkshopItem) {
-  const statusData = workshopItemsManager.getCachedItemStatusData(
-    item.publishedFileId
-  );
+  const statusData = workshop.getCachedItemStatusData(item.publishedFileId);
   if (!statusData?.downloadInfo) return 0;
   return Math.round(
     (Number(statusData.downloadInfo.current) /
@@ -49,9 +44,7 @@ function formatDownloadProgress(item: WorkshopItem) {
 }
 
 function formatItemStateText(item: WorkshopItem) {
-  const statusData = workshopItemsManager.getCachedItemStatusData(
-    item.publishedFileId
-  );
+  const statusData = workshop.getCachedItemStatusData(item.publishedFileId);
   if (!statusData?.itemState) return "";
   const stateTextList: [ItemState, string][] = [
     [ItemState.NONE, t("item_state.none")],
