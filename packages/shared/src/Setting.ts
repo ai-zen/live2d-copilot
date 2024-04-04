@@ -1,7 +1,3 @@
-export interface SettingMethodsRenderAPI extends Record<string, any> {
-  onSettingChange: (setting: Setting) => void;
-}
-
 export interface Setting {
   lang: string;
   alwaysOnTop: boolean;

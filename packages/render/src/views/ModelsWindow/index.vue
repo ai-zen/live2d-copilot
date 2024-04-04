@@ -1,37 +1,134 @@
 <template>
   <div class="models-window">
     <el-tabs class="tabs" v-model="activeName">
-      <el-tab-pane :label="t('models_window.installed')" name="UGCInstalled">
+      <el-tab-pane :label="t('ugc_window.installed')" name="UGCInstalled">
         <UGCInstalled
+          :tags-categories="[
+            TagsCategories.AgeRatingTags,
+            TagsCategories.ModelsTags,
+          ]"
+          :required-tags="[]"
+          :excluded-tags="getExcludedTagsByItemTypes([ItemTypeTags.Models])"
           :getSystemItems="getSystemItems"
           @ready="onReady"
           @focus-item="onFocusItem"
           ref="UGCInstalledRef"
         ></UGCInstalled>
       </el-tab-pane>
-      <el-tab-pane :label="t('models_window.workshop')" name="UGCWorkshop">
-        <UGCWorkshop></UGCWorkshop>
+
+      <el-tab-pane :label="t('ugc_window.workshop')" name="UGCWorkshop">
+        <UGCWorkshop
+          :tags-categories="[
+            TagsCategories.AgeRatingTags,
+            TagsCategories.ModelsTags,
+          ]"
+          :required-tags="[]"
+          :excluded-tags="getExcludedTagsByItemTypes([ItemTypeTags.Models])"
+        ></UGCWorkshop>
       </el-tab-pane>
-      <el-tab-pane :label="t('models_window.publish')" name="UGCPublish">
-        <UGCPublish :beforePublish="onBeforePublish"></UGCPublish>
+
+      <el-tab-pane :label="t('ugc_window.publish')" name="UGCPublish">
+        <UGCPublish
+          :beforePublish="onBeforePublish"
+          :default-form="DEFAULT_CUSTOM_FORM"
+        >
+          <template #form-extends="{ form }">
+            <el-form-item
+              prop="itemTypeTag"
+              :label="t('publish_page.item_type_tags')"
+              :rules="{
+                required: true,
+                message: t('publish_page.item_type_tags_required'),
+              }"
+            >
+              <el-radio-group v-model="form.itemTypeTag" disabled>
+                <el-radio
+                  v-for="option of tagsGroupRecord[TagsCategories.ItemTypeTags]
+                    .children"
+                  :key="option.value"
+                  :label="option.value"
+                  >{{ option.label }}</el-radio
+                >
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item
+              prop="ageRatingTag"
+              :label="t('publish_page.age_rating_tags')"
+              :rules="{
+                required: true,
+                message: t('publish_page.age_rating_tags_required'),
+              }"
+            >
+              <el-radio-group v-model="form.ageRatingTag">
+                <el-radio
+                  v-for="option of tagsGroupRecord[TagsCategories.AgeRatingTags]
+                    .children"
+                  :key="option.value"
+                  :label="option.value"
+                  >{{ option.label }}</el-radio
+                >
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item
+              prop="modelsTag"
+              :label="t('publish_page.models_tags')"
+              :rules="{
+                required: true,
+                message: t('publish_page.models_tags_required'),
+              }"
+            >
+              <el-radio-group v-model="form.modelsTag">
+                <el-radio
+                  v-for="option of tagsGroupRecord[TagsCategories.ModelsTags]
+                    .children"
+                  :key="option.value"
+                  :label="option.value"
+                  >{{ option.label }}</el-radio
+                >
+              </el-radio-group>
+            </el-form-item>
+          </template>
+        </UGCPublish>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
+import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
 import { onMounted, onUnmounted, reactive, ref } from "vue";
 import UGCInstalled, {
   InstalledItem,
   InstalledItemType,
 } from "../../components/UGCInstalled.vue";
-import UGCWorkshop from "../../components/UGCWorkshop.vue";
 import UGCPublish from "../../components/UGCPublish.vue";
+import UGCWorkshop from "../../components/UGCWorkshop.vue";
+import {
+  AgeRatingTags,
+  ItemTypeTags,
+  ModelsTags,
+  TagsCategories,
+  getExcludedTagsByItemTypes,
+  useTagsOptions,
+} from "../../composables/useUGCTagsOptions";
 import { useI18n } from "../../modules/i18n";
-import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
 import { rpc } from "../../modules/rpc";
 import { WorkshopItemStatusData, workshop } from "../../modules/workshop";
-import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
+
+const DEFAULT_CUSTOM_FORM = {
+  itemTypeTag: ItemTypeTags.Models,
+  ageRatingTag: AgeRatingTags.Everyone,
+  modelsTag: ModelsTags.Other,
+};
+
+const { tagsGroupRecord } = useTagsOptions([
+  TagsCategories.AgeRatingTags,
+  TagsCategories.ModelsTags,
+  TagsCategories.ItemTypeTags,
+]);
 
 const winApi = rpc.use<Methods>("models-window");
 
@@ -57,13 +154,15 @@ async function onReady() {
   focusUsedItem();
 }
 
-async function onBeforePublish(form: {
-  title: string;
-  description: string;
-  contentPath: string;
-  previewPath: string;
-}) {
+async function onBeforePublish(form: any) {
   await winApi.buildProfile(form);
+
+  form.tags ??= [];
+  if (form.itemTypeTag) form.tags.push(form.itemTypeTag);
+  if (form.modelsTag) form.tags.push(form.modelsTag);
+  if (form.ageRatingTag) form.tags.push(form.ageRatingTag);
+
+  return form;
 }
 
 async function onFocusItem(item: InstalledItem) {
@@ -91,7 +190,9 @@ function onUnsubscribed(itemId: bigint, statusData: WorkshopItemStatusData) {
 
   // If the unsubscribed item is currently in use, switch the currently in use item to the first item in the list.
   let fallbackItem = listState.list.find(
-    (item) => itemId != item.workshopItem?.publishedFileId
+    (item) =>
+      item.type == InstalledItemType.WorkshopItem &&
+      itemId != item.workshopItem?.publishedFileId
   );
   if (
     statusData.installInfo?.folder == usedState.currentProfile?._ModelDir &&

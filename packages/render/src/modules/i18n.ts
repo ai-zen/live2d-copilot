@@ -3,7 +3,7 @@ import { SimpleI18n } from "live2d-copilot-shared/src/classes/SimpleI18n";
 import en from "live2d-copilot-shared/src/locales/en.json";
 import zh from "live2d-copilot-shared/src/locales/zh.json";
 import { reactive, watch } from "vue";
-import { settingManager } from "./setting";
+import { settingManager } from "./settingManager";
 
 export class RenderSimpleI18n extends SimpleI18n {
   static instance = new RenderSimpleI18n({

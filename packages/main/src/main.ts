@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from "electron";
 import { useAppProtocol } from "./composables/useAppProtocol";
-import { live2DModelManager } from "./modules/live2DModelsManager";
+import { live2dModelsManager } from "./modules/live2dModelsManager";
 import { staticServeManager } from "./modules/staticServeManager";
 import { steamworksManager } from "./modules/steamworksManager";
 import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
@@ -43,10 +43,10 @@ async function main() {
     await i18n.init();
 
     // Load Live2D Model Manager configs.
-    await live2DModelManager.loadConfig();
+    await live2dModelsManager.loadConfig();
 
     // Release Live2D Models Files to UserData.
-    await live2DModelManager.releaseFilesToUserData();
+    await live2dModelsManager.releaseFilesToUserData();
 
     // Create system tray.
     createTray();

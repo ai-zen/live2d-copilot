@@ -1,11 +1,9 @@
 import EventBus from "@ai-zen/event-bus";
 import type { Methods } from "live2d-copilot-main/src/windows/preloads/setting";
-import {
-  Setting,
-  SettingMethodsRenderAPI,
-} from "live2d-copilot-shared/src/Setting";
+import { Setting } from "live2d-copilot-shared/src/Setting";
 import { reactive } from "vue";
-import { rpc } from "../modules/rpc";
+import { rpc } from "./rpc";
+import { broadcaster } from "./broadcaster";
 
 export class RenderSettingManager {
   static instance = new RenderSettingManager();
@@ -51,12 +49,9 @@ export class RenderSettingManager {
   }
 
   constructor() {
-    rpc.register<SettingMethodsRenderAPI>("setting", {
-      onSettingChange: (newSetting: Setting) => {
-        console.log("[setting.ts] onSettingChange", newSetting);
-        this.state.data = newSetting;
-        this.eventBus.emit("change", this.state.data);
-      },
+    broadcaster.on("setting:change", (newSetting: Setting) => {
+      this.state.data = newSetting;
+      this.eventBus.emit("change", this.state.data);
     });
 
     this.loadSetting();

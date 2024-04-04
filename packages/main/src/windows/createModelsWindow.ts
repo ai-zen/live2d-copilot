@@ -1,6 +1,6 @@
 import { Menu } from "electron";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
-import { live2DModelManager } from "../modules/live2DModelsManager";
+import { live2dModelsManager } from "../modules/live2dModelsManager";
 import { staticServeManager } from "../modules/staticServeManager";
 import { preload as preloadOfSetting } from "./preloads/setting";
 import { preload as preloadOfSteamworks } from "./preloads/steamworks";
@@ -44,12 +44,12 @@ export async function createModelsWindow() {
  */
 function preload(win: BrowserWindowEx) {
   return win.rpc.register(win.name, {
-    loadProfile: live2DModelManager.loadProfile.bind(live2DModelManager),
-    loadProfiles: live2DModelManager.loadProfiles.bind(live2DModelManager),
+    loadProfile: live2dModelsManager.loadProfile.bind(live2dModelsManager),
+    loadProfiles: live2dModelsManager.loadProfiles.bind(live2dModelsManager),
     getCurrentProfile:
-      live2DModelManager.getCurrentProfile.bind(live2DModelManager),
-    setCurrent: live2DModelManager.setCurrent.bind(live2DModelManager),
-    buildProfile: live2DModelManager.buildProfile.bind(live2DModelManager),
+      live2dModelsManager.getCurrentProfile.bind(live2dModelsManager),
+    setCurrent: live2dModelsManager.setCurrent.bind(live2dModelsManager),
+    buildProfile: live2dModelsManager.buildProfile.bind(live2dModelsManager),
   });
 }
 

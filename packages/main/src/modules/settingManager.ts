@@ -1,12 +1,9 @@
 import EventBus from "@ai-zen/event-bus";
 import { app } from "electron";
+import { Setting } from "live2d-copilot-shared/src/Setting";
 import fsp from "node:fs/promises";
 import path from "node:path";
-import { BrowserWindowEx } from "../classes/BrowserWindowEx";
-import {
-  Setting,
-  SettingMethodsRenderAPI,
-} from "live2d-copilot-shared/src/Setting";
+import { broadcaster } from "./broadcaster";
 
 export class SettingManager {
   static instance = new SettingManager();
@@ -90,18 +87,12 @@ export class SettingManager {
 
     // Set the setting data
     this.settingState.data = data;
+
     // Emit the change event.
     this.eventBus.emit("change", data);
 
-    // Emit setting change event to all windows.
-    BrowserWindowEx.instanceMap.forEach((win) => {
-      // If the window has register `getSetting` method.
-      // Only the registered getSetting method allows the window to read the settings content.
-      if (win.rpc.callMap.has("setting:getSetting")) {
-        // Emit change event to the window.
-        win.rpc.use<SettingMethodsRenderAPI>("setting").onSettingChange(data);
-      }
-    });
+    // Broadcast the change event to all windows.
+    broadcaster.broadcast("setting:change", data);
 
     // save the setting
     return this.saveSetting();

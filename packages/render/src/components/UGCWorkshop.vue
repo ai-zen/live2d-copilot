@@ -84,14 +84,18 @@ import WorkshopItemCard from "../components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "../components/WorkshopItemDetailColumn.vue";
 import { useSortOptions } from "../composables/useUGCSortOptions";
 import {
-  ItemTypeTags,
   TagsCategories,
   useTagsOptions,
-  getExcludedTagsByItemType,
 } from "../composables/useUGCTagsOptions";
 import { workshop } from "../modules/workshop";
 import { useI18n } from "../modules/i18n";
 import { ElTree } from "element-plus";
+
+const props = defineProps<{
+  tagsCategories: TagsCategories[];
+  requiredTags: string[];
+  excludedTags: string[];
+}>();
 
 const { t } = useI18n();
 
@@ -99,10 +103,9 @@ const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
 
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
-const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions([
-  TagsCategories.AgeRatingTags,
-  TagsCategories.ModelsTags,
-]);
+const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions(
+  props.tagsCategories
+);
 
 const { sortOptions } = useSortOptions();
 
@@ -147,9 +150,12 @@ async function loadList() {
           rankedByTrendDays: currentSortOption?.day,
           searchText: filterState.form.keyword || undefined,
           matchAnyTag: true,
-          requiredTags: filterState.form.requiredTags,
+          requiredTags: [
+            ...props.requiredTags,
+            ...filterState.form.requiredTags,
+          ],
           excludedTags: [
-            ...getExcludedTagsByItemType(ItemTypeTags.Models),
+            ...props.excludedTags,
             ...filterState.form.excludedTags,
           ],
         })

@@ -2,6 +2,7 @@ import type { BrowserWindowConstructorOptions, IpcMainEvent } from "electron";
 import { BrowserWindow } from "electron";
 import path from "path";
 import { WebMessageRPC } from "web-message-rpc";
+import EventBus from "@ai-zen/event-bus";
 
 export interface BrowserWindowExConstructorOptions
   extends BrowserWindowConstructorOptions {
@@ -39,6 +40,7 @@ export class BrowserWindowEx extends BrowserWindow {
   }
 
   static instanceMap = new Map<string, BrowserWindowEx>();
+  static events = new EventBus();
 
   static getWin(options: {
     title?: string;
@@ -74,12 +76,14 @@ export class BrowserWindowEx extends BrowserWindow {
       ...options,
     });
 
-    // Mark the window as open
+    // Record window instance
     BrowserWindowEx.instanceMap.set(url, win);
+    BrowserWindowEx.events.emit("create", win);
 
     win.on("close", () => {
-      // Mark the window as closed
+      // Remove window instance.
       BrowserWindowEx.instanceMap.delete(url);
+      BrowserWindowEx.events.emit("close", win);
     });
 
     win.loadURL(url);

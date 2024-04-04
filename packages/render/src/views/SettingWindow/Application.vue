@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { Setting } from "live2d-copilot-shared/src/Setting";
 import { nextTick, reactive, watch } from "vue";
-import { settingManager } from "../../modules/setting";
+import { settingManager } from "../../modules/settingManager";
 import { useI18n } from "../../modules/i18n";
 
 const { t } = useI18n();

@@ -1,5 +1,5 @@
 {
-    "models_window": {
+    "ugc_window": {
         "installed": "已安装",
         "workshop": "创意工坊",
         "publish": "发布"
@@ -110,6 +110,7 @@
         "submit": "发布",
         "uploading": "上传中...",
         "publish_success": "发布成功！",
+        "publish_success_tips": "该物品 (ID: {0}) 需要几分钟时间才能出现在创意工作坊中。请耐心等待~",
         "back": "返回",
         "publish_error": "发布失败！",
         "image": "图片",

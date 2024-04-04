@@ -27,7 +27,7 @@ import {
   Live2D,
 } from "@ai-zen/live2d-vue";
 import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
-import { ref, shallowRef, watch } from "vue";
+import { onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
 import { rpc } from "../../modules/rpc";
 import ChatInput from "./ChatInput.vue";
 import ContextMenu from "./ContextMenu.vue";
@@ -37,6 +37,7 @@ import { useCurrentModel } from "./composables/useCurrentModel";
 import { useSentence } from "./composables/useSentence";
 import { useTTS } from "./composables/useTTS";
 import { useVoicePlay } from "./composables/useVoicePlay";
+import { broadcaster } from "../../modules/broadcaster";
 
 type LAppLive2DManager = LAppLive2DManagerModule.LAppLive2DManager;
 type LAppDelegate = LAppDelegateModule.LAppDelegate;
@@ -71,10 +72,17 @@ async function onLive2DMounted(
   winApi.closeLoadingWindow(); // Close the loading window
 }
 
-rpc.register("desktop-pet-window", {
-  async onCurrentModelChange() {
-    await loadCurrentModel(); // Load the current Live2D model
-  },
+function onCurrentModelChanged() {
+  console.log("onCurrentModelChanged");
+  loadCurrentModel();
+}
+
+onMounted(() => {
+  broadcaster.on("live2d-models:current-model-change", onCurrentModelChanged);
+});
+
+onUnmounted(() => {
+  broadcaster.off("live2d-models:current-model-change", onCurrentModelChanged);
 });
 
 const chatController = useChat({

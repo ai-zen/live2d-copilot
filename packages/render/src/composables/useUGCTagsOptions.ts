@@ -9,9 +9,8 @@ export enum TagsCategories {
 
 export enum ItemTypeTags {
   Models = "models",
-  Plugins = "plugins",
-  GuiTools = "gui_tools",
-  ChatPresets = "chat_presets",
+  // GuiTools = "gui_tools",
+  // ChatPresets = "chat_presets",
   ChatTools = "chat_tools",
 }
 
@@ -81,18 +80,14 @@ export function useTagsOptions(categories: string[]) {
             label: t("tags.models"),
             value: ItemTypeTags.Models,
           },
-          {
-            label: t("tags.plugins"),
-            value: ItemTypeTags.Plugins,
-          },
-          {
-            label: t("tags.gui_tools"),
-            value: ItemTypeTags.GuiTools,
-          },
-          {
-            label: t("tags.chat_presets"),
-            value: ItemTypeTags.ChatPresets,
-          },
+          // {
+          //   label: t("tags.gui_tools"),
+          //   value: ItemTypeTags.GuiTools,
+          // },
+          // {
+          //   label: t("tags.chat_presets"),
+          //   value: ItemTypeTags.ChatPresets,
+          // },
           {
             label: t("tags.chat_tools"),
             value: ItemTypeTags.ChatTools,
@@ -129,12 +124,11 @@ export function useTagsOptions(categories: string[]) {
   };
 }
 
-export function getExcludedTagsByItemType(itemType: ItemTypeTags) {
+export function getExcludedTagsByItemTypes(itemTypes: ItemTypeTags[]) {
   return [
     ItemTypeTags.Models,
-    ItemTypeTags.Plugins,
-    ItemTypeTags.GuiTools,
-    ItemTypeTags.ChatPresets,
+    // ItemTypeTags.GuiTools,
+    // ItemTypeTags.ChatPresets,
     ItemTypeTags.ChatTools,
-  ].filter((tag) => tag != itemType);
+  ].filter((tag) => !itemTypes.includes(tag));
 }

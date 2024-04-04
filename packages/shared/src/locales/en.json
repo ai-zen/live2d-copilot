@@ -1,5 +1,5 @@
 {
-    "models_window": {
+    "ugc_window": {
         "installed": "Installed",
         "workshop": "Workshop",
         "publish": "Publish"
@@ -110,6 +110,7 @@
         "submit": "Publish",
         "uploading": "Uploading...",
         "publish_success": "Publish Successful!",
+        "publish_success_tips": "This item (ID: {0}) will take a few minutes to appear in the creative workshop. Please be patient and wait~",
         "back": "Back",
         "publish_error": "Publish Failed!",
         "image": "Image",

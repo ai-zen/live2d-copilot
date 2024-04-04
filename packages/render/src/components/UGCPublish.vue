@@ -64,7 +64,9 @@
             t("publish_page.preview_path_select_file")
           }}</el-button>
           <div class="tips">
-            <el-icon class="icon"><InfoFilled /></el-icon>
+            <el-icon class="icon">
+              <InfoFilled />
+            </el-icon>
             {{ t("publish_page.preview_path_size_limit") }}
           </div>
         </el-row>
@@ -91,63 +93,6 @@
           :placeholder="t('publish_page.item_description_placeholder')"
           v-model="form.description"
         ></el-input>
-      </el-form-item>
-
-      <el-form-item
-        prop="itemTypeTag"
-        :label="t('publish_page.item_type_tags')"
-        :rules="{
-          required: true,
-          message: t('publish_page.item_type_tags_required'),
-        }"
-      >
-        <el-radio-group v-model="form.itemTypeTag" disabled>
-          <el-radio
-            v-for="option of tagsGroupRecord[TagsCategories.ItemTypeTags]
-              .children"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.label }}</el-radio
-          >
-        </el-radio-group>
-      </el-form-item>
-
-      <el-form-item
-        prop="ageRatingTag"
-        :label="t('publish_page.age_rating_tags')"
-        :rules="{
-          required: true,
-          message: t('publish_page.age_rating_tags_required'),
-        }"
-      >
-        <el-radio-group v-model="form.ageRatingTag">
-          <el-radio
-            v-for="option of tagsGroupRecord[TagsCategories.AgeRatingTags]
-              .children"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.label }}</el-radio
-          >
-        </el-radio-group>
-      </el-form-item>
-
-      <el-form-item
-        prop="modelsTag"
-        :label="t('publish_page.models_tags')"
-        :rules="{
-          required: true,
-          message: t('publish_page.models_tags_required'),
-        }"
-      >
-        <el-radio-group v-model="form.modelsTag">
-          <el-radio
-            v-for="option of tagsGroupRecord[TagsCategories.ModelsTags]
-              .children"
-            :key="option.value"
-            :label="option.value"
-            >{{ option.label }}</el-radio
-          >
-        </el-radio-group>
       </el-form-item>
 
       <el-form-item prop="changeNote" :label="t('publish_page.change_note')">
@@ -180,6 +125,12 @@
           }}</el-radio>
         </el-radio-group>
       </el-form-item>
+
+      <slot
+        name="form-extends"
+        :form="(form as UGCPublishFormWithCustom)"
+      ></slot>
+
       <el-form-item>
         <el-button type="primary" @click="onSubmit">{{
           t("publish_page.submit")
@@ -239,29 +190,44 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts">
+export enum PublishType {
+  Add = 0,
+  Update = 1,
+}
+
+export interface UGCPublishForm {
+  publishType: PublishType;
+  itemId: string;
+  title: string;
+  description: string;
+  visibility: UgcItemVisibility;
+  contentPath: string;
+  previewPath: string;
+  changeNote: string;
+}
+</script>
+
+<script setup lang="ts" generic="F">
 import { InfoFilled } from "@element-plus/icons-vue";
 import { ElForm, ElInput, ElMessage } from "element-plus";
 import type { Methods as SteamworksAPIMethods } from "live2d-copilot-main/src/windows/preloads/steamworks";
 import {
   UgcItemVisibility,
-  UpdateStatus,
   UpdateProgress,
-  UgcUpdate,
+  UpdateStatus,
 } from "live2d-copilot-shared/src/Steamworks";
-import { computed, nextTick, reactive, ref, toRaw, defineProps } from "vue";
-import { rpc } from "../modules/rpc";
-import {
-  useTagsOptions,
-  TagsCategories,
-  AgeRatingTags,
-  ModelsTags,
-  ItemTypeTags,
-} from "../composables/useUGCTagsOptions";
+import { computed, defineProps, nextTick, reactive, ref, toRaw } from "vue";
 import { useI18n } from "../modules/i18n";
+import { rpc } from "../modules/rpc";
+
+type UGCPublishFormWithCustom = UGCPublishForm & F;
 
 const props = defineProps<{
-  beforePublish: (form: typeof DEFAULT_FORM) => Promise<void>;
+  beforePublish?: (
+    form: UGCPublishFormWithCustom
+  ) => Promise<UGCPublishFormWithCustom>;
+  defaultForm?: F;
 }>();
 
 const { t } = useI18n();
@@ -270,32 +236,21 @@ const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
 
 const formRef = ref<null | InstanceType<typeof ElForm>>(null);
 
-const { tagsGroupRecord } = useTagsOptions([
-  TagsCategories.AgeRatingTags,
-  TagsCategories.ModelsTags,
-  TagsCategories.ItemTypeTags,
-]);
-
-enum PublishType {
-  Add = 0,
-  Update = 1,
+function crateForm() {
+  return {
+    publishType: PublishType.Add,
+    itemId: "",
+    title: "",
+    description: "",
+    visibility: UgcItemVisibility.Public,
+    contentPath: "",
+    previewPath: "",
+    changeNote: "",
+    ...props.defaultForm,
+  };
 }
 
-const DEFAULT_FORM = {
-  publishType: PublishType.Add,
-  itemId: "",
-  title: "",
-  description: "",
-  visibility: UgcItemVisibility.Public,
-  contentPath: "",
-  previewPath: "",
-  changeNote: "",
-  itemTypeTag: ItemTypeTags.Models,
-  ageRatingTag: AgeRatingTags.Everyone,
-  modelsTag: ModelsTags.Other,
-};
-
-const form = reactive(structuredClone(DEFAULT_FORM));
+const form = reactive(crateForm()) as UGCPublishForm;
 
 async function selectContentDir() {
   try {
@@ -344,37 +299,25 @@ async function onSubmit() {
   try {
     publishState.isPublishing = true;
 
-    await props.beforePublish(toRaw(form));
+    let itemData = toRaw(form) as UGCPublishFormWithCustom;
+
+    if (props.beforePublish) itemData = await props.beforePublish(itemData);
 
     let result: { itemId: bigint } | undefined;
     let itemId: bigint | undefined = undefined;
 
-    if (form.publishType == PublishType.Add) {
+    if (itemData.publishType == PublishType.Add) {
       const result = await steamworksApi.createItem();
       if (result?.itemId) itemId = result.itemId;
     } else {
-      itemId = BigInt(form.itemId);
+      itemId = BigInt(itemData.itemId);
     }
 
     if (!itemId) throw new Error(t("publish_page.no_valid_item_id_obtained"));
 
     result = await steamworksApi.updateItem(
       itemId,
-      <UgcUpdate>{
-        title: form.title,
-        description: form.description,
-        contentPath: form.contentPath,
-        previewPath: form.previewPath,
-        tags: (() => {
-          let tags: string[] = [];
-          if (form.itemTypeTag) tags.push(form.itemTypeTag);
-          if (form.modelsTag) tags.push(form.modelsTag);
-          if (form.ageRatingTag) tags.push(form.ageRatingTag);
-          return tags;
-        })(),
-        visibility: form.visibility,
-        changeNote: form.changeNote,
-      },
+      itemData,
       (data) => {
         console.log("progressCallback", data);
         publishState.progressPayload = data as unknown as UpdateProgress;
@@ -383,10 +326,13 @@ async function onSubmit() {
     );
     if (!result) throw new Error(t("publish_page.no_valid_results_returned"));
 
-    Object.assign(form, DEFAULT_FORM);
+    Object.assign(itemData, crateForm());
     publishState.isPublishing = false;
     publishState.isSuccess = true;
-    publishState.successMessage = `ID ${result?.itemId}`;
+    publishState.successMessage = t(
+      "publish_page.publish_success_tips",
+      result?.itemId
+    );
     await nextTick(); // Wait for two tick before clear validate messages.
     await nextTick();
     formRef.value?.clearValidate();
@@ -439,7 +385,7 @@ function back() {
   publishState.successMessage = "";
   publishState.isError = false;
   publishState.errorMessage = "";
-  Object.assign(form, structuredClone(DEFAULT_FORM));
+  Object.assign(form, crateForm());
 }
 </script>
 
@@ -465,13 +411,16 @@ function back() {
   justify-content: center;
   box-sizing: border-box;
   z-index: 1;
+
   .el-steps {
     width: 600px;
   }
+
   .el-progress {
     margin-top: 60px;
     width: 600px;
   }
+
   .title {
     margin-top: 10px;
     font-size: 16px;
@@ -503,6 +452,7 @@ function back() {
   border: thin dashed var(--el-border-color);
   border-radius: 8px;
   cursor: pointer;
+
   &:hover {
     border-color: var(--el-color-primary);
   }
@@ -513,6 +463,7 @@ function back() {
     margin-bottom: 16px;
     line-height: 50px;
   }
+
   .text {
     color: var(--el-text-color-regular);
     font-size: 14px;
@@ -522,9 +473,11 @@ function back() {
 
 .guide {
   padding: 2em;
+
   img {
     display: block;
   }
+
   em {
     color: var(--el-color-primary);
   }
@@ -539,6 +492,7 @@ function back() {
   align-items: center;
   margin-left: 1em;
   color: var(--el-text-color-placeholder);
+
   .icon {
     margin-right: 0.5em;
   }

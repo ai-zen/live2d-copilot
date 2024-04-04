@@ -91,7 +91,7 @@ export class StaticServeManager {
       this._origin = `http://127.0.0.1:${info.port}`;
     } else {
       // When in development mode, use the vite development server
-      this._origin = `http://localhost:5173`;
+      this._origin = `http://localhost:5200`;
     }
   }
 

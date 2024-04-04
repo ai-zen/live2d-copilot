@@ -1,7 +1,7 @@
 import { app, screen } from "electron";
 import { Setting } from "live2d-copilot-shared/src/Setting";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
-import { live2DModelManager } from "../modules/live2DModelsManager";
+import { live2dModelsManager } from "../modules/live2dModelsManager";
 import { settingManager } from "../modules/settingManager";
 import { staticServeManager } from "../modules/staticServeManager";
 import { useIgnoreMouseEventsByAlpha } from "./composables/useIgnoreMouseEventsByAlpha";
@@ -60,15 +60,6 @@ export async function createDesktopPetWindow() {
   // Sending system level mouse movement events to web contents
   useSystemMouseMoveEvent(win);
 
-  // Get the web contents api
-  const webApi = win.rpc.use(win.name);
-
-  // Handle current model change event
-  function onCurrentModelChange() {
-    // Forward the currentModelChange event to a webpage
-    webApi.onCurrentModelChange();
-  }
-
   // Handle setting change event
   function onSettingChange(data: Setting) {
     // Set the alwaysOnTop property of the window to the value of the setting
@@ -79,12 +70,10 @@ export async function createDesktopPetWindow() {
   }
 
   // Bind event listeners.
-  live2DModelManager.eventBus.on("currentModelChange", onCurrentModelChange);
   settingManager.eventBus.on("change", onSettingChange);
 
   // Unbind event listeners.
   win.on("close", () => {
-    live2DModelManager.eventBus.off("currentModelChange", onCurrentModelChange);
     settingManager.eventBus.off("change", onSettingChange);
   });
 
@@ -112,12 +101,12 @@ function preload(win: BrowserWindowEx) {
      * Get current Live2D model profile.
      */
     getCurrentProfile:
-      live2DModelManager.getCurrentProfile.bind(live2DModelManager),
+      live2dModelsManager.getCurrentProfile.bind(live2dModelsManager),
 
     /**
      * Save Live2D model profile.
      */
-    saveProfile: live2DModelManager.saveProfile.bind(live2DModelManager),
+    saveProfile: live2dModelsManager.saveProfile.bind(live2dModelsManager),
 
     /**
      * Quit app.

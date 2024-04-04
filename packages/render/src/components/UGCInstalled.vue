@@ -44,12 +44,14 @@
       <AutoGrid :list="renderList">
         <template #default="{ item }: { item: InstalledItem }">
           <SystemItemCard
-            v-if="item.systemItem"
+            v-if="item.type == InstalledItemType.SystemItem && item.systemItem"
             :item="item.systemItem"
             @click="onCardClick(item)"
           />
           <WorkshopItemCard
-            v-if="item.workshopItem"
+            v-if="
+              item.type == InstalledItemType.WorkshopItem && item.workshopItem
+            "
             :item="item.workshopItem"
             @click="onCardClick(item)"
           />
@@ -86,11 +88,17 @@ export enum InstalledItemType {
   WorkshopItem,
 }
 
-export interface InstalledItem {
-  type: InstalledItemType;
+export interface InstalledWorkshopItem {
+  type: InstalledItemType.WorkshopItem;
   workshopItem?: WorkshopItem;
+}
+
+export interface InstalledSystemItem {
+  type: InstalledItemType.SystemItem;
   systemItem?: any;
 }
+
+export type InstalledItem = InstalledWorkshopItem | InstalledSystemItem;
 </script>
 
 <script setup lang="ts">
@@ -110,14 +118,16 @@ import SystemItemDetailColumn from "../components/SystemItemDetailColumn.vue";
 import WorkshopItemCard from "../components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "../components/WorkshopItemDetailColumn.vue";
 import {
-  ItemTypeTags,
   TagsCategories,
   useTagsOptions,
 } from "../composables/useUGCTagsOptions";
 import { workshop } from "../modules/workshop";
 
 const props = defineProps<{
-  getSystemItems: () => Promise<any[]>;
+  getSystemItems: () => Promise<InstalledItem[]>;
+  tagsCategories: TagsCategories[];
+  requiredTags: string[];
+  excludedTags: string[];
 }>();
 
 const emit = defineEmits<{
@@ -128,12 +138,12 @@ const emit = defineEmits<{
 const { t } = useI18n();
 
 const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
+
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
-const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions([
-  TagsCategories.AgeRatingTags,
-  TagsCategories.ModelsTags,
-]);
+const { tagsOptions, tagsFlattened, nodesKeys } = useTagsOptions(
+  props.tagsCategories
+);
 
 enum InstalledSortType {
   RankedByName,
@@ -192,16 +202,17 @@ function listFilter(list: InstalledItem[]) {
         return true;
       case InstalledItemType.WorkshopItem:
         return (
-          item.workshopItem?.tags.includes(ItemTypeTags.Models) &&
-          filterState.form.requiredTags.some((requiredTag) =>
-            item.workshopItem?.tags.find(
-              (tag) => tag.toLocaleLowerCase() == requiredTag.toLowerCase()
-            )
+          [...filterState.form.requiredTags, ...props.requiredTags].some(
+            (requiredTag) =>
+              item.workshopItem?.tags.find(
+                (tag) => tag.toLocaleLowerCase() == requiredTag.toLowerCase()
+              )
           ) &&
-          !filterState.form.excludedTags.some((excludedTag) =>
-            item.workshopItem?.tags.find(
-              (tag) => tag.toLocaleLowerCase() == excludedTag.toLowerCase()
-            )
+          ![...filterState.form.excludedTags, ...props.excludedTags].some(
+            (excludedTag) =>
+              item.workshopItem?.tags.find(
+                (tag) => tag.toLocaleLowerCase() == excludedTag.toLowerCase()
+              )
           ) &&
           item.workshopItem?.title.includes(filterState.form.keyword)
         );
@@ -333,7 +344,9 @@ async function onItemSubscribed(itemId: bigint) {
 
 function onItemUnsubscribed(itemId: bigint) {
   const index = listState.list.findIndex(
-    (item) => item.workshopItem?.publishedFileId == itemId
+    (item) =>
+      item.type == InstalledItemType.WorkshopItem &&
+      item.workshopItem?.publishedFileId == itemId
   );
   if (index != -1) {
     listState.list.splice(index, 1);

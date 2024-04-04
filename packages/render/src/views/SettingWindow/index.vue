@@ -1,5 +1,5 @@
 <template>
-  <div class="models-window">
+  <div class="setting-window">
     <el-tabs class="tabs" v-model="activeName">
       <el-tab-pane :label="t('setting_window.application')" name="Application">
         <Application></Application>
@@ -19,7 +19,7 @@ const activeName = ref("Application");
 </script>
 
 <style lang="scss" scoped>
-.models-window {
+.setting-window {
   width: 100%;
   height: 100%;
 }

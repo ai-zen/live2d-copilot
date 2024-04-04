@@ -9,6 +9,7 @@ import type {
 } from "live2d-copilot-shared/src/Live2DModels";
 import path from "path";
 import { copyFolder } from "../utils/fs";
+import { broadcaster } from "./broadcaster";
 
 export class Live2DModelsManager {
   static instance = new Live2DModelsManager();
@@ -127,9 +128,15 @@ export class Live2DModelsManager {
   }
 
   async setCurrent(model3: string) {
+    // Set the config data
     this.configState.data.current = model3;
     await this.saveConfig();
-    this.eventBus.emit("currentModelChange", model3);
+
+    // Emit the change event.
+    this.eventBus.emit("current-model-change", model3);
+
+    // Broadcast the change event to all windows.
+    broadcaster.broadcast("live2d-models:current-model-change", model3);
   }
 
   async getCurrentProfile(): Promise<Live2DModelProfileEx | null> {
@@ -194,4 +201,4 @@ export class Live2DModelsManager {
   }
 }
 
-export const live2DModelManager = Live2DModelsManager.instance; // Create a singleton instance of Live2DModelsManager
+export const live2dModelsManager = Live2DModelsManager.instance; // Create a singleton instance of Live2DModelsManager
