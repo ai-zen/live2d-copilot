@@ -33,9 +33,9 @@ export function useMoveable({
     const deltaY = ev.clientY - offsetMoveState.beginEv.clientY;
     const modelScale = getModelScale();
     onUpdate({
-      OffsetX: offsetMoveState.beginTransform.OffsetX + deltaX / modelScale,
-      OffsetY: offsetMoveState.beginTransform.OffsetY + deltaY / modelScale,
-      Scale: offsetMoveState.beginTransform.Scale,
+      offsetX: offsetMoveState.beginTransform.offsetX + deltaX / modelScale,
+      offsetY: offsetMoveState.beginTransform.offsetY + deltaY / modelScale,
+      scale: offsetMoveState.beginTransform.scale,
     });
   }
 
@@ -47,7 +47,7 @@ export function useMoveable({
   // Event handling function for wheel scroll.
   function onWheel(ev: WheelEvent) {
     const transform = getTransform();
-    let scale = transform.Scale;
+    let scale = transform.scale;
     if (ev.deltaY > 0) {
       if (scale > 0.5) {
         scale -= 0.05;
@@ -58,9 +58,9 @@ export function useMoveable({
       }
     }
     onUpdate({
-      OffsetX: transform.OffsetX,
-      OffsetY: transform.OffsetY,
-      Scale: scale,
+      offsetX: transform.offsetX,
+      offsetY: transform.offsetY,
+      scale: scale,
     });
   }
 

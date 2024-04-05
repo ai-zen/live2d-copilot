@@ -89,12 +89,12 @@ export function useCurrentModel({
     if (!currentModelPositionRef.value) return;
 
     // Set ModelTransform now.
-    currentModelProfileRef.value.ModelTransform = new ModelTransform();
-    currentModelProfileRef.value.ModelTransform.Scale =
+    currentModelProfileRef.value.modelTransform = new ModelTransform();
+    currentModelProfileRef.value.modelTransform.scale =
       currentModelPositionRef.value?.relativeScale;
-    currentModelProfileRef.value.ModelTransform.OffsetX =
+    currentModelProfileRef.value.modelTransform.offsetX =
       currentModelPositionRef.value?.centerDeviceX;
-    currentModelProfileRef.value.ModelTransform.OffsetY =
+    currentModelProfileRef.value.modelTransform.offsetY =
       currentModelPositionRef.value?.centerDeviceY;
 
     // Save later.
@@ -122,8 +122,8 @@ export function useCurrentModel({
 
     // Change the model.
     currentModelRef.value = await managerRef.value.changeModel(
-      toLocalURI(profile._ModelDir),
-      profile._ModelFileName
+      toLocalURI(profile._modelDir),
+      profile._modelFileName
     );
 
     // If there is an prev model matrix
@@ -133,7 +133,7 @@ export function useCurrentModel({
     }
 
     // Adjust the model size.
-    const relativeScale = profile.ModelTransform?.Scale || 1;
+    const relativeScale = profile.modelTransform?.scale || 1;
     const targetScale = getDefaultScale() * relativeScale;
     currentModelRef.value.getModelMatrix().scale(targetScale, targetScale);
 
@@ -148,7 +148,7 @@ export function useCurrentModel({
     if (!currentModelProfileRef.value) return;
     console.log("saveCurrentModelProfile");
     await winApi.saveProfile(
-      currentModelProfileRef.value._ModelDir,
+      currentModelProfileRef.value._modelDir,
       JSON.parse(JSON.stringify(currentModelProfileRef.value))
     );
   }

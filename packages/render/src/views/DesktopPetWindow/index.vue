@@ -3,14 +3,14 @@
   <Subtitles
     v-if="profileRef && positionRef"
     :model-position="positionRef"
-    v-model:transform="profileRef.SubtitlesTransform"
+    v-model:transform="profileRef.subtitlesTransform"
     @update:transform="saveProfileWithDebounce"
     ref="subtitlesRef"
   />
   <ChatInput
     v-if="profileRef && positionRef"
     :model-position="positionRef"
-    v-model:transform="profileRef.ChatInputTransform"
+    v-model:transform="profileRef.chatInputTransform"
     @update:transform="saveProfileWithDebounce"
     @send="sendMessage"
     ref="chatInputRef"
@@ -101,6 +101,9 @@ const sentenceController = useSentence({
 });
 
 const ttsController = useTTS({
+  getVoiceName() {
+    return profileRef.value?.tts?.azure?.name ?? "zh-CN-XiaoyiNeural";
+  },
   onVoice(voice) {
     voicePlayController.inputQueue.push(voice);
   },
@@ -142,7 +145,7 @@ function sendMessage(content: string) {
 }
 
 watch(
-  () => profileRef.value?.Chat?.Prompt,
+  () => profileRef.value?.chat?.prompt,
   (prompt) => {
     chatController.abort();
     chatController.init();

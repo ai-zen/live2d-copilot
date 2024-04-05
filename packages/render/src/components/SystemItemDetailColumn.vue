@@ -4,12 +4,12 @@
       <div class="detail-scroll-content">
         <img
           class="image"
-          :src="toLocalURI(item._ModelDir + '/' + item.Preview)"
+          :src="toLocalURI(item._modelDir + '/' + item.preview)"
         />
         <div class="content">
-          <div class="title">{{ item.Title }}</div>
+          <div class="title">{{ item.title }}</div>
           <div class="desc">
-            {{ item.Description }}
+            {{ item.description }}
           </div>
         </div>
       </div>

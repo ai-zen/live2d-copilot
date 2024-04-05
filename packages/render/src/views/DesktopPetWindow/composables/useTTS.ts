@@ -5,7 +5,10 @@ interface Voice {
   audio?: HTMLAudioElement;
 }
 
-export function useTTS(options: { onVoice?(voice: Voice): void }) {
+export function useTTS(options: {
+  onVoice?(voice: Voice): void;
+  getVoiceName?(): string | void;
+}) {
   const inputQueue = new AsyncQueue<string>();
 
   async function run() {
@@ -18,6 +21,8 @@ export function useTTS(options: { onVoice?(voice: Voice): void }) {
         }
       ).then((res) => res.json());
 
+      const voiceName = options.getVoiceName?.() || "zh-CN-XiaoyiNeural";
+
       const blob = await fetch(
         "https://eastasia.tts.speech.microsoft.com/cognitiveservices/v1",
         {
@@ -26,7 +31,7 @@ export function useTTS(options: { onVoice?(voice: Voice): void }) {
             "content-type": "application/ssml+xml",
             "x-microsoft-outputformat": "riff-24khz-16bit-mono-pcm",
           },
-          body: `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang=\"zh-CN\"><voice name='zh-CN-XiaoyiNeural' xml:lang='zh-CN'><mstts:express-as style='chat'>${text}</mstts:express-as></voice></speak>`,
+          body: `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xmlns:mstts='https://www.w3.org/2001/mstts' xml:lang=\"zh-CN\"><voice name='${voiceName}' xml:lang='zh-CN'><mstts:express-as style='chat'>${text}</mstts:express-as></voice></speak>`,
           method: "POST",
           mode: "cors",
         }

@@ -227,11 +227,11 @@ function listSort(list: InstalledItem[]) {
       listCloned.sort((a, b) => {
         let aName =
           a.type == InstalledItemType.SystemItem
-            ? a.systemItem!.Title
+            ? a.systemItem!.title
             : a.workshopItem!.title;
         let bName =
           b.type == InstalledItemType.SystemItem
-            ? b.systemItem!.Title
+            ? b.systemItem!.title
             : b.workshopItem!.title;
         return aName.localeCompare(bName);
       });

@@ -13,7 +13,8 @@
           @ready="onReady"
           @focus-item="onFocusItem"
           ref="UGCInstalledRef"
-        ></UGCInstalled>
+        >
+        </UGCInstalled>
       </el-tab-pane>
 
       <el-tab-pane :label="t('ugc_window.workshop')" name="UGCWorkshop">
@@ -29,8 +30,8 @@
 
       <el-tab-pane :label="t('ugc_window.publish')" name="UGCPublish">
         <UGCPublish
-          :beforePublish="onBeforePublish"
-          :default-form="DEFAULT_CUSTOM_FORM"
+          :beforePublish="beforePublish"
+          :get-form-extends-default="getFormExtendsDefault"
         >
           <template #form-extends="{ form }">
             <el-form-item
@@ -89,6 +90,46 @@
                 >
               </el-radio-group>
             </el-form-item>
+
+            <el-form-item
+              prop="chat.prompt"
+              :label="t('publish_page.chat_prompt')"
+              :rules="{
+                required: true,
+                message: t('publish_page.chat_prompt_required'),
+              }"
+            >
+              <el-input v-model="form.chat.prompt" type="textarea"></el-input>
+            </el-form-item>
+
+            <el-form-item
+              prop="tts.type"
+              :label="t('publish_page.tts_type')"
+              :rules="{
+                required: true,
+                message: t('publish_page.tts_type_required'),
+              }"
+            >
+              <el-radio-group v-model="form.tts.type">
+                <el-radio label="azure">Azure</el-radio>
+              </el-radio-group>
+            </el-form-item>
+
+            <el-form-item
+              v-if="form.tts.type == 'azure'"
+              prop="tts.azure.name"
+              :label="t('publish_page.tts_azure_name')"
+              :rules="{
+                required: true,
+                message: t('publish_page.tts_azure_name_required'),
+              }"
+            >
+              <el-select-v2
+                v-model="form.tts.azure.name"
+                :options="AzureTTSNameOptions"
+              >
+              </el-select-v2>
+            </el-form-item>
           </template>
         </UGCPublish>
       </el-tab-pane>
@@ -100,6 +141,7 @@
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
 import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
 import { onMounted, onUnmounted, reactive, ref } from "vue";
+import AzureTTSList from "../../assets/azure-tts-list.json";
 import UGCInstalled, {
   InstalledItem,
   InstalledItemType,
@@ -117,18 +159,7 @@ import {
 import { useI18n } from "../../modules/i18n";
 import { rpc } from "../../modules/rpc";
 import { WorkshopItemStatusData, workshop } from "../../modules/workshop";
-
-const DEFAULT_CUSTOM_FORM = {
-  itemTypeTag: ItemTypeTags.Models,
-  ageRatingTag: AgeRatingTags.Everyone,
-  modelsTag: ModelsTags.Other,
-};
-
-const { tagsGroupRecord } = useTagsOptions([
-  TagsCategories.AgeRatingTags,
-  TagsCategories.ModelsTags,
-  TagsCategories.ItemTypeTags,
-]);
+import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
 
 const winApi = rpc.use<Methods>("models-window");
 
@@ -137,6 +168,29 @@ const { t } = useI18n();
 const UGCInstalledRef = ref<InstanceType<typeof UGCInstalled>>();
 
 const activeName = ref("UGCInstalled");
+
+function getFormExtendsDefault() {
+  return {
+    itemTypeTag: ItemTypeTags.Models,
+    ageRatingTag: AgeRatingTags.Everyone,
+    modelsTag: ModelsTags.Other,
+    chat: {
+      prompt: t("publish_page.chat_prompt_default"),
+    },
+    tts: {
+      type: "azure",
+      azure: {
+        name: t("publish_page.tts_azure_default"),
+      },
+    },
+  };
+}
+
+const { tagsGroupRecord } = useTagsOptions([
+  TagsCategories.AgeRatingTags,
+  TagsCategories.ModelsTags,
+  TagsCategories.ItemTypeTags,
+]);
 
 async function getSystemItems() {
   const profiles = await winApi.loadProfiles();
@@ -154,10 +208,11 @@ async function onReady() {
   focusUsedItem();
 }
 
-async function onBeforePublish(form: any) {
+async function beforePublish(
+  form: UGCPublishFormWithCustom<ReturnType<typeof getFormExtendsDefault>>
+) {
   await winApi.buildProfile(form);
 
-  form.tags ??= [];
   if (form.itemTypeTag) form.tags.push(form.itemTypeTag);
   if (form.modelsTag) form.tags.push(form.modelsTag);
   if (form.ageRatingTag) form.tags.push(form.ageRatingTag);
@@ -168,7 +223,7 @@ async function onBeforePublish(form: any) {
 async function onFocusItem(item: InstalledItem) {
   if (item.type == InstalledItemType.SystemItem) {
     usedState.currentProfile = item.systemItem;
-    await winApi.setCurrent(item.systemItem!._ModelPath);
+    await winApi.setCurrent(item.systemItem!._modelPath);
   } else {
     const statusData = await workshop.updateItemStatusData(
       item.workshopItem!.publishedFileId
@@ -178,7 +233,7 @@ async function onFocusItem(item: InstalledItem) {
       const profile = await winApi.loadProfile(statusData.installInfo.folder);
       if (profile) {
         usedState.currentProfile = profile;
-        await winApi.setCurrent(profile._ModelPath);
+        await winApi.setCurrent(profile._modelPath);
       }
     }
   }
@@ -195,7 +250,7 @@ function onUnsubscribed(itemId: bigint, statusData: WorkshopItemStatusData) {
       itemId != item.workshopItem?.publishedFileId
   );
   if (
-    statusData.installInfo?.folder == usedState.currentProfile?._ModelDir &&
+    statusData.installInfo?.folder == usedState.currentProfile?._modelDir &&
     fallbackItem
   ) {
     focusItem(fallbackItem);
@@ -224,7 +279,7 @@ function focusUsedItem() {
   const { listState, focusState } = UGCInstalledRef.value;
   listState.list.forEach((item) => {
     if (item.type == InstalledItemType.SystemItem) {
-      if (item.systemItem?._ModelDir == usedState.currentProfile?._ModelDir) {
+      if (item.systemItem?._modelDir == usedState.currentProfile?._modelDir) {
         focusState.current = item;
       }
     } else {
@@ -232,7 +287,7 @@ function focusUsedItem() {
         item.workshopItem!.publishedFileId
       );
       if (
-        statusData?.installInfo?.folder == usedState.currentProfile?._ModelDir
+        statusData?.installInfo?.folder == usedState.currentProfile?._modelDir
       ) {
         focusState.current = item;
       }
@@ -247,6 +302,11 @@ onMounted(async () => {
 onUnmounted(() => {
   workshop.eventBus.off("unsubscribed", onUnsubscribed);
 });
+
+const AzureTTSNameOptions = AzureTTSList.map((item) => ({
+  label: item.LocalName,
+  value: item.ShortName,
+}));
 </script>
 
 <style lang="scss" scoped>
@@ -259,19 +319,23 @@ onUnmounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+
   .el-tabs__content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+
     .el-tab-pane {
       flex-grow: 1;
       display: flex;
       flex-direction: column;
     }
   }
+
   .el-tabs__header {
     margin: 0px;
   }
+
   .el-tabs__item.el-tabs__item {
     padding: 0 20px;
   }

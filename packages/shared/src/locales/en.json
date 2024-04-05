@@ -124,7 +124,22 @@
             "uploading_content": "Uploading Content",
             "uploading_preview_file": "Uploading Preview File",
             "committing_changes": "Committing Changes"
-        }
+        },
+        "chat_prompt": "Chat Prompt",
+        "chat_prompt_required": "Please provide the chat prompt",
+        "chat_prompt_default": "You are an AI assistant, and users refer to you as AI. Your answers should be as concise as possible, with only one sentence at a time. If you don't know, you say you don't know.",
+        "tts_type": "TTS Type",
+        "tts_type_required": "Please select TTS type",
+        "tts_azure_name": "Azure TTS Name",
+        "tts_azure_name_required": "Please select voice name of Azure TTS",
+        "tts_azure_default": "en-US-AriaNeural",
+        "function_name": "Function name",
+        "function_name_required": "Please enter the function name, only uppercase and lowercase English letters and underscores are allowed",
+        "function_name_placeholder": "Please enter the function name, only uppercase and lowercase English letters and underscores are allowed",
+        "function_description": "Function description",
+        "function_description_required": "Please enter the function description, tell the LLM what the tool does and when to call it",
+        "function_description_placeholder": "Please enter the function description, tell the LLM what the tool does and when to call it",
+        "function_parameters": "Function parameters"
     },
     "tray": {
         "models": "Models",
@@ -153,5 +168,17 @@
     "application_page": {
         "lang": "Language",
         "always_on_top": "Always On Top"
+    },
+    "parameters_editor": {
+        "param_name": "Parameter Name",
+        "string": "String",
+        "boolean": "Boolean",
+        "number": "Number",
+        "array": "Array",
+        "object": "Object",
+        "is_required": "Is Required",
+        "add_param": "Add Parameter",
+        "delete_param": "Delete Parameter",
+        "param_description": "Parameter Description"
     }
 }

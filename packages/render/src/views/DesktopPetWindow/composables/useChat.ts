@@ -69,14 +69,14 @@ export function useChat(options: {
   function send(newMessage: string) {
     if (!chatInstanceRef.value) return;
     trimMessages();
-    chatInstanceRef.value.sendUserMessage(newMessage);
+    chatInstanceRef.value.send(newMessage);
   }
 
   /**
    * 中止上一次发送
    */
   function abort() {
-    chatInstanceRef.value?.abortLastSend();
+    chatInstanceRef.value?.abort();
   }
 
   /**

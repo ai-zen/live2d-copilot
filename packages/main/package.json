@@ -20,8 +20,8 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@ai-zen/event-bus": "^1.0.1",
-    "@ai-zen/steamworks.js": "^0.3.6-dev.17",
+    "@ai-zen/event-bus": "^1.0.4",
+    "@ai-zen/steamworks.js": "^0.3.6",
     "@electron-forge/cli": "^6.4.2",
     "@electron-forge/maker-deb": "^6.4.2",
     "@electron-forge/maker-rpm": "^6.4.2",

@@ -1,15 +1,17 @@
 {
-    "Version": 1,
-    "Model3": "Mao.model3.json",
-    "Title": "虹色Mao",
-    "Description": "Live2D 官方示例人物",
-    "Preview": "preview.png",
-    "CreateTime": 1687551638064,
-    "Skins": [],
-    "AzureTTS": {
-        "VoiceName": "zh-CN-XiaoyiNeural"
+    "version": 1,
+    "model3": "Mao.model3.json",
+    "title": "虹色Mao",
+    "description": "Live2D 官方示例人物",
+    "preview": "preview.png",
+    "skins": [],
+    "chat": {
+        "prompt": "你是一个AI助手，用户称呼你为虹色Mao，你的回答尽可能简洁，每次只回答一句话，不知道就说不知道。"
     },
-    "ChatGPT": {
-        "SystemMessage": "你是一个AI助手，用户称呼你为虹色Mao，你的回答尽可能简洁，每次只回答一句话，不知道就说不知道。"
+    "tts": {
+        "type": "azure",
+        "azure": {
+            "name": "zh-CN-XiaoyiNeural"
+        }
     }
 }

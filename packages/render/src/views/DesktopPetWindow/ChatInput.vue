@@ -5,9 +5,9 @@
       '--model-x': `${modelPosition.deviceX}px`,
       '--model-y': `${modelPosition.deviceY}px`,
       '--model-scale': `${modelPosition.relativeScale}`,
-      '--offset-x': `${transform.OffsetX}px`,
-      '--offset-y': `${transform.OffsetY}px`,
-      '--scale': `${transform.Scale}`,
+      '--offset-x': `${transform.offsetX}px`,
+      '--offset-y': `${transform.offsetY}px`,
+      '--scale': `${transform.scale}`,
     }"
   >
     <div class="chat-input">

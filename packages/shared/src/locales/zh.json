@@ -124,7 +124,22 @@
             "uploading_content": "上传内容",
             "uploading_preview_file": "上传预览文件",
             "committing_changes": "提交变更记录"
-        }
+        },
+        "chat_prompt": "聊天提示词",
+        "chat_prompt_required": "请输入聊天提示词",
+        "chat_prompt_default": "你是一个AI助手，用户称呼你为AI，你的回答尽可能简洁，每次只回答一句话，不知道就说不知道。",
+        "tts_type": "语音类型",
+        "tts_type_required": "请选择语音类型",
+        "tts_azure_name": "Azure语音名称",
+        "tts_azure_name_required": "请选择Azure语音名称",
+        "tts_azure_default": "zh-CN-XiaoyiNeural",
+        "function_name": "函数名称",
+        "function_name_required": "请输入函数名称，只允许使用大小写英文字母和下划线",
+        "function_name_placeholder": "请输入函数名称，只允许使用大小写英文字母和下划线",
+        "function_description": "函数描述",
+        "function_description_required": "请输入函数描述，告诉语言模型这个工具有什么作用以及何时函数",
+        "function_description_placeholder": "请输入函数描述，告诉语言模型这个工具有什么作用以及何时函数",
+        "function_parameters": "函数参数"
     },
     "tray": {
         "models": "模型",
@@ -153,5 +168,17 @@
     "application_page": {
         "lang": "语言",
         "always_on_top": "始终置顶"
+    },
+    "parameters_editor": {
+        "param_name": "参数名称",
+        "string": "字符串",
+        "boolean": "布尔值",
+        "number": "数字",
+        "array": "数组",
+        "object": "对象",
+        "is_required": "是否必填",
+        "add_param": "添加参数",
+        "delete_param": "删除参数",
+        "param_description": "参数描述"
     }
 }

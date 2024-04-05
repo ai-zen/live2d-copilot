@@ -9,53 +9,59 @@ export interface Live2DModelPathInfo {
   modelPath: string; // Full path to the Live2D model
 }
 
-export interface Live2DModelProfile {
-  Version: 1;
-  Model3: string; // File name of the Live2D model profile in .model3.json format
-  Preview: string; // Preview Image
-  Title: string;
-  Description: string;
-  Skins?: {
-    Name: string; // Name of the skin
-    Mapping: Record<string, string>; // Mapping of skin components
+export interface Live2DModelProfileV1 {
+  version: 1;
+  model3: string; // File name of the Live2D model profile in .model3.json format
+  preview: string; // preview Image
+  title: string;
+  description: string;
+  skins?: {
+    name: string; // Name of the skin
+    mapping: Record<string, string>; // Mapping of skin components
   }[];
-  Chat?: {
-    Prompt?: string;
+  chat?: {
+    prompt?: string;
   };
-  ModelTransform?: ModelTransform;
-  SubtitlesTransform?: SubtitlesTransform;
-  ChatInputTransform?: ChatInputTransform;
+  tts?: {
+    type: string;
+    azure: {
+      name: string; // Name of the voice
+    };
+  };
+  modelTransform?: ModelTransform;
+  subtitlesTransform?: SubtitlesTransform;
+  chatInputTransform?: ChatInputTransform;
 }
 
-export interface Live2DModelProfileEx extends Live2DModelProfile {
-  _ModelDir: string; // Directory of the Live2D model
-  _ModelFileName: string; // File name of the Live2D model profile in .model3.json format
-  _ModelName: string; // Name of the Live2D model
-  _ModelPath: string; // Full path to the Live2D model
+export interface Live2DModelProfileEx extends Live2DModelProfileV1 {
+  _modelDir: string; // Directory of the Live2D model
+  _modelFileName: string; // File name of the Live2D model profile in .model3.json format
+  _modelName: string; // Name of the Live2D model
+  _modelPath: string; // Full path to the Live2D model
 }
 
 export interface MoveableTransform {
-  OffsetX: number;
-  OffsetY: number;
-  Scale: number;
+  offsetX: number;
+  offsetY: number;
+  scale: number;
 }
 
 export class SubtitlesTransform implements MoveableTransform {
-  OffsetX = 0;
-  OffsetY = 100;
-  Scale = 1;
+  offsetX = 0;
+  offsetY = 100;
+  scale = 1;
 }
 
 export class ChatInputTransform implements MoveableTransform {
-  OffsetX = 0;
-  OffsetY = 200;
-  Scale = 1;
+  offsetX = 0;
+  offsetY = 200;
+  scale = 1;
 }
 
 export class ModelTransform implements MoveableTransform {
-  OffsetX = 0;
-  OffsetY = 0;
-  Scale = 1;
+  offsetX = 0;
+  offsetY = 0;
+  scale = 1;
 }
 
 export interface Live2DModelPosition {

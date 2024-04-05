@@ -18,8 +18,6 @@ export class SettingManager {
     data: <Setting>{
       lang: "en", // Default language
       alwaysOnTop: true,
-      currentChatClient: "AIZen",
-      chatClientConfigs: {},
     },
   };
 

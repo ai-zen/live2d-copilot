@@ -1,11 +1,11 @@
 <template>
   <!-- :class="{
-    'is-current': item._ModelPath == currentState.current?._ModelPath,
+    'is-current': item._modelPath == currentState.current?._modelPath,
   }" -->
   <div class="card">
-    <img class="image" :src="toLocalURI(item._ModelDir + '/' + item.Preview)" />
+    <img class="image" :src="toLocalURI(item._modelDir + '/' + item.preview)" />
     <div class="content">
-      <div class="title">{{ item.Title }}</div>
+      <div class="title">{{ item.title }}</div>
     </div>
     <div class="status-info">{{ t("item_state.system_default") }}</div>
   </div>

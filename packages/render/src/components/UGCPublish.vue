@@ -1,23 +1,28 @@
 <template>
-  <div class="publish">
-    <el-form class="form" :model="form" label-width="144px" ref="formRef">
+  <div
+    class="publish"
+    :class="{
+      'is-publishing': publishState.isPublishing,
+    }"
+  >
+    <el-form class="form" :model="form" label-width="200px" ref="formRef">
       <el-form-item
         prop="publishType"
         :label="t('publish_page.publish_type')"
         :rules="{ required: true }"
       >
         <el-radio-group v-model="form.publishType">
-          <el-radio :label="PublishType.Add">{{
+          <el-radio :label="UGCPublishType.Add">{{
             t("publish_page.publish_type_add")
           }}</el-radio>
-          <el-radio :label="PublishType.Update">{{
+          <el-radio :label="UGCPublishType.Update">{{
             t("publish_page.publish_type_update")
           }}</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item
         prop="itemId"
-        v-if="form.publishType == PublishType.Update"
+        v-if="form.publishType == UGCPublishType.Update"
         :label="t('publish_page.item_id')"
         :rules="{ required: true, message: t('publish_page.item_id_required') }"
       >
@@ -128,7 +133,7 @@
 
       <slot
         name="form-extends"
-        :form="(form as UGCPublishFormWithCustom)"
+        :form="(form as UGCPublishFormWithCustom<F>)"
       ></slot>
 
       <el-form-item>
@@ -159,54 +164,36 @@
         <div class="title">{{ t("publish_page.uploading") }}</div>
       </template>
     </div>
+  </div>
 
-    <div class="result-wrapper" v-if="publishState.isSuccess">
-      <el-result
-        icon="success"
-        :title="t('publish_page.publish_success')"
-        :sub-title="publishState.successMessage"
-      >
-        <template #extra>
-          <el-button type="primary" @click="back">{{
-            t("publish_page.back")
-          }}</el-button>
-        </template>
-      </el-result>
-    </div>
+  <div class="result-wrapper" v-if="publishState.isSuccess">
+    <el-result
+      icon="success"
+      :title="t('publish_page.publish_success')"
+      :sub-title="publishState.successMessage"
+    >
+      <template #extra>
+        <el-button type="primary" @click="backAndReset">{{
+          t("publish_page.back")
+        }}</el-button>
+      </template>
+    </el-result>
+  </div>
 
-    <div class="result-wrapper" v-if="publishState.isError">
-      <el-result
-        icon="error"
-        :title="t('publish_page.publish_error')"
-        :sub-title="publishState.errorMessage"
-      >
-        <template #extra>
-          <el-button type="primary" @click="back">{{
-            t("publish_page.back")
-          }}</el-button>
-        </template>
-      </el-result>
-    </div>
+  <div class="result-wrapper" v-if="publishState.isError">
+    <el-result
+      icon="error"
+      :title="t('publish_page.publish_error')"
+      :sub-title="publishState.errorMessage"
+    >
+      <template #extra>
+        <el-button type="primary" @click="backToEdit">{{
+          t("publish_page.back")
+        }}</el-button>
+      </template>
+    </el-result>
   </div>
 </template>
-
-<script lang="ts">
-export enum PublishType {
-  Add = 0,
-  Update = 1,
-}
-
-export interface UGCPublishForm {
-  publishType: PublishType;
-  itemId: string;
-  title: string;
-  description: string;
-  visibility: UgcItemVisibility;
-  contentPath: string;
-  previewPath: string;
-  changeNote: string;
-}
-</script>
 
 <script setup lang="ts" generic="F">
 import { InfoFilled } from "@element-plus/icons-vue";
@@ -217,17 +204,20 @@ import {
   UpdateProgress,
   UpdateStatus,
 } from "live2d-copilot-shared/src/Steamworks";
+import {
+  UGCPublishForm,
+  UGCPublishFormWithCustom,
+  UGCPublishType,
+} from "live2d-copilot-shared/src/UGCPublish";
 import { computed, defineProps, nextTick, reactive, ref, toRaw } from "vue";
 import { useI18n } from "../modules/i18n";
 import { rpc } from "../modules/rpc";
 
-type UGCPublishFormWithCustom = UGCPublishForm & F;
-
 const props = defineProps<{
   beforePublish?: (
-    form: UGCPublishFormWithCustom
-  ) => Promise<UGCPublishFormWithCustom>;
-  defaultForm?: F;
+    form: UGCPublishFormWithCustom<F>
+  ) => Promise<UGCPublishFormWithCustom<F>>;
+  getFormExtendsDefault?: () => F;
 }>();
 
 const { t } = useI18n();
@@ -238,7 +228,7 @@ const formRef = ref<null | InstanceType<typeof ElForm>>(null);
 
 function crateForm() {
   return {
-    publishType: PublishType.Add,
+    publishType: UGCPublishType.Add,
     itemId: "",
     title: "",
     description: "",
@@ -246,7 +236,8 @@ function crateForm() {
     contentPath: "",
     previewPath: "",
     changeNote: "",
-    ...props.defaultForm,
+    tags: [],
+    ...props.getFormExtendsDefault?.(),
   };
 }
 
@@ -299,14 +290,14 @@ async function onSubmit() {
   try {
     publishState.isPublishing = true;
 
-    let itemData = toRaw(form) as UGCPublishFormWithCustom;
+    let itemData = toRaw(form) as UGCPublishFormWithCustom<F>;
 
     if (props.beforePublish) itemData = await props.beforePublish(itemData);
 
     let result: { itemId: bigint } | undefined;
     let itemId: bigint | undefined = undefined;
 
-    if (itemData.publishType == PublishType.Add) {
+    if (itemData.publishType == UGCPublishType.Add) {
       const result = await steamworksApi.createItem();
       if (result?.itemId) itemId = result.itemId;
     } else {
@@ -378,7 +369,7 @@ const getProgressPercentage = computed(() => {
   );
 });
 
-function back() {
+function backAndReset() {
   publishState.isPublishing = false;
   publishState.progressPayload = null;
   publishState.isSuccess = false;
@@ -386,6 +377,15 @@ function back() {
   publishState.isError = false;
   publishState.errorMessage = "";
   Object.assign(form, crateForm());
+}
+
+function backToEdit() {
+  publishState.isPublishing = false;
+  publishState.progressPayload = null;
+  publishState.isSuccess = false;
+  publishState.successMessage = "";
+  publishState.isError = false;
+  publishState.errorMessage = "";
 }
 </script>
 
@@ -395,7 +395,10 @@ function back() {
   height: 0px;
   width: 100%;
   overflow-y: auto;
-  position: relative;
+
+  &.is-publishing {
+    overflow: hidden;
+  }
 }
 
 .publish-wrapper {
@@ -439,7 +442,7 @@ function back() {
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  z-index: 1;
+  z-index: 2;
 }
 
 .upload-area {

@@ -4,9 +4,11 @@ import fsp from "fs/promises";
 import type {
   Live2DModelManagerConfig,
   Live2DModelPathInfo,
-  Live2DModelProfile,
+  Live2DModelProfileV1,
   Live2DModelProfileEx,
 } from "live2d-copilot-shared/src/Live2DModels";
+import { UGCPublishForm } from "live2d-copilot-shared/src/UGCPublish";
+import { PickRequired } from "live2d-copilot-shared/src/Common";
 import path from "path";
 import { copyFolder } from "../utils/fs";
 import { broadcaster } from "./broadcaster";
@@ -91,10 +93,10 @@ export class Live2DModelsManager {
         .then(JSON.parse); // Parse the profile file content as JSON
       const profileEx: Live2DModelProfileEx = {
         ...profile,
-        _ModelDir: modelDir,
-        _ModelFileName: profile.Model3,
-        _ModelName: profile.Model3.replace(".model3.json", ""), // Remove the file extension from the model name
-        _ModelPath: path.join(modelDir, profile.Model3),
+        _modelDir: modelDir,
+        _modelFileName: profile.model3,
+        _modelName: profile.model3.replace(".model3.json", ""), // Remove the file extension from the model name
+        _modelPath: path.join(modelDir, profile.model3),
       };
       return profileEx; // Return the extended profile
     } catch (error) {
@@ -102,7 +104,7 @@ export class Live2DModelsManager {
     }
   }
 
-  async saveProfile(modelDir: string, profile: Live2DModelProfile) {
+  async saveProfile(modelDir: string, profile: Live2DModelProfileV1) {
     try {
       const profilePath = path.join(modelDir, "profile.json"); // Construct the path to the profile file
       await fsp.writeFile(profilePath, JSON.stringify(profile, null, 4), {
@@ -160,44 +162,6 @@ export class Live2DModelsManager {
     const modelsSource = path.resolve(__dirname, "./toUserData/Live2D Models"); // Get the source directory for the models to be released
     const modelsTarget = path.resolve(this.MODELS_DIR); // Get the target directory for releasing the models to user data
     await copyFolder(modelsSource, modelsTarget, { overwrite: false }); // Copy the models source directory to the models target directory, avoiding overwriting existing files
-  }
-
-  async buildProfile(info: {
-    title: string;
-    description: string;
-    contentPath: string;
-    previewPath: string;
-  }) {
-    const profilePath = path.join(info.contentPath, "profile.json");
-    let profile: Live2DModelProfile = {
-      Version: 1,
-      Model3: "",
-      Title: "",
-      Description: "",
-      Preview: "",
-      Skins: [],
-    };
-    try {
-      const json = await fsp
-        .readFile(profilePath, { encoding: "utf-8" }) // Read the profile file
-        .then(JSON.parse); // Parse the profile file content as JSON
-      profile = JSON.parse(json);
-    } catch {}
-    const files = await fsp.readdir(info.contentPath);
-    const model3 = files.find((file) => file.endsWith("model3.json"));
-    if (!model3) throw new Error("Folder does not contain model3.json file.");
-    profile.Model3 = model3;
-    profile.Title = info.title;
-    profile.Description = info.description;
-    profile.Preview = "preview.png";
-    const source = path.normalize(info.previewPath);
-    const dest = path.normalize(path.join(info.contentPath, "preview.png"));
-    if (source != dest) {
-      await fsp.cp(source, dest);
-    }
-    await fsp.writeFile(profilePath, JSON.stringify(profile, null, 4), {
-      encoding: "utf-8",
-    });
   }
 }
 
