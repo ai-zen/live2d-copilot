@@ -4,7 +4,7 @@
       <el-tab-pane :label="t('ugc_window.installed')" name="UGCInstalled">
         <UGCInstalled
           :tags-categories="[]"
-          :required-tags="[]"
+          :required-tags="[ItemTypeTags.ChatTools]"
           :excluded-tags="getExcludedTagsByItemTypes([ItemTypeTags.ChatTools])"
           :getSystemItems="getSystemItems"
           @ready="onReady"
@@ -15,7 +15,7 @@
       <el-tab-pane :label="t('ugc_window.workshop')" name="UGCWorkshop">
         <UGCWorkshop
           :tags-categories="[]"
-          :required-tags="[]"
+          :required-tags="[ItemTypeTags.ChatTools]"
           :excluded-tags="getExcludedTagsByItemTypes([ItemTypeTags.ChatTools])"
         ></UGCWorkshop>
       </el-tab-pane>
@@ -87,7 +87,7 @@
                 <el-text>{{ t("publish_page.code_tips") }}</el-text>
                 <div
                   class="code-wrapper"
-                  v-html="getExampleCode(form)"
+                  v-html="highlight(getExampleCode(form))"
                   @click="onExampleCodeClick(getExampleCode(form))"
                 ></div>
               </div>
@@ -152,11 +152,14 @@ function getFormExtendsDefault() {
 function getExampleCode(
   form: UGCPublishFormWithCustom<ReturnType<typeof getFormExtendsDefault>>
 ) {
-  const code = `export function ${form.function.name || "foo"}(${Object.keys(
+  return `export function ${form.function.name || "foo"}(${Object.keys(
     form.function.parameters.properties!
   ).join(",")}){
   return '';
 }`;
+}
+
+function highlight(code: string) {
   const code1 = hljs.highlight(code, {
     language: "javascript",
     ignoreIllegals: true,
@@ -175,7 +178,7 @@ async function onReady() {}
 async function beforePublish(
   form: UGCPublishFormWithCustom<ReturnType<typeof getFormExtendsDefault>>
 ) {
-  await winApi.buildProfile(form);
+  await winApi.buildProfile(JSON.parse(JSON.stringify(form)));
 
   if (form.itemTypeTag) form.tags.push(form.itemTypeTag);
 

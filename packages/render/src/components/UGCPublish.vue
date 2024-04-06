@@ -324,7 +324,7 @@ async function onSubmit() {
 
     result = await steamworksApi.updateItem(
       itemId,
-      itemData,
+      JSON.parse(JSON.stringify(itemData)),
       (data) => {
         console.log("progressCallback", data);
         publishState.progressPayload = data as unknown as UpdateProgress;

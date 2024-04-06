@@ -7,7 +7,7 @@
             TagsCategories.AgeRatingTags,
             TagsCategories.ModelsTags,
           ]"
-          :required-tags="[]"
+          :required-tags="[ItemTypeTags.Models]"
           :excluded-tags="getExcludedTagsByItemTypes([ItemTypeTags.Models])"
           :getSystemItems="getSystemItems"
           @ready="onReady"
@@ -23,7 +23,7 @@
             TagsCategories.AgeRatingTags,
             TagsCategories.ModelsTags,
           ]"
-          :required-tags="[]"
+          :required-tags="[ItemTypeTags.Models]"
           :excluded-tags="getExcludedTagsByItemTypes([ItemTypeTags.Models])"
         ></UGCWorkshop>
       </el-tab-pane>
