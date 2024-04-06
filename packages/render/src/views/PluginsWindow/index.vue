@@ -84,11 +84,12 @@
 
             <el-form-item label="Tips">
               <div class="tips">
-                <el-text
-                  >您需要在内容文件夹中创建一个
-                  <em>index.js</em> 文件，并提供如下函数导出</el-text
-                >
-                <div class="code-wrapper" v-html="getExampleCode(form)"></div>
+                <el-text>{{ t("publish_page.code_tips") }}</el-text>
+                <div
+                  class="code-wrapper"
+                  v-html="getExampleCode(form)"
+                  @click="onExampleCodeClick(getExampleCode(form))"
+                ></div>
               </div>
             </el-form-item>
           </template>
@@ -118,6 +119,7 @@ import {
 import { useI18n } from "../../modules/i18n";
 import { rpc } from "../../modules/rpc";
 import { WorkshopItemStatusData, workshop } from "../../modules/workshop";
+import { ElMessage } from "element-plus";
 
 const winApi = rpc.use<Methods>("plugins-window");
 
@@ -183,6 +185,13 @@ async function beforePublish(
 async function onFocusItem(_item: InstalledItem) {}
 
 function onUnsubscribed(_itemId: bigint, _statusData: WorkshopItemStatusData) {}
+
+function onExampleCodeClick(code: string) {
+  // copy the example code to clipboard
+  window.navigator.clipboard.writeText(code).then(() => {
+    ElMessage.success(t("copy_success"));
+  });
+}
 
 onMounted(async () => {
   workshop.eventBus.on("unsubscribed", onUnsubscribed);
