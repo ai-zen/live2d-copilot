@@ -209,8 +209,16 @@ import {
   UGCPublishFormWithCustom,
   UGCPublishType,
 } from "live2d-copilot-shared/src/UGCPublish";
-import { computed, defineProps, nextTick, reactive, ref, toRaw } from "vue";
-import { useI18n } from "../modules/i18n";
+import {
+  computed,
+  defineProps,
+  nextTick,
+  reactive,
+  ref,
+  toRaw,
+  watch,
+} from "vue";
+import { i18n, useI18n } from "../modules/i18n";
 import { rpc } from "../modules/rpc";
 
 const props = defineProps<{
@@ -226,7 +234,7 @@ const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
 
 const formRef = ref<null | InstanceType<typeof ElForm>>(null);
 
-function crateForm() {
+function createForm() {
   return {
     publishType: UGCPublishType.Add,
     itemId: "",
@@ -241,7 +249,15 @@ function crateForm() {
   };
 }
 
-const form = reactive(crateForm()) as UGCPublishForm;
+const form = reactive(createForm()) as UGCPublishForm;
+
+// When the language is switched, reset the form.
+watch(
+  () => i18n.state.lang,
+  () => {
+    Object.assign(form, createForm());
+  }
+);
 
 async function selectContentDir() {
   try {
@@ -317,7 +333,7 @@ async function onSubmit() {
     );
     if (!result) throw new Error(t("publish_page.no_valid_results_returned"));
 
-    Object.assign(itemData, crateForm());
+    Object.assign(itemData, createForm());
     publishState.isPublishing = false;
     publishState.isSuccess = true;
     publishState.successMessage = t(
@@ -376,7 +392,7 @@ function backAndReset() {
   publishState.successMessage = "";
   publishState.isError = false;
   publishState.errorMessage = "";
-  Object.assign(form, crateForm());
+  Object.assign(form, createForm());
 }
 
 function backToEdit() {
