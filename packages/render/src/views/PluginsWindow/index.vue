@@ -7,8 +7,6 @@
           :required-tags="[ItemTypeTags.ChatTools]"
           :excluded-tags="getExcludedTagsByItemTypes([ItemTypeTags.ChatTools])"
           :getSystemItems="getSystemItems"
-          @ready="onReady"
-          @focus-item="onFocusItem"
           ref="UGCInstalledRef"
         ></UGCInstalled>
       </el-tab-pane>
@@ -100,14 +98,15 @@
 </template>
 
 <script setup lang="ts">
+import { ElMessage } from "element-plus";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 import { JSONSchema7 } from "json-schema";
 import type { Methods } from "live2d-copilot-main/src/windows/createPluginsWindow";
 import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
-import { onMounted, onUnmounted, ref } from "vue";
+import { ref } from "vue";
 import ParametersEditor from "../../components/ParametersEditor.vue";
-import UGCInstalled, { InstalledItem } from "../../components/UGCInstalled.vue";
+import UGCInstalled from "../../components/UGCInstalled.vue";
 import UGCPublish from "../../components/UGCPublish.vue";
 import UGCWorkshop from "../../components/UGCWorkshop.vue";
 import {
@@ -118,8 +117,6 @@ import {
 } from "../../composables/useUGCTagsOptions";
 import { useI18n } from "../../modules/i18n";
 import { rpc } from "../../modules/rpc";
-import { WorkshopItemStatusData, workshop } from "../../modules/workshop";
-import { ElMessage } from "element-plus";
 
 const winApi = rpc.use<Methods>("plugins-window");
 
@@ -173,8 +170,6 @@ async function getSystemItems() {
   return [];
 }
 
-async function onReady() {}
-
 async function beforePublish(
   form: UGCPublishFormWithCustom<ReturnType<typeof getFormExtendsDefault>>
 ) {
@@ -185,24 +180,12 @@ async function beforePublish(
   return form;
 }
 
-async function onFocusItem(_item: InstalledItem) {}
-
-function onUnsubscribed(_itemId: bigint, _statusData: WorkshopItemStatusData) {}
-
 function onExampleCodeClick(code: string) {
   // copy the example code to clipboard
   window.navigator.clipboard.writeText(code).then(() => {
     ElMessage.success(t("copy_success"));
   });
 }
-
-onMounted(async () => {
-  workshop.eventBus.on("unsubscribed", onUnsubscribed);
-});
-
-onUnmounted(() => {
-  workshop.eventBus.off("unsubscribed", onUnsubscribed);
-});
 </script>
 
 <style lang="scss" scoped>
@@ -257,3 +240,4 @@ onUnmounted(() => {
   }
 }
 </style>
+../../modules/workshopManager

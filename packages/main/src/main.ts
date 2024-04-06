@@ -8,6 +8,7 @@ import { createLoadingWindow } from "./windows/createLoadingWindow";
 import { createTray } from "./windows/createTray";
 import { settingManager } from "./modules/settingManager";
 import { i18n } from "./modules/i18n";
+import { workshopManager } from "./modules/workshopManager";
 
 console.log("process.versions.modules", process.versions.modules);
 
@@ -35,6 +36,9 @@ async function main() {
 
     // Init Steamworks.
     await steamworksManager.init();
+
+    // Load subscribed items.
+    workshopManager.init();
 
     // Load Settings.
     await settingManager.loadSetting();

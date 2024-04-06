@@ -140,12 +140,15 @@
 <script setup lang="ts">
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
 import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
-import { onMounted, onUnmounted, reactive, ref } from "vue";
-import AzureTTSList from "../../assets/azure-tts-list.json";
-import UGCInstalled, {
+import {
   InstalledItem,
   InstalledItemType,
-} from "../../components/UGCInstalled.vue";
+  WorkshopExtendItem,
+} from "live2d-copilot-shared/src/Steamworks";
+import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
+import { onMounted, onUnmounted, reactive, ref } from "vue";
+import AzureTTSList from "../../assets/azure-tts-list.json";
+import UGCInstalled from "../../components/UGCInstalled.vue";
 import UGCPublish from "../../components/UGCPublish.vue";
 import UGCWorkshop from "../../components/UGCWorkshop.vue";
 import {
@@ -156,10 +159,10 @@ import {
   getExcludedTagsByItemTypes,
   useTagsOptions,
 } from "../../composables/useUGCTagsOptions";
+import { broadcaster } from "../../modules/broadcaster";
 import { useI18n } from "../../modules/i18n";
 import { rpc } from "../../modules/rpc";
-import { WorkshopItemStatusData, workshop } from "../../modules/workshop";
-import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
+import { workshopManager } from "../../modules/workshopManager";
 
 const winApi = rpc.use<Methods>("models-window");
 
@@ -225,7 +228,7 @@ async function onFocusItem(item: InstalledItem) {
     usedState.currentProfile = item.systemItem;
     await winApi.setCurrent(item.systemItem!._modelPath);
   } else {
-    const statusData = await workshop.updateItemStatusData(
+    const statusData = workshopManager.state.subscribed.get(
       item.workshopItem!.publishedFileId
     );
     // if the item is installed.
@@ -239,15 +242,16 @@ async function onFocusItem(item: InstalledItem) {
   }
 }
 
-function onUnsubscribed(itemId: bigint, statusData: WorkshopItemStatusData) {
+function onUnsubscribed(itemId: bigint, statusData: WorkshopExtendItem) {
   if (!UGCInstalledRef.value) return;
   const { listState, focusItem } = UGCInstalledRef.value;
 
   // If the unsubscribed item is currently in use, switch the currently in use item to the first item in the list.
   let fallbackItem = listState.list.find(
     (item) =>
-      item.type == InstalledItemType.WorkshopItem &&
-      itemId != item.workshopItem?.publishedFileId
+      item.type == InstalledItemType.SystemItem ||
+      (item.type == InstalledItemType.WorkshopItem &&
+        itemId != item.workshopItem?.publishedFileId)
   );
   if (
     statusData.installInfo?.folder == usedState.currentProfile?._modelDir &&
@@ -283,7 +287,7 @@ function focusUsedItem() {
         focusState.current = item;
       }
     } else {
-      const statusData = workshop.getCachedItemStatusData(
+      const statusData = workshopManager.state.subscribed.get(
         item.workshopItem!.publishedFileId
       );
       if (
@@ -296,11 +300,11 @@ function focusUsedItem() {
 }
 
 onMounted(async () => {
-  workshop.eventBus.on("unsubscribed", onUnsubscribed);
+  broadcaster.on("unsubscribed", onUnsubscribed);
 });
 
 onUnmounted(() => {
-  workshop.eventBus.off("unsubscribed", onUnsubscribed);
+  broadcaster.off("unsubscribed", onUnsubscribed);
 });
 
 const AzureTTSNameOptions = AzureTTSList.map((item) => ({
@@ -341,3 +345,4 @@ const AzureTTSNameOptions = AzureTTSList.map((item) => ({
   }
 }
 </style>
+../../modules/workshopManager

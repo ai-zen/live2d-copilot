@@ -198,7 +198,7 @@
 <script setup lang="ts" generic="F">
 import { InfoFilled } from "@element-plus/icons-vue";
 import { ElForm, ElInput, ElMessage } from "element-plus";
-import type { Methods as SteamworksAPIMethods } from "live2d-copilot-main/src/windows/preloads/steamworks";
+import type { Methods as WorkshopAPIMethods } from "live2d-copilot-main/src/windows/preloads/workshop";
 import {
   UgcItemVisibility,
   UpdateProgress,
@@ -230,7 +230,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
+const workshopApi = rpc.use<WorkshopAPIMethods>("workshop");
 
 const formRef = ref<null | InstanceType<typeof ElForm>>(null);
 
@@ -261,7 +261,7 @@ watch(
 
 async function selectContentDir() {
   try {
-    const result = await steamworksApi.showOpenDialog({
+    const result = await workshopApi.showOpenDialog({
       properties: ["openDirectory"],
     });
     if (result.filePaths[0]) {
@@ -274,7 +274,7 @@ async function selectContentDir() {
 
 async function selectPreviewFile() {
   try {
-    const result = await steamworksApi.showOpenDialog({
+    const result = await workshopApi.showOpenDialog({
       properties: ["openFile"],
       filters: [{ extensions: ["png"], name: t("publish_page.image") }],
     });
@@ -314,7 +314,7 @@ async function onSubmit() {
     let itemId: bigint | undefined = undefined;
 
     if (itemData.publishType == UGCPublishType.Add) {
-      const result = await steamworksApi.createItem();
+      const result = await workshopApi.createItem();
       if (result?.itemId) itemId = result.itemId;
     } else {
       itemId = BigInt(itemData.itemId);
@@ -322,7 +322,7 @@ async function onSubmit() {
 
     if (!itemId) throw new Error(t("publish_page.no_valid_item_id_obtained"));
 
-    result = await steamworksApi.updateItem(
+    result = await workshopApi.updateItem(
       itemId,
       JSON.parse(JSON.stringify(itemData)),
       (data) => {

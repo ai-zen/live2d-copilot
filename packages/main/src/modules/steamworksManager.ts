@@ -6,7 +6,10 @@ import {
   UGCType,
   UgcUpdate,
   UpdateProgress,
+  WorkshopItem,
   WorkshopItemQueryConfig,
+  WorkshopItemsResult,
+  WorkshopPaginatedResult,
 } from "live2d-copilot-shared/src/Steamworks";
 
 export class SteamworksManager {
@@ -75,7 +78,7 @@ export class SteamworksManager {
       this.APP_ID,
       this.APP_ID,
       queryConfig as unknown as workshop.WorkshopItemQueryConfig
-    );
+    ) as unknown as Promise<WorkshopPaginatedResult>;
   }
 
   async getSubscribedIds() {
@@ -83,11 +86,17 @@ export class SteamworksManager {
   }
 
   async getItems(itemIds: bigint[], queryConfig?: WorkshopItemQueryConfig) {
-    return this.client.workshop.getItems(itemIds, queryConfig);
+    return this.client.workshop.getItems(
+      itemIds,
+      queryConfig
+    ) as unknown as Promise<WorkshopItemsResult>;
   }
 
   async getItem(itemId: bigint, queryConfig?: WorkshopItemQueryConfig) {
-    return this.client.workshop.getItem(itemId, queryConfig);
+    return this.client.workshop.getItem(
+      itemId,
+      queryConfig
+    ) as unknown as Promise<WorkshopItem>;
   }
 
   async subscribe(itemId: bigint) {

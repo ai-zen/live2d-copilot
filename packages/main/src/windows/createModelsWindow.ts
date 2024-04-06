@@ -8,7 +8,7 @@ import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 import { live2dModelsManager } from "../modules/live2dModelsManager";
 import { staticServeManager } from "../modules/staticServeManager";
 import { preload as preloadOfSetting } from "./preloads/setting";
-import { preload as preloadOfSteamworks } from "./preloads/steamworks";
+import { preload as preloadOfWorkshop } from "./preloads/workshop";
 
 export const MODELS_ROUTE_PATH = `/models-window`;
 
@@ -38,8 +38,8 @@ export async function createModelsWindow() {
   // Preload of setting.
   preloadOfSetting(win);
 
-  // Preload of steamworks.
-  preloadOfSteamworks(win);
+  // Preload of workshop.
+  preloadOfWorkshop(win);
 
   return win;
 }

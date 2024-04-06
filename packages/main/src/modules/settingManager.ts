@@ -5,8 +5,8 @@ import fsp from "node:fs/promises";
 import path from "node:path";
 import { broadcaster } from "./broadcaster";
 
-export class SettingManager {
-  static instance = new SettingManager();
+export class MainSettingManager {
+  static instance = new MainSettingManager();
   private constructor() {}
 
   SETTING_PATH = path.join(app.getPath("userData"), "setting.json");
@@ -34,7 +34,7 @@ export class SettingManager {
         .then(JSON.parse); // Parse the setting file content as JSON
       Object.assign(this.settingState.data, data); // Merge setting data.
     } catch (error) {
-      console.warn("[SettingManager] Failed to load setting file.", error); // Log an error message if the setting file fails to load
+      console.warn("[MainSettingManager] Failed to load setting file.", error); // Log an error message if the setting file fails to load
     } finally {
       // Default settings will be used even if failed to load.
       this.settingState.isReady = true; // Set isReady status to true
@@ -55,7 +55,7 @@ export class SettingManager {
         { encoding: "utf-8" }
       ); // Write the setting file with the updated data
     } catch (error) {
-      console.warn("[SettingManager] Failed to save setting file.", error); // Log an error message if the setting file fails to save
+      console.warn("[MainSettingManager] Failed to save setting file.", error); // Log an error message if the setting file fails to save
     } finally {
       this.settingState.isSaving = false; // Set isSaving status to false
     }
@@ -97,4 +97,4 @@ export class SettingManager {
   }
 }
 
-export const settingManager = SettingManager.instance;
+export const settingManager = MainSettingManager.instance;

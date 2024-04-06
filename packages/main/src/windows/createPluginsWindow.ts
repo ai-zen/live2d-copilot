@@ -2,7 +2,7 @@ import { Menu } from "electron";
 import { BrowserWindowEx } from "../classes/BrowserWindowEx";
 import { staticServeManager } from "../modules/staticServeManager";
 import { preload as preloadOfSetting } from "./preloads/setting";
-import { preload as preloadOfSteamworks } from "./preloads/steamworks";
+import { preload as preloadOfWorkshop } from "./preloads/workshop";
 import fsp from "fs/promises";
 import { PickRequired } from "live2d-copilot-shared/src/Common";
 import { ChatToolProfileV1 } from "live2d-copilot-shared/src/ChatTool";
@@ -37,8 +37,8 @@ export async function createPluginsWindow() {
   // Preload of setting.
   preloadOfSetting(win);
 
-  // Preload of steamworks.
-  preloadOfSteamworks(win);
+  // Preload of workshop.
+  preloadOfWorkshop(win);
 
   return win;
 }

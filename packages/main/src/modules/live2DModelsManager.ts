@@ -4,11 +4,9 @@ import fsp from "fs/promises";
 import type {
   Live2DModelManagerConfig,
   Live2DModelPathInfo,
-  Live2DModelProfileV1,
   Live2DModelProfileEx,
+  Live2DModelProfileV1,
 } from "live2d-copilot-shared/src/Live2DModels";
-import { UGCPublishForm } from "live2d-copilot-shared/src/UGCPublish";
-import { PickRequired } from "live2d-copilot-shared/src/Common";
 import path from "path";
 import { copyFolder } from "../utils/fs";
 import { broadcaster } from "./broadcaster";

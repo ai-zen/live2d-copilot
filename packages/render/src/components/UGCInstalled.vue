@@ -82,37 +82,16 @@
   </div>
 </template>
 
-<script lang="ts">
-export enum InstalledItemType {
-  SystemItem = 0,
-  WorkshopItem,
-}
-
-export interface InstalledWorkshopItem {
-  type: InstalledItemType.WorkshopItem;
-  workshopItem?: WorkshopItem;
-}
-
-export interface InstalledSystemItem {
-  type: InstalledItemType.SystemItem;
-  systemItem?: any;
-}
-
-export type InstalledItem = InstalledWorkshopItem | InstalledSystemItem;
-</script>
-
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
 import { ElTree } from "element-plus";
-import type { Methods as SteamworksAPIMethods } from "live2d-copilot-main/src/windows/preloads/steamworks";
-import type {
-  WorkshopItem,
-  WorkshopItemsResult,
+import {
+  InstalledItem,
+  InstalledItemType,
+  WorkshopExtendItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import AutoGrid from "../components/AutoGrid.vue";
-import { useI18n } from "../modules/i18n";
-import { rpc } from "../modules/rpc";
 import SystemItemCard from "../components/SystemItemCard.vue";
 import SystemItemDetailColumn from "../components/SystemItemDetailColumn.vue";
 import WorkshopItemCard from "../components/WorkshopItemCard.vue";
@@ -121,10 +100,12 @@ import {
   TagsCategories,
   useTagsOptions,
 } from "../composables/useUGCTagsOptions";
-import { workshop } from "../modules/workshop";
+import { broadcaster } from "../modules/broadcaster";
+import { useI18n } from "../modules/i18n";
+import { workshopManager } from "../modules/workshopManager";
 
 const props = defineProps<{
-  getSystemItems: () => Promise<InstalledItem[]>;
+  getSystemItems?: () => Promise<InstalledItem[]>;
   tagsCategories: TagsCategories[];
   requiredTags: string[];
   excludedTags: string[];
@@ -136,8 +117,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-
-const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
 
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
@@ -242,13 +221,11 @@ function listSort(list: InstalledItem[]) {
         let aTime =
           a.type == InstalledItemType.SystemItem
             ? 0
-            : workshop.getCachedItemStatusData(a.workshopItem!.publishedFileId)
-                ?.installInfo?.timestamp || Infinity;
+            : a.workshopItem?.installInfo?.timestamp || Infinity;
         let bTime =
           b.type == InstalledItemType.SystemItem
             ? 0
-            : workshop.getCachedItemStatusData(b.workshopItem!.publishedFileId)
-                ?.installInfo?.timestamp || Infinity;
+            : b.workshopItem?.installInfo?.timestamp || Infinity;
         return aTime - bTime;
       });
       break;
@@ -260,16 +237,10 @@ async function loadList() {
   try {
     listState.isLoading = true;
 
-    const systemItems = await props.getSystemItems();
+    const systemItems = (await props.getSystemItems?.()) || [];
 
     // Get workshop subscribed items.
-    const ids = await workshop.getSubscribedIds();
-    const res = ids?.length
-      ? // There is a known issue that when passing an empty array (ids), the function will never return.
-        ((await steamworksApi.getItems(ids)) as unknown as WorkshopItemsResult)
-      : null;
-    await workshop.updateSubscribedItemsStatusData();
-    const items = res?.items ?? [];
+    const items = await workshopManager.syncSubscribedItems();
     const workshopItems = items.map(
       (item): InstalledItem => ({
         type: InstalledItemType.WorkshopItem,
@@ -332,14 +303,11 @@ async function focusItem(item: InstalledItem) {
   emit("focus-item", item);
 }
 
-async function onItemSubscribed(itemId: bigint) {
-  const item = await steamworksApi.getItem(itemId);
-  if (item) {
-    listState.list.push({
-      type: InstalledItemType.WorkshopItem,
-      workshopItem: item as unknown as WorkshopItem,
-    });
-  }
+async function onItemSubscribed(_itemId: bigint, item: WorkshopExtendItem) {
+  listState.list.push({
+    type: InstalledItemType.WorkshopItem,
+    workshopItem: item,
+  });
 }
 
 function onItemUnsubscribed(itemId: bigint) {
@@ -354,8 +322,8 @@ function onItemUnsubscribed(itemId: bigint) {
 }
 
 onMounted(async () => {
-  workshop.eventBus.on("subscribed", onItemSubscribed);
-  workshop.eventBus.on("unsubscribed", onItemUnsubscribed);
+  broadcaster.on("subscribed", onItemSubscribed);
+  broadcaster.on("unsubscribed", onItemUnsubscribed);
 
   await loadNewList();
 
@@ -363,8 +331,8 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  workshop.eventBus.off("subscribed", onItemSubscribed);
-  workshop.eventBus.off("unsubscribed", onItemUnsubscribed);
+  broadcaster.off("subscribed", onItemSubscribed);
+  broadcaster.off("unsubscribed", onItemUnsubscribed);
 });
 
 defineExpose({

@@ -69,13 +69,12 @@
 
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
-import type { Methods as SteamworksAPIMethods } from "live2d-copilot-main/src/windows/preloads/steamworks";
+import type { Methods as WorkshopAPIMethods } from "live2d-copilot-main/src/windows/preloads/workshop";
 import {
   UGCQueryType,
   UGCType,
   WorkshopItem,
   WorkshopItemQueryConfig,
-  WorkshopPaginatedResult,
 } from "live2d-copilot-shared/src/Steamworks";
 import { onMounted, reactive, ref } from "vue";
 import AutoGrid from "../components/AutoGrid.vue";
@@ -87,7 +86,6 @@ import {
   TagsCategories,
   useTagsOptions,
 } from "../composables/useUGCTagsOptions";
-import { workshop } from "../modules/workshop";
 import { useI18n } from "../modules/i18n";
 import { ElTree } from "element-plus";
 
@@ -99,7 +97,7 @@ const props = defineProps<{
 
 const { t } = useI18n();
 
-const steamworksApi = rpc.use<SteamworksAPIMethods>("steamworks");
+const workshopApi = rpc.use<WorkshopAPIMethods>("workshop");
 
 const filterTreeRef = ref<null | InstanceType<typeof ElTree>>(null);
 
@@ -141,7 +139,7 @@ async function loadList() {
       (option) => option.value == filterState.form.sort
     );
 
-    const res = (await steamworksApi.getAllItems(
+    const res = await workshopApi.getAllItems(
       paginationState.currentPage,
       currentSortOption?.queryType ?? UGCQueryType.RankedByPublicationDate,
       UGCType.Items,
@@ -160,7 +158,8 @@ async function loadList() {
           ],
         })
       )
-    )) as unknown as WorkshopPaginatedResult;
+    );
+
     console.log("res", res);
     listState.list = res.items.filter((item) => item) as WorkshopItem[];
     paginationState.total = res.totalResults;
@@ -210,8 +209,6 @@ async function onCardClick(item: WorkshopItem) {
 
 onMounted(async () => {
   getNewList();
-  await workshop.getSubscribedIds();
-  await workshop.updateSubscribedItemsStatusData();
 });
 </script>
 

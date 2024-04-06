@@ -111,6 +111,7 @@ export interface PlayerSteamId {
   steamId32: string;
   accountId: number;
 }
+
 export interface WorkshopItemStatistic {
   numSubscriptions?: bigint;
   numFavorites?: bigint;
@@ -126,6 +127,7 @@ export interface WorkshopItemStatistic {
   numSecondsPlayedDuringTimePeriod?: bigint;
   numPlaytimeSessionsDuringTimePeriod?: bigint;
 }
+
 export interface WorkshopItem {
   publishedFileId: bigint;
   creatorAppId?: number;
@@ -164,21 +166,6 @@ export interface WorkshopItemsResult {
   wasCached: boolean;
 }
 
-export interface WorkshopItemQueryConfig {
-  cachedResponseMaxAge?: number;
-  includeMetadata?: boolean;
-  includeLongDescription?: boolean;
-  includeAdditionalPreviews?: boolean;
-  onlyIds?: boolean;
-  onlyTotal?: boolean;
-  language?: string;
-  matchAnyTag?: boolean;
-  requiredTags?: Array<string>;
-  excludedTags?: Array<string>;
-  searchText?: string;
-  rankedByTrendDays?: number;
-}
-
 export interface InstallInfo {
   folder: string;
   sizeOnDisk: bigint;
@@ -199,3 +186,27 @@ export enum ItemState {
   DOWNLOADING = 16,
   DOWNLOAD_PENDING = 32,
 }
+
+export interface WorkshopExtendItem extends WorkshopItem {
+  itemId: bigint;
+  itemState: ItemState;
+  downloadInfo: DownloadInfo | null;
+  installInfo: InstallInfo | null;
+}
+
+export enum InstalledItemType {
+  SystemItem = 0,
+  WorkshopItem,
+}
+
+export interface InstalledWorkshopItem {
+  type: InstalledItemType.WorkshopItem;
+  workshopItem?: WorkshopExtendItem;
+}
+
+export interface InstalledSystemItem<T = any> {
+  type: InstalledItemType.SystemItem;
+  systemItem?: T;
+}
+
+export type InstalledItem = InstalledWorkshopItem | InstalledSystemItem;
