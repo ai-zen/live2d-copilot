@@ -36,12 +36,12 @@ export class MainSimpleI18n extends SimpleI18n {
 
   setLang(lang: string) {
     this.state.lang = lang;
-    this.eventBus.emit("langChange", lang);
+    this.eventBus.emit("lang-change", lang);
   }
 
   setLocales(locale: SimpleI18n["state"]["locales"]) {
     this.state.locales = locale;
-    this.eventBus.emit("localesChange", locale);
+    this.eventBus.emit("locales-change", locale);
   }
 }
 

@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ChatAL } from "@ai-zen/chats-core";
+import { CallbackTool, ChatAL } from "@ai-zen/chats-core";
 import {
   LAppDefineModule,
   LAppDelegateModule,
@@ -28,6 +28,8 @@ import {
 } from "@ai-zen/live2d-vue";
 import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWindow";
 import { onMounted, onUnmounted, ref, shallowRef, watch } from "vue";
+import { broadcaster } from "../../modules/broadcaster";
+import { chatToolsManager } from "../../modules/chatToolsManager";
 import { rpc } from "../../modules/rpc";
 import ChatInput from "./ChatInput.vue";
 import ContextMenu from "./ContextMenu.vue";
@@ -37,7 +39,6 @@ import { useCurrentModel } from "./composables/useCurrentModel";
 import { useSentence } from "./composables/useSentence";
 import { useTTS } from "./composables/useTTS";
 import { useVoicePlay } from "./composables/useVoicePlay";
-import { broadcaster } from "../../modules/broadcaster";
 
 type LAppLive2DManager = LAppLive2DManagerModule.LAppLive2DManager;
 type LAppDelegate = LAppDelegateModule.LAppDelegate;
@@ -78,11 +79,11 @@ function onCurrentModelChanged() {
 }
 
 onMounted(() => {
-  broadcaster.on("live2d-models:current-model-change", onCurrentModelChanged);
+  broadcaster.on("live2d-models:current-change", onCurrentModelChanged);
 });
 
 onUnmounted(() => {
-  broadcaster.off("live2d-models:current-model-change", onCurrentModelChanged);
+  broadcaster.off("live2d-models:current-change", onCurrentModelChanged);
 });
 
 const chatController = useChat({
@@ -91,6 +92,47 @@ const chatController = useChat({
   },
   onParsed() {
     sentenceController.inputQueue.push(null); // Push null to end the sentence
+  },
+  onRun() {
+    subtitlesRef.value?.push(".........", 3000);
+  },
+  getDefaultMessages() {
+    const systemMessages: string[] = [];
+
+    if (profileRef.value?.chat?.prompt) {
+      systemMessages.push(profileRef.value.chat.prompt);
+    }
+
+    systemMessages.push(
+      "\nWhen you fail to execute a function, do not retry. Simply inform the user of the failure."
+    );
+
+    const messages: ChatAL.Message[] = [
+      {
+        role: ChatAL.Role.System,
+        content: systemMessages.join("\n"),
+      },
+    ];
+
+    return messages;
+  },
+  getDefaultTools() {
+    return Array.from(chatToolsManager.state.profiles.values()).map(
+      (profile) =>
+        new CallbackTool({
+          ...profile,
+          callback(parsed_args) {
+            try {
+              return chatToolsManager.getToolCallResult(
+                profile.function.name,
+                parsed_args
+              );
+            } catch (error) {
+              console.error(error);
+            }
+          },
+        })
+    );
   },
 });
 
@@ -145,15 +187,9 @@ function sendMessage(content: string) {
 }
 
 watch(
-  () => profileRef.value?.chat?.prompt,
-  (prompt) => {
-    chatController.abort();
+  [() => profileRef.value?.chat?.prompt, () => chatToolsManager.state.profiles],
+  () => {
     chatController.init();
-    if (prompt) {
-      chatController.setMessages([
-        { role: ChatAL.Role.System, content: prompt },
-      ]);
-    }
   },
   {
     immediate: true,

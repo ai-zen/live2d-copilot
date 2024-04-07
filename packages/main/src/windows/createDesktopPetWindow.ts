@@ -9,6 +9,7 @@ import { useSystemMouseMoveEvent } from "./composables/useSystemMouseMoveEvent";
 import { createModelsWindow } from "./createModelsWindow";
 import { createPluginsWindow } from "./createPluginsWindow";
 import { createSettingWindow } from "./createSettingWindow";
+import { preload as preloadOfChatTools } from "./preloads/chatTools";
 import { preload as preloadOfSetting } from "./preloads/setting";
 
 export const DESKTOP_PET_ROUTE_PATH = `/desktop-pet-window`;
@@ -48,6 +49,9 @@ export async function createDesktopPetWindow() {
 
   // Preload of setting.
   preloadOfSetting(win);
+
+  // Preload of chat tools.
+  preloadOfChatTools(win);
 
   // Once the window is ready after creation.
   win.once("ready-to-show", () => {

@@ -11,35 +11,41 @@ export class MainSettingManager {
 
   SETTING_PATH = path.join(app.getPath("userData"), "setting.json");
 
-  settingState = {
-    isLoading: false, // Whether the setting file is currently being loaded
-    isSaving: false, // Whether the setting file is currently being saved
-    isReady: false, // Whether the setting file is ready for use
-    data: <Setting>{
-      lang: "en", // Default language
-      alwaysOnTop: true,
-    },
+  isLoading = false; // Whether the setting file is currently being loaded
+  isSaving = false; // Whether the setting file is currently being saved
+  isReady = false; // Whether the setting file is ready for use
+  data = <Setting>{
+    lang: "en", // Default language
+    alwaysOnTop: true,
   };
 
   eventBus = new EventBus(); // Event bus for notifying state changes
+
+  init() {
+    try {
+      return this.loadSetting();
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   /**
    * Load the setting data
    */
   async loadSetting() {
     try {
-      this.settingState.isLoading = true; // Set isLoading status to true
+      this.isLoading = true; // Set isLoading status to true
       const data = await fsp
         .readFile(this.SETTING_PATH, { encoding: "utf-8" }) // Read the setting file
         .then(JSON.parse); // Parse the setting file content as JSON
-      Object.assign(this.settingState.data, data); // Merge setting data.
+      Object.assign(this.data, data); // Merge setting data.
     } catch (error) {
       console.warn("[MainSettingManager] Failed to load setting file.", error); // Log an error message if the setting file fails to load
     } finally {
       // Default settings will be used even if failed to load.
-      this.settingState.isReady = true; // Set isReady status to true
-      this.eventBus.emit("setting state ready"); // Emit an event signaling that the setting state is ready
-      this.settingState.isLoading = false; // Set isLoading status to false
+      this.isReady = true; // Set isReady status to true
+      this.eventBus.emit("ready"); // Emit an event signaling that the setting state is ready
+      this.isLoading = false; // Set isLoading status to false
     }
   }
 
@@ -48,16 +54,14 @@ export class MainSettingManager {
    */
   async saveSetting() {
     try {
-      this.settingState.isSaving = true; // Set isSaving status to true
-      await fsp.writeFile(
-        this.SETTING_PATH,
-        JSON.stringify(this.settingState.data),
-        { encoding: "utf-8" }
-      ); // Write the setting file with the updated data
+      this.isSaving = true; // Set isSaving status to true
+      await fsp.writeFile(this.SETTING_PATH, JSON.stringify(this.data), {
+        encoding: "utf-8",
+      }); // Write the setting file with the updated data
     } catch (error) {
       console.warn("[MainSettingManager] Failed to save setting file.", error); // Log an error message if the setting file fails to save
     } finally {
-      this.settingState.isSaving = false; // Set isSaving status to false
+      this.isSaving = false; // Set isSaving status to false
     }
   }
 
@@ -66,15 +70,15 @@ export class MainSettingManager {
    */
   async getSetting() {
     // Check if the setting state is loading
-    if (this.settingState.isLoading) {
+    if (this.isLoading) {
       // Wait for the setting state to be loaded
       await this.eventBus.promise("ready");
     }
 
-    // console.log("[settingManager.ts] getSetting", this.settingState.data);
+    // console.log("[settingManager.ts] getSetting", this.data);
 
     // Return the setting state data
-    return this.settingState.data;
+    return this.data;
   }
 
   /**
@@ -84,7 +88,7 @@ export class MainSettingManager {
     console.log("[settingManager.ts] setSetting", data);
 
     // Set the setting data
-    this.settingState.data = data;
+    this.data = data;
 
     // Emit the change event.
     this.eventBus.emit("change", data);

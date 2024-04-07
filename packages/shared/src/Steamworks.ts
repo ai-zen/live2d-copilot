@@ -210,3 +210,29 @@ export interface InstalledSystemItem<T = any> {
 }
 
 export type InstalledItem = InstalledWorkshopItem | InstalledSystemItem;
+
+export enum TagsCategories {
+  ItemTypeTags = "item_type_tags",
+  AgeRatingTags = "age_rating_tags",
+  ModelsTags = "models_tags",
+}
+
+export enum ItemTypeTags {
+  Models = "models",
+  // GuiTools = "gui_tools",
+  // ChatPresets = "chat_presets",
+  ChatTools = "chat_tools",
+}
+
+export enum AgeRatingTags {
+  Everyone = "everyone",
+  Questionable = "questionable",
+  Mature = "mature",
+}
+
+export enum ModelsTags {
+  GameCharacter = "game_character",
+  AnimeCharacter = "anime_character",
+  VTuber = "v_tuber",
+  Other = "other",
+}

@@ -1,14 +1,15 @@
 import { app, BrowserWindow } from "electron";
 import { useAppProtocol } from "./composables/useAppProtocol";
+import { chatToolsManager } from "./modules/chatToolsManager";
+import { i18n } from "./modules/i18n";
 import { live2dModelsManager } from "./modules/live2dModelsManager";
+import { settingManager } from "./modules/settingManager";
 import { staticServeManager } from "./modules/staticServeManager";
 import { steamworksManager } from "./modules/steamworksManager";
+import { workshopManager } from "./modules/workshopManager";
 import { createDesktopPetWindow } from "./windows/createDesktopPetWindow";
 import { createLoadingWindow } from "./windows/createLoadingWindow";
 import { createTray } from "./windows/createTray";
-import { settingManager } from "./modules/settingManager";
-import { i18n } from "./modules/i18n";
-import { workshopManager } from "./modules/workshopManager";
 
 console.log("process.versions.modules", process.versions.modules);
 
@@ -34,23 +35,23 @@ async function main() {
     // Init static serve.
     await staticServeManager.init();
 
+    // Init SettingManager.
+    await settingManager.init();
+
     // Init Steamworks.
     await steamworksManager.init();
 
-    // Load subscribed items.
-    workshopManager.init();
+    // Init WorkshopManager.
+    await workshopManager.init();
 
-    // Load Settings.
-    await settingManager.loadSetting();
+    // Init ChatToolsManager.
+    await chatToolsManager.init();
+
+    // Init Live2DModelManager.
+    await live2dModelsManager.init();
 
     // Init i18n.
     await i18n.init();
-
-    // Load Live2D Model Manager configs.
-    await live2dModelsManager.loadConfig();
-
-    // Release Live2D Models Files to UserData.
-    await live2dModelsManager.releaseFilesToUserData();
 
     // Create system tray.
     createTray();

@@ -1,4 +1,4 @@
-export interface Live2DModelManagerConfig {
+export interface Live2DModelsConfig {
   current: string; // Path to the current Live2D model
 }
 

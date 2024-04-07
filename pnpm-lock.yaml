@@ -68,8 +68,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       '@ai-zen/chats-core':
-        specifier: ^1.0.19
-        version: 1.0.19
+        specifier: ^1.0.20
+        version: 1.0.20
       '@ai-zen/event-bus':
         specifier: ^1.0.4
         version: 1.0.4
@@ -126,16 +126,16 @@ importers:
   packages/shared:
     devDependencies:
       '@ai-zen/chats-core':
-        specifier: ^1.0.19
-        version: 1.0.19
+        specifier: ^1.0.20
+        version: 1.0.20
 
 packages:
 
   /@ai-zen/async-queue@1.0.2:
     resolution: {integrity: sha512-i316ZK5dSbtqgfNhI9ZOg/chi3jBq1xyn4Lr/QIjCWYlK58bDRhotvA91kwiVNt4Vmh7eQLxf/aArpWTMz244g==}
 
-  /@ai-zen/chats-core@1.0.19:
-    resolution: {integrity: sha512-fVtdFBEuShjRTajmgMuRtOX7svDvbNS7/pwXcf5NQU87vkJwSMy892WOgNNnmjfkfPt4YBOj2PI8MogN9SPmeg==}
+  /@ai-zen/chats-core@1.0.20:
+    resolution: {integrity: sha512-L4oqbmHZAHljgwA4VtQs1SsvRTOpYi/enKjClqAlEd4zjbi3uxSANFwkbj36hf+gS+iM/LEoh2/tIqS2IEzIQQ==}
     dependencies:
       '@ai-zen/async-queue': 1.0.2
       '@ai-zen/event-bus': 1.0.4

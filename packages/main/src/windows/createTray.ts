@@ -42,5 +42,5 @@ export function createTray() {
 
   updateTray();
 
-  i18n.eventBus.on("langChange", updateTray);
+  i18n.eventBus.on("lang-change", updateTray);
 }

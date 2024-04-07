@@ -69,8 +69,10 @@
 
 <script setup lang="ts">
 import { Search } from "@element-plus/icons-vue";
+import { ElTree } from "element-plus";
 import type { Methods as WorkshopAPIMethods } from "live2d-copilot-main/src/windows/preloads/workshop";
 import {
+  TagsCategories,
   UGCQueryType,
   UGCType,
   WorkshopItem,
@@ -78,16 +80,12 @@ import {
 } from "live2d-copilot-shared/src/Steamworks";
 import { onMounted, reactive, ref } from "vue";
 import AutoGrid from "../components/AutoGrid.vue";
-import { rpc } from "../modules/rpc";
 import WorkshopItemCard from "../components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "../components/WorkshopItemDetailColumn.vue";
 import { useSortOptions } from "../composables/useUGCSortOptions";
-import {
-  TagsCategories,
-  useTagsOptions,
-} from "../composables/useUGCTagsOptions";
+import { useTagsOptions } from "../composables/useUGCTagsOptions";
 import { useI18n } from "../modules/i18n";
-import { ElTree } from "element-plus";
+import { rpc } from "../modules/rpc";
 
 const props = defineProps<{
   tagsCategories: TagsCategories[];

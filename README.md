@@ -26,11 +26,11 @@ This is a brand new project, the old one has been abandoned.
 
 - **Live2D**: 100% complete.
 
-- **Workshop**: 80% complete. Due to the lack of important features in upstream projects (steamworks.js, steamworks-rs), some necessary functions had to be added from scratch.
+- **Workshop**: 100% complete. Due to the lack of important features in upstream projects (steamworks.js, steamworks-rs), some necessary functions had to be added from scratch.
 
-- **Chat**: 0% complete. I has accumulated a significant amount of code for this functionality from various other projects and it will soon be added to this repository (including chat functionality, function calling, networking, file reading and writing, etc.).
+- **Chat**: 80% complete. I has accumulated a significant amount of code for this functionality from various other projects and it will soon be added to this repository (including chat functionality, function calling, networking, file reading and writing, etc.).
 
-- **Plugins**: 0% complete. This project plans to design plugins system, that expand the chat functionality, as well as small tool implemented with nodejs + web. Similarly, I has accumulated a significant amount of code for this functionality and will soon be added to this repository.
+- **Plugins**: 20% complete. This project plans to design plugins system, that expand the chat functionality, as well as small tool implemented with nodejs + web. Similarly, I has accumulated a significant amount of code for this functionality and will soon be added to this repository.
 
 ## Note
 

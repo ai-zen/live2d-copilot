@@ -103,6 +103,10 @@ import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 import { JSONSchema7 } from "json-schema";
 import type { Methods } from "live2d-copilot-main/src/windows/createPluginsWindow";
+import {
+  ItemTypeTags,
+  TagsCategories,
+} from "live2d-copilot-shared/src/Steamworks";
 import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
 import { ref } from "vue";
 import ParametersEditor from "../../components/ParametersEditor.vue";
@@ -110,8 +114,6 @@ import UGCInstalled from "../../components/UGCInstalled.vue";
 import UGCPublish from "../../components/UGCPublish.vue";
 import UGCWorkshop from "../../components/UGCWorkshop.vue";
 import {
-  ItemTypeTags,
-  TagsCategories,
   getExcludedTagsByItemTypes,
   useTagsOptions,
 } from "../../composables/useUGCTagsOptions";

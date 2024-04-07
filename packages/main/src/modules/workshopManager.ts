@@ -10,6 +10,8 @@ import { steamworksManager } from "./steamworksManager";
 export class MainWorkshopManager {
   static instance = new MainWorkshopManager();
 
+  private constructor() {}
+
   eventBus = new EventBus();
 
   isLoading = false;
@@ -18,6 +20,7 @@ export class MainWorkshopManager {
 
   subscribing = new Set() as Set<bigint>;
   unsubscribing = new Set() as Set<bigint>;
+
   watchIds = new Set<bigint>();
 
   private watchTimer = 0;
@@ -76,7 +79,11 @@ export class MainWorkshopManager {
 
     this.handelSubscribedItemStatus(itemId);
 
-    broadcaster.broadcast("subscribed-item-status-updated", itemId, item);
+    broadcaster.broadcast("workshop:item-status-updated", itemId, item);
+
+    if (installInfo) {
+      broadcaster.broadcast("workshop:item-installed", itemId, item);
+    }
 
     return item;
   }
@@ -123,7 +130,7 @@ export class MainWorkshopManager {
       });
       this.isReady = true;
       const items = await this.getLoadedSubscribedItems();
-      broadcaster.broadcast("subscribed-loaded", items);
+      broadcaster.broadcast("workshop:subscribed-loaded", items);
       return items;
     } catch (error) {
       console.error(error);
@@ -175,33 +182,39 @@ export class MainWorkshopManager {
 
   async subscribe(itemId: bigint) {
     try {
-      broadcaster.broadcast("before-subscribe", itemId);
+      broadcaster.broadcast("workshop:before-subscribe", itemId);
       this.subscribing.add(itemId);
       await steamworksManager.subscribe(itemId);
       const item = await this.loadSubscribedItem(itemId);
-      broadcaster.broadcast("subscribed", itemId, item);
+      broadcaster.broadcast("workshop:subscribed", itemId, item);
     } catch (error) {
       console.error(error);
     } finally {
       this.subscribing.delete(itemId);
-      broadcaster.broadcast("after-subscribe", itemId);
+      broadcaster.broadcast("workshop:after-subscribe", itemId);
     }
   }
 
   async unsubscribe(itemId: bigint) {
     try {
-      broadcaster.broadcast("before-unsubscribe", itemId);
+      broadcaster.broadcast("workshop:before-unsubscribe", itemId);
       this.unsubscribing.add(itemId);
       await steamworksManager.unsubscribe(itemId);
       const item = this.subscribed.get(itemId);
       this.subscribed.delete(itemId);
-      broadcaster.broadcast("unsubscribed", itemId, item);
+      broadcaster.broadcast("workshop:unsubscribed", itemId, item);
     } catch (error) {
       console.error(error);
     } finally {
       this.unsubscribing.delete(itemId);
-      broadcaster.broadcast("after-unsubscribe", itemId);
+      broadcaster.broadcast("workshop:after-unsubscribe", itemId);
     }
+  }
+
+  getInstalledItems() {
+    return Array.from(this.subscribed.values()).filter(
+      (x) => x.installInfo?.folder
+    );
   }
 
   isSubscribed(itemId: bigint) {
@@ -219,6 +232,16 @@ export class MainWorkshopManager {
   isDownloading(itemId: bigint) {
     const item = this.subscribed.get(itemId);
     return item && item.itemState & ItemState.DOWNLOADING;
+  }
+
+  static isTagsIntersect(itemTags?: string[], targetTags?: string[]): boolean {
+    return (
+      targetTags?.some((targetTag) =>
+        itemTags?.some(
+          (itemTag) => itemTag.toLocaleLowerCase() == targetTag.toLowerCase()
+        )
+      ) ?? false
+    );
   }
 }
 

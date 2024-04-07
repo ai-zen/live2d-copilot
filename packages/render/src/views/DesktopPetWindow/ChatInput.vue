@@ -27,7 +27,7 @@
           plain
           circle
           type="primary"
-          :ref="(btn: any) => moveableElRef = btn.$el"
+          :ref="(btn: any) => moveableElRef = btn?.$el"
         >
           <el-icon><Rank /></el-icon>
         </el-button>

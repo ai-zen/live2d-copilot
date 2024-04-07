@@ -88,6 +88,7 @@ import { ElTree } from "element-plus";
 import {
   InstalledItem,
   InstalledItemType,
+  TagsCategories,
   WorkshopExtendItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
@@ -96,13 +97,13 @@ import SystemItemCard from "../components/SystemItemCard.vue";
 import SystemItemDetailColumn from "../components/SystemItemDetailColumn.vue";
 import WorkshopItemCard from "../components/WorkshopItemCard.vue";
 import WorkshopItemDetailColumn from "../components/WorkshopItemDetailColumn.vue";
-import {
-  TagsCategories,
-  useTagsOptions,
-} from "../composables/useUGCTagsOptions";
+import { useTagsOptions } from "../composables/useUGCTagsOptions";
 import { broadcaster } from "../modules/broadcaster";
 import { useI18n } from "../modules/i18n";
-import { workshopManager } from "../modules/workshopManager";
+import {
+  RenderWorkshopManager,
+  workshopManager,
+} from "../modules/workshopManager";
 
 const props = defineProps<{
   getSystemItems?: () => Promise<InstalledItem[]>;
@@ -181,18 +182,14 @@ function listFilter(list: InstalledItem[]) {
         return true;
       case InstalledItemType.WorkshopItem:
         return (
-          [...filterState.form.requiredTags, ...props.requiredTags].some(
-            (requiredTag) =>
-              item.workshopItem?.tags.find(
-                (tag) => tag.toLocaleLowerCase() == requiredTag.toLowerCase()
-              )
-          ) &&
-          ![...filterState.form.excludedTags, ...props.excludedTags].some(
-            (excludedTag) =>
-              item.workshopItem?.tags.find(
-                (tag) => tag.toLocaleLowerCase() == excludedTag.toLowerCase()
-              )
-          ) &&
+          RenderWorkshopManager.isTagsIntersect(item.workshopItem?.tags, [
+            ...filterState.form.requiredTags,
+            ...props.requiredTags,
+          ]) &&
+          !RenderWorkshopManager.isTagsIntersect(item.workshopItem?.tags, [
+            ...filterState.form.excludedTags,
+            ...props.excludedTags,
+          ]) &&
           item.workshopItem?.title.includes(filterState.form.keyword)
         );
     }
@@ -322,8 +319,8 @@ function onItemUnsubscribed(itemId: bigint) {
 }
 
 onMounted(async () => {
-  broadcaster.on("subscribed", onItemSubscribed);
-  broadcaster.on("unsubscribed", onItemUnsubscribed);
+  broadcaster.on("workshop:subscribed", onItemSubscribed);
+  broadcaster.on("workshop:unsubscribed", onItemUnsubscribed);
 
   await loadNewList();
 
@@ -331,8 +328,8 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  broadcaster.off("subscribed", onItemSubscribed);
-  broadcaster.off("unsubscribed", onItemUnsubscribed);
+  broadcaster.off("workshop:subscribed", onItemSubscribed);
+  broadcaster.off("workshop:unsubscribed", onItemUnsubscribed);
 });
 
 defineExpose({

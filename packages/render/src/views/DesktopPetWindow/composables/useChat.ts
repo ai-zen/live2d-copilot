@@ -1,17 +1,24 @@
-import { Chat, ChatAL, CommonEndpoint } from "@ai-zen/chats-core";
+import { Chat, ChatAL, CommonEndpoint, Tool } from "@ai-zen/chats-core";
 import { shallowRef } from "vue";
 
 export function useChat(options: {
+  onRun?(): void;
+  onOpen?(): void;
   onDeltaContent?(deltaContent: string): void;
   onParsed?(receiver: ChatAL.Message): void;
+  getDefaultMessages(): ChatAL.Message[];
+  getDefaultTools(): Tool[];
 }) {
   let chatInstanceRef = shallowRef<Chat>();
 
   function init() {
+    abort();
+
     chatInstanceRef.value?.events.destroy();
 
     chatInstanceRef.value = new Chat({
-      messages: [],
+      messages: options.getDefaultMessages(),
+      tools: options.getDefaultTools(),
       model_key: "GPT35Turbo_0631",
       endpoints: [
         new CommonEndpoint({
@@ -25,8 +32,18 @@ export function useChat(options: {
       ],
     });
 
+    chatInstanceRef.value?.events.on("run", onRun);
+    chatInstanceRef.value?.events.on("open", onOpen);
     chatInstanceRef.value?.events.on("chunk", onChunk);
     chatInstanceRef.value?.events.on("parsed", onParsed);
+  }
+
+  function onRun() {
+    options.onRun?.();
+  }
+
+  function onOpen() {
+    options.onOpen?.();
   }
 
   /**
@@ -59,7 +76,7 @@ export function useChat(options: {
     );
     chatInstanceRef.value.messages = [
       ...systemMessages,
-      ...otherMessages.slice(-5),
+      ...otherMessages.slice(-10),
     ];
   }
 

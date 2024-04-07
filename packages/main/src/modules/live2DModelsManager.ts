@@ -2,7 +2,7 @@ import EventBus from "@ai-zen/event-bus";
 import { app } from "electron";
 import fsp from "fs/promises";
 import type {
-  Live2DModelManagerConfig,
+  Live2DModelsConfig,
   Live2DModelPathInfo,
   Live2DModelProfileEx,
   Live2DModelProfileV1,
@@ -11,63 +11,70 @@ import path from "path";
 import { copyFolder } from "../utils/fs";
 import { broadcaster } from "./broadcaster";
 
-export class Live2DModelsManager {
-  static instance = new Live2DModelsManager();
-  private constructor() {}
+const MODELS_DIR = path.join(app.getPath("userData"), "Live2D Models"); // Directory to store Live2D models
+const CONFIG_PATH = path.join(MODELS_DIR, "config.json"); // Path to the config file storing Live2D model information
+const DEFAULT_MODEL3 = path.resolve(MODELS_DIR, "./Mao/Mao.model3.json");
 
-  MODELS_DIR = path.join(app.getPath("userData"), "Live2D Models"); // Directory to store Live2D models
-  CONFIG_PATH = path.join(this.MODELS_DIR, "config.json"); // Path to the config file storing Live2D model information
-  DEFAULT_MODEL3 = path.resolve(this.MODELS_DIR, "./Mao/Mao.model3.json");
+export class Live2DModelsConfigManager extends EventBus {
+  isLoading = false; // Whether the config file is currently being loaded
+  isSaving = false; // Whether the config file is currently being saved
+  isReady = false; // Whether the config file is ready for use
+  data = {
+    current: DEFAULT_MODEL3, // Default value for the current Live2D model
+  } as Live2DModelsConfig;
 
-  configState = {
-    isLoading: false, // Whether the config file is currently being loaded
-    isSaving: false, // Whether the config file is currently being saved
-    isReady: false, // Whether the config file is ready for use
-    data: {
-      current: this.DEFAULT_MODEL3, // Default value for the current Live2D model
-    } as Live2DModelManagerConfig,
-  };
-
-  eventBus = new EventBus(); // Event bus for notifying state changes
-
-  async loadConfig() {
+  async load() {
     try {
-      this.configState.isLoading = true; // Set isLoading status to true
-      this.configState.data = await fsp
-        .readFile(this.CONFIG_PATH, { encoding: "utf-8" }) // Read the config file
+      this.isLoading = true; // Set isLoading status to true
+      this.data = await fsp
+        .readFile(CONFIG_PATH, { encoding: "utf-8" }) // Read the config file
         .then(JSON.parse); // Parse the config file content as JSON
     } catch (error) {
       console.warn("[Live2DModelManager] Failed to load config file.", error); // Log an error message if the config file fails to load
     } finally {
-      this.configState.isReady = true; // Set isReady status to true
-      this.eventBus.emit("config state ready"); // Emit an event signaling that the config state is ready
-      this.configState.isLoading = false; // Set isLoading status to false
+      this.isReady = true; // Set isReady status to true
+      this.emit("config-ready"); // Emit an event signaling that the config state is ready
+      this.isLoading = false; // Set isLoading status to false
     }
   }
 
-  async saveConfig() {
+  async save() {
     try {
-      this.configState.isSaving = true; // Set isSaving status to true
-      await fsp.writeFile(
-        this.CONFIG_PATH,
-        JSON.stringify(this.configState.data),
-        { encoding: "utf-8" }
-      ); // Write the config file with the updated data
+      this.isSaving = true; // Set isSaving status to true
+      await fsp.writeFile(CONFIG_PATH, JSON.stringify(this.data), {
+        encoding: "utf-8",
+      }); // Write the config file with the updated data
     } catch (error) {
       console.warn("[Live2DModelManager] Failed to save config file.", error); // Log an error message if the config file fails to save
     } finally {
-      this.configState.isSaving = false; // Set isSaving status to false
+      this.isSaving = false; // Set isSaving status to false
+    }
+  }
+}
+
+export class Live2DModelsManager {
+  static instance = new Live2DModelsManager();
+  private constructor() {}
+
+  config = new Live2DModelsConfigManager();
+
+  async init() {
+    try {
+      await this.config.load();
+      await this.releaseFilesToUserData();
+    } catch (error) {
+      console.error(error);
     }
   }
 
   async loadProfiles() {
-    const files = await fsp.readdir(this.MODELS_DIR); // Read the models directory
+    const files = await fsp.readdir(MODELS_DIR); // Read the models directory
 
     const profiles: Live2DModelProfileEx[] = [];
 
     await Promise.all(
       files.map(async (file) => {
-        const modelDir = path.join(this.MODELS_DIR, file); // Get the directory path for each file
+        const modelDir = path.join(MODELS_DIR, file); // Get the directory path for each file
         try {
           const stat = await fsp.stat(modelDir); // Get the file stats
           if (stat.isDirectory()) {
@@ -114,10 +121,9 @@ export class Live2DModelsManager {
   }
 
   async getCurrent(): Promise<Live2DModelPathInfo | null> {
-    if (!this.configState.isReady)
-      await this.eventBus.promise("config state ready"); // Wait for the config state to be ready before continuing
-    let { current } = this.configState.data; // Get the path to the current Live2D model from the config state
-    if (!current) current = this.DEFAULT_MODEL3; // If no current model is set, use the default model path
+    if (!this.config.isReady) await this.config.promise("config-ready"); // Wait for the config state to be ready before continuing
+    let { current } = this.config.data; // Get the path to the current Live2D model from the config state
+    if (!current) current = DEFAULT_MODEL3; // If no current model is set, use the default model path
     try {
       const stat = await fsp.stat(current); // Get the file stats for the current Live2D model
       if (!stat.isFile()) throw new Error(`"${current}" is not a file.`); // Throw an error if the current Live2D model is not a file
@@ -129,14 +135,11 @@ export class Live2DModelsManager {
 
   async setCurrent(model3: string) {
     // Set the config data
-    this.configState.data.current = model3;
-    await this.saveConfig();
-
-    // Emit the change event.
-    this.eventBus.emit("current-model-change", model3);
+    this.config.data.current = model3;
+    await this.config.save();
 
     // Broadcast the change event to all windows.
-    broadcaster.broadcast("live2d-models:current-model-change", model3);
+    broadcaster.broadcast("live2d-models:current-change", model3);
   }
 
   async getCurrentProfile(): Promise<Live2DModelProfileEx | null> {
@@ -158,7 +161,7 @@ export class Live2DModelsManager {
   async releaseFilesToUserData() {
     console.log("[Live2DModelsManager] Release Files To UserData");
     const modelsSource = path.resolve(__dirname, "./toUserData/Live2D Models"); // Get the source directory for the models to be released
-    const modelsTarget = path.resolve(this.MODELS_DIR); // Get the target directory for releasing the models to user data
+    const modelsTarget = path.resolve(MODELS_DIR); // Get the target directory for releasing the models to user data
     await copyFolder(modelsSource, modelsTarget, { overwrite: false }); // Copy the models source directory to the models target directory, avoiding overwriting existing files
   }
 }

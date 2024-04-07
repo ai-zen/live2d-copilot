@@ -5,8 +5,8 @@ import {
   WorkshopExtendItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import { reactive } from "vue";
-import { rpc } from "./rpc";
 import { broadcaster } from "./broadcaster";
+import { rpc } from "./rpc";
 
 export class RenderWorkshopManager {
   static instance = new RenderWorkshopManager();
@@ -19,7 +19,6 @@ export class RenderWorkshopManager {
     isSyncing: false,
     isReady: false,
     subscribed: new Map() as Map<bigint, WorkshopExtendItem>,
-
     subscribing: new Set() as Set<bigint>,
     unsubscribing: new Set() as Set<bigint>,
   });
@@ -67,43 +66,62 @@ export class RenderWorkshopManager {
     return this.workshopApi.unsubscribe(itemId);
   }
 
+  getInstalledItems() {
+    return Array.from(this.state.subscribed.values()).filter(
+      (x) => x.installInfo?.folder
+    );
+  }
+
   constructor() {
-    broadcaster.on("before-subscribe", (itemId: bigint) => {
+    broadcaster.on("workshop:before-subscribe", (itemId: bigint) => {
       this.state.subscribing.add(itemId);
     });
 
-    broadcaster.on("after-subscribe", (itemId: bigint) => {
+    broadcaster.on("workshop:after-subscribe", (itemId: bigint) => {
       this.state.subscribing.delete(itemId);
     });
 
-    broadcaster.on("before-unsubscribe", (itemId: bigint) => {
+    broadcaster.on("workshop:before-unsubscribe", (itemId: bigint) => {
       this.state.unsubscribing.add(itemId);
     });
 
-    broadcaster.on("after-unsubscribe", (itemId: bigint) => {
+    broadcaster.on("workshop:after-unsubscribe", (itemId: bigint) => {
       this.state.unsubscribing.delete(itemId);
     });
 
-    broadcaster.on("subscribed", (itemId: bigint, item: WorkshopExtendItem) => {
-      this.state.subscribed.set(itemId, item);
-    });
-
-    broadcaster.on("unsubscribed", (itemId: bigint) => {
-      this.state.subscribed.delete(itemId);
-    });
-
-    broadcaster.on("subscribed-loaded", () => {
-      this.syncSubscribedItems();
-    });
-
     broadcaster.on(
-      "subscribed-item-status-updated",
+      "workshop:subscribed",
       (itemId: bigint, item: WorkshopExtendItem) => {
         this.state.subscribed.set(itemId, item);
       }
     );
 
+    broadcaster.on("workshop:unsubscribed", (itemId: bigint) => {
+      this.state.subscribed.delete(itemId);
+    });
+
+    broadcaster.on(
+      "workshop:item-status-updated",
+      (itemId: bigint, item: WorkshopExtendItem) => {
+        this.state.subscribed.set(itemId, item);
+      }
+    );
+
+    broadcaster.on("workshop:subscribed-loaded", () => {
+      this.syncSubscribedItems();
+    });
+
     this.syncSubscribedItems();
+  }
+
+  static isTagsIntersect(itemTags?: string[], targetTags?: string[]): boolean {
+    return (
+      targetTags?.some((targetTag) =>
+        itemTags?.some(
+          (itemTag) => itemTag.toLocaleLowerCase() == targetTag.toLowerCase()
+        )
+      ) ?? false
+    );
   }
 }
 

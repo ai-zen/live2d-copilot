@@ -3,6 +3,7 @@ import { BrowserWindow } from "electron";
 import path from "path";
 import { WebMessageRPC } from "web-message-rpc";
 import EventBus from "@ai-zen/event-bus";
+import { logger, withBigint } from "../modules/logger";
 
 export interface BrowserWindowExConstructorOptions
   extends BrowserWindowConstructorOptions {
@@ -21,6 +22,11 @@ export class BrowserWindowEx extends BrowserWindow {
       {
         addEventListener: (callback) => {
           handle = (_event, payload) => {
+            if (payload.method) {
+              logger.info(
+                `${this.name} received: ${JSON.stringify(payload, withBigint)}`
+              );
+            }
             callback(payload);
           };
           this.webContents.ipc.on("rpc-event", handle);
@@ -29,6 +35,11 @@ export class BrowserWindowEx extends BrowserWindow {
           this.webContents.ipc.off("rpc-event", handle);
         },
         postMessage: (payload) => {
+          if (payload.method != "onSystemMouseMoveEvent") {
+            logger.info(
+              `${this.name} sending: ${JSON.stringify(payload, withBigint)}`
+            );
+          }
           this.webContents.send("rpc-event", payload);
         },
       },

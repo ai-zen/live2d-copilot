@@ -141,8 +141,12 @@
 import type { Methods } from "live2d-copilot-main/src/windows/createModelsWindow";
 import { Live2DModelProfileEx } from "live2d-copilot-shared/src/Live2DModels";
 import {
+  AgeRatingTags,
   InstalledItem,
   InstalledItemType,
+  ItemTypeTags,
+  ModelsTags,
+  TagsCategories,
   WorkshopExtendItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
@@ -152,10 +156,6 @@ import UGCInstalled from "../../components/UGCInstalled.vue";
 import UGCPublish from "../../components/UGCPublish.vue";
 import UGCWorkshop from "../../components/UGCWorkshop.vue";
 import {
-  AgeRatingTags,
-  ItemTypeTags,
-  ModelsTags,
-  TagsCategories,
   getExcludedTagsByItemTypes,
   useTagsOptions,
 } from "../../composables/useUGCTagsOptions";
@@ -300,11 +300,11 @@ function focusUsedItem() {
 }
 
 onMounted(async () => {
-  broadcaster.on("unsubscribed", onUnsubscribed);
+  broadcaster.on("workshop:unsubscribed", onUnsubscribed);
 });
 
 onUnmounted(() => {
-  broadcaster.off("unsubscribed", onUnsubscribed);
+  broadcaster.off("workshop:unsubscribed", onUnsubscribed);
 });
 
 const AzureTTSNameOptions = AzureTTSList.map((item) => ({
