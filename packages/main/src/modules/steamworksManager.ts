@@ -1,4 +1,4 @@
-import steamworks, { Client } from "@ai-zen/steamworks.js";
+import { init, Client } from "@ai-zen/steamworks.js";
 import { workshop } from "@ai-zen/steamworks.js/client";
 import { dialog } from "electron";
 import {
@@ -21,7 +21,7 @@ export class SteamworksManager {
 
   async init() {
     try {
-      this._client = steamworks.init(this.APP_ID);
+      this._client = init(this.APP_ID);
     } catch (error) {
       console.error("[steamworksManager.ts] init error", error);
       dialog.showMessageBox({

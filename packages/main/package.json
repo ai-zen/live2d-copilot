@@ -3,7 +3,8 @@
   "productName": "Live2D Copilot",
   "version": "1.0.0",
   "description": "AI Desktop Pet APP",
-  "main": "dist/main.js",
+  "main": "dist/main.mjs",
+  "type": "module",
   "scripts": {
     "build:dev": "node ./scripts/build.mjs --mode development",
     "build:pre": "node ./scripts/build.mjs --mode prerelease",
@@ -22,20 +23,20 @@
   "devDependencies": {
     "@ai-zen/event-bus": "^1.0.4",
     "@ai-zen/steamworks.js": "^0.3.6",
-    "@electron-forge/cli": "^6.4.2",
-    "@electron-forge/maker-deb": "^6.4.2",
-    "@electron-forge/maker-rpm": "^6.4.2",
-    "@electron-forge/maker-squirrel": "^6.4.2",
-    "@electron-forge/maker-zip": "^6.4.2",
-    "@electron-forge/plugin-auto-unpack-natives": "^6.4.2",
+    "@electron-forge/cli": "^7.3.1",
+    "@electron-forge/maker-deb": "^7.3.1",
+    "@electron-forge/maker-rpm": "^7.3.1",
+    "@electron-forge/maker-squirrel": "^7.3.1",
+    "@electron-forge/maker-zip": "^7.3.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.3.1",
     "@types/mime": "^3.0.2",
     "@types/node": "^20.8.0",
-    "electron": "^26.5.0",
+    "electron": "^29.2.0",
     "electron-squirrel-startup": "^1.0.0",
-    "esbuild": "^0.19.4",
+    "esbuild": "^0.20.2",
     "live2d-copilot-shared": "workspace:^",
-    "mime": "^3.0.0",
-    "typescript": "^5.2.2",
-    "web-message-rpc": "^1.0.6-alpha.0"
+    "mime": "^ 4.0.1",
+    "typescript": "^5.4.4",
+    "web-message-rpc": "^1.0.6"
   }
 }

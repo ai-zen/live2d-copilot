@@ -31,3 +31,32 @@ export function getArg(argv, key) {
 export function hasArg(argv, key) {
   return argv.includes(key);
 }
+
+export const log = {
+  name: "log",
+  setup(build) {
+    // Print information at the start of the build
+    build.onStart(() => {
+      const entryPoints = build.initialOptions.entryPoints;
+      console.log("[build] Start building:", entryPoints.join(", "));
+    });
+
+    // // Print file information in each file resolution event
+    // build.onResolve({ filter: /.*/ }, async (args) => {
+    //   console.log("[build] Resolving file:", args.path);
+    //   return null;
+    // });
+
+    // // Print file information in each file load event
+    // build.onLoad({ filter: /.*/ }, async (args) => {
+    //   console.log("[build] Loading file:", args.path);
+    //   return null;
+    // });
+
+    // Print information at the end of the build
+    build.onEnd(() => {
+      const entryPoints = build.initialOptions.entryPoints;
+      console.log("[build] Build completed:", entryPoints.join(", "));
+    });
+  },
+};

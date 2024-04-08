@@ -101,7 +101,7 @@
 import { ElMessage } from "element-plus";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
-import { JSONSchema7 } from "json-schema";
+import type { JSONSchema7 } from "json-schema";
 import type { Methods } from "live2d-copilot-main/src/windows/createPluginsWindow";
 import {
   ItemTypeTags,

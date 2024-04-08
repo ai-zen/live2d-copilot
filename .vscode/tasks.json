@@ -58,8 +58,8 @@
 					],
 					"background": {
 						"activeOnStart": true,
-						"beginsPattern": "^\\[build.mjs\\] build started",
-						"endsPattern": "^\\[build.mjs\\] build ended"
+						"beginsPattern": "^\\[build\\] Start building",
+						"endsPattern": "^\\[build\\] Build completed"
 					}
 				}
 			],

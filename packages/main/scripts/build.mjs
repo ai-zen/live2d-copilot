@@ -2,7 +2,7 @@ import * as esbuild from "esbuild";
 import fsp from "node:fs/promises";
 import path from "node:path";
 import url from "node:url";
-import { getArg, hasArg, spawnp } from "./utils.mjs";
+import { getArg, hasArg, log, spawnp } from "./utils.mjs";
 
 const __filename = url.fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,18 +16,18 @@ async function main(argv) {
   const RENDER_DIR = path.resolve(MAIN_DIR, "../render");
 
   // Clear the dist folder
-  console.log("[build.mjs] clear dist dir");
+  console.log("[build] Clear dist dir");
   try {
     await fsp.rm(DIST_DIR, { recursive: true });
     await fsp.mkdir(DIST_DIR, { recursive: true });
   } catch (error) {
-    console.log("[build.mjs] clear dist error", error.message);
+    console.log("[build] Clear dist error", error.message);
   }
 
   // Copy Web static resources
   if (BUILD_MODE == "production" || BUILD_MODE == "prerelease") {
     // Build Web static resources
-    console.log("[build.mjs] build web static");
+    console.log("[build] Build web static");
     await spawnp("npm run build", {
       cwd: RENDER_DIR,
       shell: true,
@@ -35,7 +35,7 @@ async function main(argv) {
     });
 
     // Copy Web static resources
-    console.log("[build.mjs] copy web static dist");
+    console.log("[build] Copy web static dist");
     await fsp.cp(
       path.resolve(RENDER_DIR, "dist"),
       path.resolve(DIST_DIR, "static"),
@@ -44,23 +44,24 @@ async function main(argv) {
   }
 
   // Copy Public files
-  console.log("[build.mjs] copy public files");
+  console.log("[build] Copy public files");
   await fsp.cp(PUBLIC_DIR, DIST_DIR, { recursive: true });
 
   // Build main and preload
-  console.log("[build.mjs] build 'main' and 'payload'");
+  console.log("[build] Build 'main' and 'payload'");
   await Promise.all([
     (async () => {
       /**
        * @type {import('esbuild').BuildOptions}
        */
       const options = {
+        inject: ["./scripts/cjs-shim.mjs"],
         entryPoints: ["./src/main.ts"],
         bundle: true,
         platform: "node",
-        outfile: "./dist/main.js",
-        target: "es2017",
-        format: "cjs",
+        outfile: "./dist/main.mjs",
+        target: "esnext",
+        format: "esm",
         external: ["electron"],
         define: {
           "process.env.BUILD_MODE": JSON.stringify(BUILD_MODE),
@@ -70,23 +71,7 @@ async function main(argv) {
           ".node": "copy",
           ".png": "file",
         },
-        plugins: [
-          {
-            name: "log",
-            setup(build) {
-              build.onStart(() => {
-                console.log(
-                  `[build.mjs] build started ${options.entryPoints[0]}`
-                );
-              });
-              build.onEnd((result) => {
-                console.log(
-                  `[build.mjs] build ended ${options.entryPoints[0]}`
-                );
-              });
-            },
-          },
-        ],
+        plugins: [log],
       };
       if (IS_WATCH) {
         await esbuild.context(options).then((ctx) => ctx.watch());
@@ -110,23 +95,7 @@ async function main(argv) {
           "process.env.BUILD_MODE": JSON.stringify(BUILD_MODE),
         },
         sourcemap: true,
-        plugins: [
-          {
-            name: "log",
-            setup(build) {
-              build.onStart(() => {
-                console.log(
-                  `[build.mjs] build started ${options.entryPoints[0]}`
-                );
-              });
-              build.onEnd((result) => {
-                console.log(
-                  `[build.mjs] build ended ${options.entryPoints[0]}`
-                );
-              });
-            },
-          },
-        ],
+        plugins: [log],
       };
       if (IS_WATCH) {
         await esbuild.context(options).then((ctx) => ctx.watch());
@@ -135,6 +104,8 @@ async function main(argv) {
       }
     })(),
   ]);
+
+  console.log("[build] Complete.");
 }
 
 await main(process.argv);

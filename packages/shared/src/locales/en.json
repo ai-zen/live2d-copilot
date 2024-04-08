@@ -140,7 +140,7 @@
         "function_description_required": "Please enter the function description, tell the LLM what the tool does and when to call it",
         "function_description_placeholder": "Please enter the function description, tell the LLM what the tool does and when to call it",
         "function_parameters": "Function parameters",
-        "code_tips": "You need to create an index.js file in the content folder and provide the following function for exporting"
+        "code_tips": "You need to create an index.mjs file in the content folder and provide the following function for exporting"
     },
     "tray": {
         "models": "Models",

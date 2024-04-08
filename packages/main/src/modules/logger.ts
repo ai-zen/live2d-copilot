@@ -2,7 +2,7 @@ import { app } from "electron";
 import fsp from "fs/promises";
 import path from "path";
 
-export function withBigint(key: any, value: any) {
+export function withBigint(_key: any, value: any) {
   if (typeof value === "bigint") {
     return value.toString();
   }

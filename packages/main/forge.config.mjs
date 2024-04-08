@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   packagerConfig: {
     asar: false,
     prune: false,

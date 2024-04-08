@@ -84,7 +84,14 @@ export class BrowserWindowEx extends BrowserWindow {
       webPreferences: {
         preload: path.join(__dirname, "preload.js"),
       },
+      show: false,
       ...options,
+    });
+
+    // Fix white screen issue
+    win.on("ready-to-show", () => {
+      win.show();
+      win.focus();
     });
 
     // Record window instance
