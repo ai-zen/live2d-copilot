@@ -31,7 +31,8 @@
       <el-tab-pane :label="t('ugc_window.publish')" name="UGCPublish">
         <UGCPublish
           :beforePublish="beforePublish"
-          :get-form-extends-default="getFormExtendsDefault"
+          :getFormExtendsDefault="getFormExtendsDefault"
+          :echoFormByItem="echoFormByItem"
         >
           <template #form-extends="{ form }">
             <el-form-item
@@ -148,6 +149,7 @@ import {
   ModelsTags,
   TagsCategories,
   WorkshopExtendItem,
+  WorkshopItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
 import { onMounted, onUnmounted, reactive, ref } from "vue";
@@ -186,6 +188,15 @@ function getFormExtendsDefault() {
         name: t("publish_page.tts_azure_default"),
       },
     },
+  };
+}
+
+async function echoFormByItem(item: WorkshopItem) {
+  return {
+    title: item.title,
+    description: item.description,
+    visibility: item.visibility,
+    tags: item.tags,
   };
 }
 

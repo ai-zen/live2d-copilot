@@ -59,10 +59,10 @@ function preload(win: BrowserWindowEx) {
         await fsp.cp(source, dest);
       }
 
-      // Find index.js
+      // Find index.mjs
       const files = await fsp.readdir(info.contentPath);
-      const indexJs = files.find((file) => file.endsWith("index.js"));
-      if (!indexJs) throw new Error("Folder does not contain index.js file.");
+      const indexJs = files.find((file) => file.endsWith("index.mjs"));
+      if (!indexJs) throw new Error("Folder does not contain index.mjs file.");
 
       // Output profile file
       let profile: ChatToolProfileV1 = {

@@ -77,11 +77,11 @@
         "content_path": "内容文件夹",
         "content_path_required": "您需要选择一个文件夹用来上传到创意工坊",
         "content_path_placeholder": "请输入或者选择文件夹绝对路径",
-        "content_path_select_dir": "+ 选择文件夹",
+        "content_path_select_dir": "选择文件夹",
         "preview_path": "预览图",
         "preview_path_required": "您需要为此物品提供一张图片",
         "preview_path_placeholder": "请输入或者选择预览图绝对路径",
-        "preview_path_select_file": "+ 选择图片",
+        "preview_path_select_file": "选择图片",
         "preview_path_size_limit": "预览图尺寸为 512x512 像素，png 格式",
         "item_title": "物品标题",
         "item_title_required": "请填写物品标题",
@@ -96,7 +96,7 @@
         "models_tags_required": "请选择模型标签",
         "custom_tags": "自定义标签",
         "custom_tags_placeholder": "请输入标签内容",
-        "custom_tags_add": "+ 新标签",
+        "custom_tags_add": "新标签",
         "change_note": "更新日志",
         "change_note_placeholder": "请输入更新日志",
         "visibility": "可见性",
@@ -140,7 +140,9 @@
         "function_description_required": "请输入函数描述，告诉语言模型这个工具有什么作用以及何时函数",
         "function_description_placeholder": "请输入函数描述，告诉语言模型这个工具有什么作用以及何时函数",
         "function_parameters": "函数参数",
-        "code_tips": "您需要在内容文件夹中创建一个 index.mjs 文件，并提供如下函数导出"
+        "code_tips": "您需要在内容文件夹中创建一个 index.mjs 文件，并提供如下函数导出",
+        "get_item_of_id": "获取项目",
+        "get_item_error": "获取项目失败，请检查物品ID是否正确，并且您拥有该物品。"
     },
     "tray": {
         "models": "模型",

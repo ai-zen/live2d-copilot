@@ -20,7 +20,8 @@
       <el-tab-pane :label="t('ugc_window.publish')" name="UGCPublish">
         <UGCPublish
           :beforePublish="beforePublish"
-          :get-form-extends-default="getFormExtendsDefault"
+          :getFormExtendsDefault="getFormExtendsDefault"
+          :echoFormByItem="echoFormByItem"
         >
           <template #form-extends="{ form }">
             <el-form-item
@@ -106,6 +107,7 @@ import type { Methods } from "live2d-copilot-main/src/windows/createPluginsWindo
 import {
   ItemTypeTags,
   TagsCategories,
+  WorkshopItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import { UGCPublishFormWithCustom } from "live2d-copilot-shared/src/UGCPublish";
 import { ref } from "vue";
@@ -148,12 +150,21 @@ function getFormExtendsDefault() {
   };
 }
 
+async function echoFormByItem(item: WorkshopItem) {
+  return {
+    title: item.title,
+    description: item.description,
+    visibility: item.visibility,
+    tags: item.tags,
+  };
+}
+
 function getExampleCode(
   form: UGCPublishFormWithCustom<ReturnType<typeof getFormExtendsDefault>>
 ) {
-  return `export function ${form.function.name || "foo"}(${Object.keys(
-    form.function.parameters.properties!
-  ).join(",")}){
+  const function_name = form.function.name || "foo";
+  const keys = Object.keys(form.function.parameters.properties!);
+  return `export function ${function_name}({ ${keys.join(",")} }){
   return '';
 }`;
 }

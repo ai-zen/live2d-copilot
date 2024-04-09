@@ -186,7 +186,12 @@ export class MainWorkshopManager {
       this.subscribing.add(itemId);
       await steamworksManager.subscribe(itemId);
       const item = await this.loadSubscribedItem(itemId);
-      broadcaster.broadcast("workshop:subscribed", itemId, item);
+      if (item) {
+        broadcaster.broadcast("workshop:subscribed", itemId, item);
+        if (item?.installInfo) {
+          broadcaster.broadcast("workshop:item-installed", itemId, item);
+        }
+      }
     } catch (error) {
       console.error(error);
     } finally {

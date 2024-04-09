@@ -30,6 +30,15 @@
           :placeholder="t('publish_page.item_id_placeholder')"
           v-model="form.itemId"
         ></el-input>
+        <el-button
+          type="primary"
+          :icon="Search"
+          style="margin-top: 6px"
+          :loading="getItemState.isLoading"
+          @click="getItem"
+        >
+          {{ t("publish_page.get_item_of_id") }}
+        </el-button>
       </el-form-item>
       <el-form-item
         prop="contentPath"
@@ -45,6 +54,7 @@
         ></el-input>
         <el-button
           type="primary"
+          :icon="FolderOpened"
           plain
           style="margin-top: 6px"
           @click="selectContentDir"
@@ -58,16 +68,19 @@
           required: true,
           message: t('publish_page.preview_path_required'),
         }"
-        @click="selectPreviewFile"
       >
         <el-input
           :placeholder="t('publish_page.preview_path_placeholder')"
           v-model="form.previewPath"
         ></el-input>
         <el-row align="middle" style="margin-top: 6px">
-          <el-button type="primary" plain>{{
-            t("publish_page.preview_path_select_file")
-          }}</el-button>
+          <el-button
+            type="primary"
+            :icon="FolderOpened"
+            plain
+            @click="selectPreviewFile"
+            >{{ t("publish_page.preview_path_select_file") }}</el-button
+          >
           <div class="tips">
             <el-icon class="icon">
               <InfoFilled />
@@ -196,13 +209,14 @@
 </template>
 
 <script setup lang="ts" generic="F">
-import { InfoFilled } from "@element-plus/icons-vue";
+import { InfoFilled, Search, FolderOpened } from "@element-plus/icons-vue";
 import { ElForm, ElInput, ElMessage } from "element-plus";
 import type { Methods as WorkshopAPIMethods } from "live2d-copilot-main/src/windows/preloads/workshop";
 import {
   UgcItemVisibility,
   UpdateProgress,
   UpdateStatus,
+  WorkshopItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import {
   UGCPublishForm,
@@ -226,6 +240,9 @@ const props = defineProps<{
     form: UGCPublishFormWithCustom<F>
   ) => Promise<UGCPublishFormWithCustom<F>>;
   getFormExtendsDefault?: () => F;
+  echoFormByItem?: (
+    item: WorkshopItem
+  ) => Promise<Partial<UGCPublishFormWithCustom<F>>>;
 }>();
 
 const { t } = useI18n();
@@ -402,6 +419,28 @@ function backToEdit() {
   publishState.successMessage = "";
   publishState.isError = false;
   publishState.errorMessage = "";
+}
+
+const getItemState = reactive({
+  isLoading: false,
+  isReady: false,
+  data: null as null | WorkshopItem,
+});
+
+async function getItem() {
+  try {
+    getItemState.isLoading = true;
+    getItemState.data = await workshopApi.getItem(BigInt(form.itemId));
+    if (props.echoFormByItem && getItemState.data) {
+      const itemForm = await props.echoFormByItem(getItemState.data);
+      Object.assign(form, itemForm);
+    }
+    getItemState.isReady = true;
+  } catch (error) {
+    ElMessage.error(t("publish_page.get_item_error"));
+  } finally {
+    getItemState.isLoading = false;
+  }
 }
 </script>
 

@@ -37,8 +37,8 @@ export class RenderChatToolsManager {
     }
   }
 
-  getToolCallResult(method: string, parsed_args: any) {
-    return this.chatToolsApi.getToolCallResult(method, parsed_args);
+  getFunctionCallResult(method: string, parsed_args: any) {
+    return this.chatToolsApi.getFunctionCallResult(method, parsed_args);
   }
 
   constructor() {

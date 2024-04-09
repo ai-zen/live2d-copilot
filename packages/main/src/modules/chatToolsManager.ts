@@ -8,6 +8,7 @@ import {
   WorkshopExtendItem,
 } from "live2d-copilot-shared/src/Steamworks";
 import path from "path";
+import url from "url";
 import { broadcaster } from "./broadcaster";
 import { MainWorkshopManager, workshopManager } from "./workshopManager";
 
@@ -21,9 +22,9 @@ export class MainChatToolsManager {
   profiles = new Map<bigint, ChatToolProfileEx>();
   functionMap = new Map<string, ChatToolProfileEx>();
 
-  init() {
+  async init() {
     try {
-      return this.loadProfiles();
+      await this.loadProfiles();
     } catch (error) {
       console.error(error);
     }
@@ -69,7 +70,7 @@ export class MainChatToolsManager {
       ...profile,
       _itemId: item.itemId,
       _dir: path.resolve(folder),
-      _index: path.resolve(folder, "index.js"),
+      _index: path.resolve(folder, "index.mjs"),
     };
   }
 
@@ -98,10 +99,23 @@ export class MainChatToolsManager {
     return Array.from(this.profiles.values());
   }
 
-  async getToolCallResult(method: string, parsed_args: any) {
-    console.log("method", method, "parsed_args", parsed_args);
-    console.log("matched", this.functionMap.get(method));
-    return "执行失败，请勿重试";
+  async getFunctionCallResult(method_name: string, parsed_args: any) {
+    const matched = this.functionMap.get(method_name);
+    if (!matched) throw new Error(`The method ${method_name} not found.`);
+    let module: any;
+
+    // Allow import any modules, is it dangerous to do so? Yes, it can be dangerous.
+    module = await import(url.pathToFileURL(matched._index).href);
+
+    if (!module[method_name]) {
+      throw new Error(`The method ${method_name} not found.`);
+    }
+
+    try {
+      return module[method_name](parsed_args);
+    } catch (error) {
+      throw new Error(`Failed to call method ${method_name}.`);
+    }
   }
 }
 

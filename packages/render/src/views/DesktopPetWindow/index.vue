@@ -121,14 +121,15 @@ const chatController = useChat({
       (profile) =>
         new CallbackTool({
           ...profile,
-          callback(parsed_args) {
+          async callback(parsed_args) {
             try {
-              return chatToolsManager.getToolCallResult(
+              return await chatToolsManager.getFunctionCallResult(
                 profile.function.name,
                 parsed_args
               );
             } catch (error) {
               console.error(error);
+              throw error;
             }
           },
         })
@@ -189,10 +190,12 @@ function sendMessage(content: string) {
 watch(
   [() => profileRef.value?.chat?.prompt, () => chatToolsManager.state.profiles],
   () => {
+    console.log("chatController.init();");
     chatController.init();
   },
   {
     immediate: true,
+    deep: true,
   }
 );
 </script>

@@ -42,6 +42,9 @@
               >{{ t("subscribe") }}</el-button
             >
           </div>
+          <div class="id-row">
+            <div class="id-text">ID: {{ item.publishedFileId }}</div>
+          </div>
         </div>
       </div>
     </div>

@@ -5,8 +5,8 @@ export function preload(win: BrowserWindowEx) {
   return win.rpc.register("chatTools", {
     getLoadedProfiles:
       chatToolsManager.getLoadedProfiles.bind(chatToolsManager),
-    getToolCallResult:
-      chatToolsManager.getToolCallResult.bind(chatToolsManager),
+    getFunctionCallResult:
+      chatToolsManager.getFunctionCallResult.bind(chatToolsManager),
   });
 }
 

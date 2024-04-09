@@ -14,6 +14,7 @@ export class RenderBroadcaster extends EventBus {
   }
 
   broadcast(event: string, ...args: any[]) {
+    this.emit(event, ...args);
     rpc.use("broadcaster").broadcast(event, ...args);
   }
 }

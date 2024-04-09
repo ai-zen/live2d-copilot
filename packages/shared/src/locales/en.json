@@ -77,11 +77,11 @@
         "content_path": "Content Folder",
         "content_path_required": "You need to select a folder to upload to the workshop",
         "content_path_placeholder": "Enter or select the absolute path of the folder",
-        "content_path_select_dir": "+ Select Folder",
+        "content_path_select_dir": "Select Folder",
         "preview_path": "Preview Image",
         "preview_path_required": "You need to provide an image for this item",
         "preview_path_placeholder": "Enter or select the absolute path of the image",
-        "preview_path_select_file": "+ Select Image",
+        "preview_path_select_file": "Select Image",
         "preview_path_size_limit": "Preview image size should be 512x512 pixels, in PNG format",
         "item_title": "Item Title",
         "item_title_required": "Please provide the item title",
@@ -96,7 +96,7 @@
         "models_tags_required": "Please select model tags",
         "custom_tags": "Custom Tags",
         "custom_tags_placeholder": "Enter the tag content",
-        "custom_tags_add": "+ Add a tag",
+        "custom_tags_add": "Add a tag",
         "change_note": "Change Note",
         "change_note_placeholder": "Enter the change note",
         "visibility": "Visibility",
@@ -140,7 +140,9 @@
         "function_description_required": "Please enter the function description, tell the LLM what the tool does and when to call it",
         "function_description_placeholder": "Please enter the function description, tell the LLM what the tool does and when to call it",
         "function_parameters": "Function parameters",
-        "code_tips": "You need to create an index.mjs file in the content folder and provide the following function for exporting"
+        "code_tips": "You need to create an index.mjs file in the content folder and provide the following function for exporting",
+        "get_item_of_id": "Get the Item",
+        "get_item_error": "Failed to get the item. Please check if the item ID is correct and if you own the item."
     },
     "tray": {
         "models": "Models",
