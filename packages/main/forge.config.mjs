@@ -12,6 +12,7 @@ export default {
       /^\/forge.config.js/,
       /^\/tsconfig.json/,
     ],
+    icon: './public/logo.ico'
   },
   rebuildConfig: {},
   makers: [

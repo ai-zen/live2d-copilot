@@ -85,6 +85,7 @@ export class BrowserWindowEx extends BrowserWindow {
         preload: path.join(__dirname, "preload.js"),
       },
       show: false,
+      icon: path.join(__dirname, "logo.ico"),
       ...options,
     });
 
