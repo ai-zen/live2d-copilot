@@ -40,8 +40,8 @@ import type { Methods } from "live2d-copilot-main/src/windows/createDesktopPetWi
 import { computed, nextTick, onMounted, onUnmounted, reactive } from "vue";
 import { rpc } from "../../modules/rpc";
 import { sleep } from "../../utils/sleep";
-import { guiController } from "./modules/guiController";
 import { useI18n } from "../../modules/i18n";
+import { settingManager } from "../../modules/settingManager";
 
 const { t } = useI18n();
 
@@ -87,7 +87,11 @@ const menu = computed<MenuItem[]>(() => [
     title: t("context_menu.chat"),
     icon: ChatLineRound,
     click(_item: MenuItem) {
-      guiController.openChat();
+      if (settingManager.state.data) {
+        settingManager.state.data.isShowChat =
+          !settingManager.state.data.isShowChat;
+        settingManager.saveSetting();
+      }
       closeMenu();
     },
   },

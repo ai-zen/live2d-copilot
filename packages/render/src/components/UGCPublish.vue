@@ -37,7 +37,7 @@
           :loading="getItemState.isLoading"
           @click="getItem"
         >
-          {{ t("publish_page.get_item_of_id") }}
+          {{ t("publish_page.query_item_of_id") }}
         </el-button>
       </el-form-item>
       <el-form-item
@@ -437,7 +437,7 @@ async function getItem() {
     }
     getItemState.isReady = true;
   } catch (error) {
-    ElMessage.error(t("publish_page.get_item_error"));
+    ElMessage.error(t("publish_page.query_item_error"));
   } finally {
     getItemState.isLoading = false;
   }

@@ -319,7 +319,9 @@ onUnmounted(() => {
 });
 
 const AzureTTSNameOptions = AzureTTSList.map((item) => ({
-  label: item.LocalName,
+  label: `${item.LocalName} (${
+    item.Gender === "Female" ? t("publish_page.female") : t("publish_page.male")
+  })`,
   value: item.ShortName,
 }));
 </script>

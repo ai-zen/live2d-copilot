@@ -1,20 +1,22 @@
 <template>
   <Live2D class="live2d" @mounted="onLive2DMounted" ref="live2dRef" />
-  <Subtitles
-    v-if="profileRef && positionRef"
-    :model-position="positionRef"
-    v-model:transform="profileRef.subtitlesTransform"
-    @update:transform="saveProfileWithDebounce"
-    ref="subtitlesRef"
-  />
-  <ChatInput
-    v-if="profileRef && positionRef"
-    :model-position="positionRef"
-    v-model:transform="profileRef.chatInputTransform"
-    @update:transform="saveProfileWithDebounce"
-    @send="sendMessage"
-    ref="chatInputRef"
-  />
+  <template
+    v-if="settingManager.state.data?.isShowChat && profileRef && positionRef"
+  >
+    <Subtitles
+      :model-position="positionRef"
+      v-model:transform="profileRef.subtitlesTransform"
+      @update:transform="saveProfileWithDebounce"
+      ref="subtitlesRef"
+    />
+    <ChatInput
+      :model-position="positionRef"
+      v-model:transform="profileRef.chatInputTransform"
+      @update:transform="saveProfileWithDebounce"
+      @send="sendMessage"
+      ref="chatInputRef"
+    />
+  </template>
   <ContextMenu />
 </template>
 
@@ -39,6 +41,7 @@ import { useCurrentModel } from "./composables/useCurrentModel";
 import { useSentence } from "./composables/useSentence";
 import { useTTS } from "./composables/useTTS";
 import { useVoicePlay } from "./composables/useVoicePlay";
+import { settingManager } from "../../modules/settingManager";
 
 type LAppLive2DManager = LAppLive2DManagerModule.LAppLive2DManager;
 type LAppDelegate = LAppDelegateModule.LAppDelegate;

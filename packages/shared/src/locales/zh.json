@@ -141,8 +141,10 @@
         "function_description_placeholder": "请输入函数描述，告诉语言模型这个工具有什么作用以及何时函数",
         "function_parameters": "函数参数",
         "code_tips": "您需要在内容文件夹中创建一个 index.mjs 文件，并提供如下函数导出",
-        "get_item_of_id": "获取项目",
-        "get_item_error": "获取项目失败，请检查物品ID是否正确，并且您拥有该物品。"
+        "query_item_of_id": "查询物品",
+        "query_item_error": "查询物品失败，请检查物品ID是否正确，并且您拥有该物品。",
+        "female": "女",
+        "male": "男"
     },
     "tray": {
         "models": "模型",

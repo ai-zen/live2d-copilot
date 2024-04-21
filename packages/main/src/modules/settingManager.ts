@@ -17,6 +17,7 @@ export class MainSettingManager {
   data = <Setting>{
     lang: "en", // Default language
     alwaysOnTop: true,
+    isShowChat: false,
   };
 
   eventBus = new EventBus(); // Event bus for notifying state changes
