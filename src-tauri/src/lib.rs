@@ -121,6 +121,10 @@ fn create_desktop_pet_window(app: &tauri::AppHandle) {
 
     match win {
         Ok(w) => {
+            #[cfg(debug_assertions)]
+            {
+                let _ = w.open_devtools();
+            }
             gaze::start_gaze_tracking(w.clone());
             mouse_through::enable_mouse_through(w);
         }

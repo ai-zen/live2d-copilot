@@ -10,6 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@ai-zen/agents-core": "^2.5.0",
     "@ai-zen/async-queue": "^1.4.0",
     "@ai-zen/live2d-vue": "^1.2.3",
     "@element-plus/icons-vue": "^2.3.1",
