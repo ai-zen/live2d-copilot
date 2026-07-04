@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "live2d-copilot",
+  "productName": "Live2D Copilot",
   "version": "0.1.0",
   "identifier": "com.bylzq.live2d-copilot",
   "build": {
@@ -10,13 +10,7 @@
     "frontendDist": "../dist"
   },
   "app": {
-    "windows": [
-      {
-        "title": "live2d-copilot",
-        "width": 800,
-        "height": 600
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     }
