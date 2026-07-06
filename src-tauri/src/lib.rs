@@ -1,14 +1,79 @@
 use tauri::{
     menu::{MenuBuilder, MenuItemBuilder},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    Manager, WebviewUrl, WebviewWindowBuilder,
+    Emitter, Manager, WebviewUrl, WebviewWindowBuilder,
 };
+use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::PathBuf;
 
 mod gaze;
 mod mouse_through;
 
 const DESKTOP_PET_LABEL: &str = "desktop-pet";
 const LOADING_LABEL: &str = "loading";
+
+// ============================================================
+// Settings
+// ============================================================
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+struct AppSettings {
+    #[serde(default)]
+    llm_api_key: String,
+    #[serde(default = "default_provider")]
+    llm_provider: String,
+    #[serde(default)]
+    llm_model: String,
+    #[serde(default = "default_tts_voice")]
+    tts_voice: String,
+}
+
+fn default_provider() -> String { "deepseek".into() }
+fn default_tts_voice() -> String { "zh-CN-XiaoxiaoNeural".into() }
+
+impl Default for AppSettings {
+    fn default() -> Self {
+        Self {
+            llm_api_key: String::new(),
+            llm_provider: "deepseek".into(),
+            llm_model: String::new(),
+            tts_voice: "zh-CN-XiaoxiaoNeural".into(),
+        }
+    }
+}
+
+fn settings_path(app: &tauri::AppHandle) -> PathBuf {
+    app.path()
+        .app_config_dir()
+        .unwrap_or_else(|_| PathBuf::from("."))
+        .join("settings.json")
+}
+
+#[tauri::command]
+fn load_setting(app: tauri::AppHandle) -> AppSettings {
+    let path = settings_path(&app);
+    if path.exists() {
+        fs::read_to_string(&path)
+            .ok()
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_default()
+    } else {
+        AppSettings::default()
+    }
+}
+
+#[tauri::command]
+fn save_setting(app: tauri::AppHandle, settings: AppSettings) {
+    let path = settings_path(&app);
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
+    }
+    if let Ok(json) = serde_json::to_string_pretty(&settings) {
+        let _ = fs::write(&path, json);
+    }
+    let _ = app.emit("settings-updated", &settings);
+}
 
 // ============================================================
 // Tauri Commands
@@ -25,19 +90,25 @@ fn close_loading_window(app: tauri::AppHandle) {
 /// 打开模型管理窗口
 #[tauri::command]
 fn open_models_window(app: tauri::AppHandle) {
-    create_or_show_window(&app, "models", "/models-window", "Models", 900.0, 640.0);
+    std::thread::spawn(move || {
+        create_or_show_window(&app, "models", "/models-window", "Models", 900.0, 640.0);
+    });
 }
 
 /// 打开设置窗口
 #[tauri::command]
 fn open_settings_window(app: tauri::AppHandle) {
-    create_or_show_window(&app, "settings", "/settings-window", "Settings", 560.0, 480.0);
+    std::thread::spawn(move || {
+        create_or_show_window(&app, "settings", "/settings-window", "Settings", 600.0, 560.0);
+    });
 }
 
 /// 打开插件窗口
 #[tauri::command]
 fn open_plugins_window(app: tauri::AppHandle) {
-    create_or_show_window(&app, "plugins", "/plugins-window", "Plugins", 900.0, 640.0);
+    std::thread::spawn(move || {
+        create_or_show_window(&app, "plugins", "/plugins-window", "Plugins", 900.0, 640.0);
+    });
 }
 
 /// 窗口拖动（使用 Tauri 原生 API）
@@ -88,15 +159,27 @@ fn create_or_show_window(
 
 /// 创建加载窗口（小窗口，居中）
 fn create_loading_window(app: &tauri::AppHandle) {
-    let win = WebviewWindowBuilder::new(app, LOADING_LABEL, WebviewUrl::App("/loading".into()))
+    let (tx, rx) = std::sync::mpsc::channel::<()>();
+
+    let win = WebviewWindowBuilder::new(app, LOADING_LABEL, WebviewUrl::App("/loading.html".into()))
         .title("Live2D Copilot")
         .inner_size(320.0, 180.0)
         .resizable(false)
+        .decorations(false)
+        .transparent(true)
         .center()
-        .visible(true)
+        .visible(false)
+        .on_page_load(move |_, _| {
+            tx.send(()).ok();
+        })
         .build();
 
-    if let Err(e) = win {
+    if let Ok(w) = win {
+        std::thread::spawn(move || {
+            rx.recv().ok();
+            let _ = w.show();
+        });
+    } else if let Err(e) = win {
         eprintln!("Failed to create loading window: {}", e);
     }
 }
@@ -210,6 +293,8 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            load_setting,
+            save_setting,
             close_loading_window,
             open_models_window,
             open_settings_window,

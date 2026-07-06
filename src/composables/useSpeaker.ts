@@ -4,17 +4,19 @@ import { AsyncQueue } from "@ai-zen/async-queue";
 export interface Clip {
   text: string;
   buffer: AudioBuffer;
+  /** WAV blob URL，用于 Live2D 对口型 */
+  blobUrl: string;
 }
 
 /**
- * 音频播放器：串行播放 + 字幕同步。
+ * 音频播放器：串行播放 + 字幕同步 + 对口型回调。
  *
  * push(clip) 入队播放，push(null) 标记对话结束并清理状态。
- * 用法（老项目模式）：
- *   onSentence → synthesize → speakerQueue.push({ text, buffer })
- *   对话结束后 → speakerQueue.push(null)
  */
-export function useSpeaker() {
+export function useSpeaker(options?: {
+  onPlay?: (clip: Clip) => void;
+  onPlayed?: (clip: Clip) => void;
+}) {
   const inputQueue = new AsyncQueue<Clip | null>();
   const state = reactive({
     subtitle: "",
@@ -25,7 +27,6 @@ export function useSpeaker() {
     let ctx: AudioContext | null = null;
     for await (const clip of inputQueue) {
       if (clip === null) {
-        // null = 对话结束标记，清理状态
         state.subtitle = "";
         state.isSpeaking = false;
         continue;
@@ -34,10 +35,17 @@ export function useSpeaker() {
       if (!ctx) ctx = new AudioContext();
       state.isSpeaking = true;
       state.subtitle = clip.text;
+
+      // 对口型：通知外部（Live2D 开始追踪口型）
+      options?.onPlay?.(clip);
+
       const source = ctx.createBufferSource();
       source.buffer = clip.buffer;
       source.connect(ctx.destination);
       await new Promise<void>((r) => { source.onended = () => r(); source.start(); });
+
+      // 播放完毕
+      options?.onPlayed?.(clip);
     }
   })();
 

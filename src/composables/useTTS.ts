@@ -1,5 +1,6 @@
 import { AsyncQueue } from "@ai-zen/async-queue";
 import { synthesize } from "../utils/tts";
+import { audioBufferToWav } from "../utils/wav";
 import type { Clip } from "./useSpeaker";
 
 /**
@@ -8,6 +9,8 @@ import type { Clip } from "./useSpeaker";
  * push(null) 标记对话结束 → onEnd 回调。
  */
 export function useTTS(options: {
+  getVoiceName?: () => string;
+  voiceName?: string;
   onVoice?: (clip: Clip) => void;
   onEnd?: () => void;
 }) {
@@ -19,8 +22,10 @@ export function useTTS(options: {
         options.onEnd?.();
         continue;
       }
-      const audioBuffer = await synthesize(text);
-      options.onVoice?.({ text, buffer: audioBuffer });
+      const name = options.getVoiceName?.() ?? options.voiceName ?? "zh-CN-XiaoxiaoNeural";
+      const buffer = await synthesize(text, name);
+      const blobUrl = URL.createObjectURL(audioBufferToWav(buffer));
+      options.onVoice?.({ text, buffer, blobUrl });
     }
   })();
 
