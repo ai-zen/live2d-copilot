@@ -39,7 +39,6 @@ const speaker = useSpeaker({
   onPlay(clip) {
     const model = live2d.model.value as any;
     if (model) {
-      model._enabledVoicePlay = true;
       model._wavFileHandler.start(clip.blobUrl);
     }
   },
