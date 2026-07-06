@@ -2,7 +2,8 @@
 import { Live2D } from "@ai-zen/live2d-vue";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
+import { Setting, ChatDotRound, Link, Monitor, SwitchButton, CloseBold } from "@element-plus/icons-vue";
 import ChatBubble from "../components/ChatBubble.vue";
 import ChatInput from "../components/ChatInput.vue";
 import ContextMenu, { type MenuItem } from "../components/ContextMenu.vue";
@@ -125,17 +126,21 @@ function onContextMenu(e: MouseEvent) {
     x: e.clientX,
     y: e.clientY,
     items: [
-      { label: "模型", icon: "🧸", action: () => invoke("open_models_window") },
-      { label: "插件", icon: "🔌", action: () => invoke("open_plugins_window") },
-      ...(settings.value.llm_api_key
-        ? [{ label: showChat.value ? "隐藏聊天" : "聊天", icon: "💬", action: () => { showChat.value = !showChat.value; } }]
-        : []),
-      { label: "设置", icon: "⚙️", action: () => invoke("open_settings_window") },
-      { label: "退出", icon: "⏻", action: () => invoke("quit_app") },
-      { type: "close", label: "关闭", icon: "✕" },
+      { label: "模型", icon: Monitor, action: () => invoke("open_models_window") },
+      { label: "插件", icon: Link, action: () => invoke("open_plugins_window") },
+      { label: "聊天", icon: ChatDotRound, action: () => { if (!settings.value.llm_api_key) { invoke("open_settings_window", { prompt: "请先配置 API Key" }); } else { showChat.value = !showChat.value; } } },
+      { label: "设置", icon: Setting, action: () => invoke("open_settings_window") },
+      { label: "退出", icon: SwitchButton, action: () => invoke("quit_app") },
+      { type: "close", label: "关闭", icon: CloseBold },
     ],
   };
 }
+
+// ---- 暗黑模式 ----
+
+onMounted(() => {
+  document.documentElement.classList.add("dark");
+});
 
 // ---- 启动 ----
 

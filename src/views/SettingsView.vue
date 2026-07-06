@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { invoke } from "@tauri-apps/api/core";
+import { ElMessage } from "element-plus";
 import { PRESET_MODELS, type Provider } from "../composables/useChat";
 import { listVoices, type TTSVoice } from "../utils/tts";
 import type { AppSettings } from "../shared/Setting";
@@ -10,10 +12,12 @@ const apiKey = ref("");
 const provider = ref<Provider>("deepseek");
 const modelId = ref("");
 
-const providers: { key: Provider; name: string }[] = [
-  { key: "deepseek", name: "DeepSeek" },
-  { key: "chatglm", name: "ChatGLM (智谱)" },
+const providers: { key: Provider; name: string; keyUrl: string }[] = [
+  { key: "deepseek", name: "DeepSeek", keyUrl: "https://platform.deepseek.com/api_keys" },
+  { key: "chatglm", name: "ChatGLM (智谱)", keyUrl: "https://open.bigmodel.cn/usercenter/apikeys" },
 ];
+
+const currentProviderUrl = () => providers.find((p) => p.key === provider.value)?.keyUrl || providers[0].keyUrl;
 
 const models = ref<{ id: string; name: string }[]>([]);
 
@@ -36,10 +40,16 @@ async function loadVoices() {
   }
 }
 
+// ---- 提示 ----
+function showPrompt(msg: string) {
+  ElMessage({ message: msg, type: "warning", duration: 5000 });
+}
+
 // ---- 保存 ----
-const saved = ref(false);
+const saving = ref(false);
 
 async function save() {
+  saving.value = true;
   const s: AppSettings = {
     llm_api_key: apiKey.value.trim(),
     llm_provider: provider.value,
@@ -47,11 +57,15 @@ async function save() {
     tts_voice: voiceName.value,
   };
   await invoke("save_setting", { settings: s });
-  saved.value = true;
-  setTimeout(() => (saved.value = false), 2000);
+  saving.value = false;
+  ElMessage({ message: "设置已保存", type: "success", duration: 2000 });
 }
 
 onMounted(async () => {
+  document.documentElement.classList.add("dark");
+  const p = useRoute().query.prompt as string | undefined;
+  if (p) showPrompt(p);
+
   const s = await invoke<AppSettings>("load_setting");
   apiKey.value = s.llm_api_key;
   provider.value = s.llm_provider as Provider;
@@ -64,87 +78,108 @@ onMounted(async () => {
 
 <template>
   <div class="settings-window">
-    <h2>⚙️ 设置</h2>
+    <h2 class="page-title">设置</h2>
 
-    <div class="section">
-      <h3>🤖 AI 模型</h3>
+    <el-form label-position="top" class="settings-form">
+      <div class="section">
+        <h3 class="section-title">AI 模型</h3>
 
-      <label>提供商</label>
-      <select v-model="provider" @change="updateModels">
-        <option v-for="p in providers" :key="p.key" :value="p.key">{{ p.name }}</option>
-      </select>
+        <el-form-item label="模型提供商">
+          <el-select v-model="provider" @change="updateModels">
+            <el-option v-for="p in providers" :key="p.key" :label="p.name" :value="p.key" />
+          </el-select>
+        </el-form-item>
 
-      <label>API Key</label>
-      <input v-model="apiKey" type="password" placeholder="sk-..." />
+        <el-form-item label="API Key">
+          <el-input
+            v-model="apiKey"
+            type="password"
+            placeholder="请输入 API Key"
+            show-password
+          />
+        </el-form-item>
+        <p class="key-link">
+          <el-link :href="currentProviderUrl()" target="_blank" type="primary" :underline="false">
+            获取 {{ providers.find(p => p.key === provider)?.name }} API Key
+          </el-link>
+        </p>
 
-      <label>模型</label>
-      <select v-model="modelId">
-        <option v-for="m in models" :key="m.id" :value="m.id">{{ m.name }}</option>
-      </select>
-    </div>
+        <el-form-item label="模型">
+          <el-select v-model="modelId">
+            <el-option v-for="m in models" :key="m.id" :label="m.name" :value="m.id" />
+          </el-select>
+        </el-form-item>
+      </div>
 
-    <div class="section">
-      <h3>🔊 TTS 语音</h3>
+      <el-divider />
 
-      <label>语音</label>
-      <select v-model="voiceName">
-        <option value="">zh-CN-XiaoxiaoNeural（默认）</option>
-        <option v-for="v in voices" :key="v.ShortName" :value="v.ShortName">
-          {{ v.FriendlyName }} ({{ v.Gender }})
-        </option>
-      </select>
-    </div>
+      <div class="section">
+        <h3 class="section-title">语音合成</h3>
 
-    <div class="actions">
-      <span v-if="saved" class="saved-hint">✅ 已保存</span>
-      <button class="btn-save" @click="save">保存设置</button>
-    </div>
+        <el-form-item label="TTS 语音">
+          <el-select v-model="voiceName" filterable placeholder="选择语音">
+            <el-option label="zh-CN-XiaoxiaoNeural（默认）" value="" />
+            <el-option
+              v-for="v in voices"
+              :key="v.ShortName"
+              :label="`${v.FriendlyName} (${v.Gender})`"
+              :value="v.ShortName"
+            />
+          </el-select>
+        </el-form-item>
+      </div>
+
+      <div class="actions">
+        <el-button type="primary" :loading="saving" @click="save">保存设置</el-button>
+      </div>
+    </el-form>
   </div>
 </template>
 
 <style scoped>
 .settings-window {
-  padding: 28px;
+  padding: 28px 32px;
   height: 100vh;
   box-sizing: border-box;
   overflow-y: auto;
-  color: #ccc;
-  background: #1a1a2e;
+  background: var(--el-bg-color);
 }
-h2 { color: #fff; margin: 0 0 24px; font-size: 18px; }
-h3 { color: #ddd; font-size: 14px; margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
-.section { margin-bottom: 8px; }
-label { font-size: 12px; color: #888; display: block; margin-top: 12px; margin-bottom: 4px; }
-input, select {
+
+.page-title {
+  margin: 0 0 24px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+}
+
+.settings-form {
+  max-width: 480px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary);
+  margin: 0 0 4px;
+}
+
+.section {
+  margin-bottom: 4px;
+}
+
+.settings-form .el-select,
+.settings-form .el-input {
   width: 100%;
-  background: #22223a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
-  padding: 9px 12px;
-  color: #fff;
-  font-size: 13px;
-  outline: none;
 }
-input:focus, select:focus { border-color: #4a9eff; }
+
+.key-link {
+  margin: -16px 0 16px;
+  font-size: 13px;
+}
 
 .actions {
   display: flex;
-  align-items: center;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 8px;
 }
-.saved-hint { font-size: 13px; color: #5c5; }
-.btn-save {
-  padding: 9px 24px;
-  border-radius: 6px;
-  border: none;
-  font-size: 13px;
-  cursor: pointer;
-  background: #4a9eff;
-  color: #fff;
-}
-.btn-save:hover { background: #3a8eee; }
 </style>

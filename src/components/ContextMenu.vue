@@ -15,7 +15,10 @@
       @click="handleClick(item)"
     >
       <div class="ctx-item" :title="item.label">
-        <span class="ctx-icon">{{ item.icon }}</span>
+        <span class="ctx-icon">
+          <component v-if="typeof item.icon !== 'string'" :is="item.icon" />
+          <template v-else>{{ item.icon }}</template>
+        </span>
         <span class="ctx-label">{{ item.label }}</span>
       </div>
     </div>
@@ -23,12 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, type Component } from "vue";
 
 export interface MenuItem {
   type?: string;
   label: string;
-  icon: string;
+  icon: string | Component;
   action?: () => void;
 }
 
@@ -74,7 +77,7 @@ function handleClick(item: MenuItem) {
   width: 260px;
   height: 260px;
   border-radius: 50%;
-  background: rgba(20, 20, 40, 0.95);
+  background: rgba(26, 30, 46, 0.95);
   border: 2px solid rgba(255, 255, 255, 0.15);
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(16px);
@@ -119,24 +122,31 @@ function handleClick(item: MenuItem) {
   transform: rotate(calc(-1 * var(--index) / var(--count) * 360deg));
 }
 .ctx-item:hover {
-  background: rgba(74, 158, 255, 0.45);
-  border-color: rgba(74, 158, 255, 0.85);
-  box-shadow: 0 0 16px rgba(74, 158, 255, 0.35);
+  background: rgba(64, 158, 255, 0.45);
+  border-color: rgba(64, 158, 255, 0.85);
+  box-shadow: 0 0 16px rgba(64, 158, 255, 0.35);
 }
 .ctx-icon {
   font-size: 20px;
   line-height: 1;
   color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ctx-icon :deep(svg) {
+  width: 20px;
+  height: 20px;
 }
 .ctx-label {
   font-size: 9px;
-  color: #ccc;
+  color: var(--el-text-color-secondary, #ccc);
   margin-top: 2px;
   line-height: 1;
   white-space: nowrap;
 }
 .ctx-item:hover .ctx-label {
-  color: #fff;
+  color: var(--el-text-color-primary, #fff);
 }
 
 @keyframes ctx-bg-in {

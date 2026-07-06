@@ -7,6 +7,9 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
 
+#[cfg(target_os = "windows")]
+use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_USE_IMMERSIVE_DARK_MODE};
+
 mod gaze;
 mod mouse_through;
 
@@ -91,15 +94,19 @@ fn close_loading_window(app: tauri::AppHandle) {
 #[tauri::command]
 fn open_models_window(app: tauri::AppHandle) {
     std::thread::spawn(move || {
-        create_or_show_window(&app, "models", "/models-window", "Models", 900.0, 640.0);
+        create_or_show_window(&app, "models", "/models-window", "模型管理", 900.0, 640.0);
     });
 }
 
 /// 打开设置窗口
 #[tauri::command]
-fn open_settings_window(app: tauri::AppHandle) {
+fn open_settings_window(app: tauri::AppHandle, prompt: Option<String>) {
+    let url = match &prompt {
+        Some(msg) => format!("/settings-window?prompt={}", msg),
+        None => "/settings-window".into(),
+    };
     std::thread::spawn(move || {
-        create_or_show_window(&app, "settings", "/settings-window", "Settings", 600.0, 560.0);
+        create_or_show_window(&app, "settings", &url, "设置", 600.0, 560.0);
     });
 }
 
@@ -107,7 +114,7 @@ fn open_settings_window(app: tauri::AppHandle) {
 #[tauri::command]
 fn open_plugins_window(app: tauri::AppHandle) {
     std::thread::spawn(move || {
-        create_or_show_window(&app, "plugins", "/plugins-window", "Plugins", 900.0, 640.0);
+        create_or_show_window(&app, "plugins", "/plugins-window", "插件", 900.0, 640.0);
     });
 }
 
@@ -152,8 +159,31 @@ fn create_or_show_window(
         .center()
         .build();
 
+    if let Ok(w) = &win {
+        #[cfg(target_os = "windows")]
+        set_dark_titlebar(w);
+    }
     if let Err(e) = win {
         eprintln!("Failed to create {} window: {}", label, e);
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn set_dark_titlebar(win: &tauri::WebviewWindow) {
+    use raw_window_handle::{HasWindowHandle, RawWindowHandle};
+    if let Ok(wh) = win.window_handle() {
+        if let RawWindowHandle::Win32(h) = wh.as_raw() {
+            let hwnd = windows::Win32::Foundation::HWND(h.hwnd.get() as *mut std::ffi::c_void);
+            let use_dark: i32 = 1;
+            unsafe {
+                let _ = DwmSetWindowAttribute(
+                    hwnd,
+                    DWMWA_USE_IMMERSIVE_DARK_MODE,
+                    &use_dark as *const _ as *const _,
+                    std::mem::size_of::<i32>() as u32,
+                );
+            }
+        }
     }
 }
 
@@ -222,10 +252,10 @@ fn create_desktop_pet_window(app: &tauri::AppHandle) {
 // ============================================================
 
 fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
-    let show = MenuItemBuilder::with_id("show", "Show / Hide").build(app)?;
-    let models = MenuItemBuilder::with_id("models", "Models").build(app)?;
-    let settings = MenuItemBuilder::with_id("settings", "Settings").build(app)?;
-    let quit = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
+    let show = MenuItemBuilder::with_id("show", "显示 / 隐藏").build(app)?;
+    let models = MenuItemBuilder::with_id("models", "模型管理").build(app)?;
+    let settings = MenuItemBuilder::with_id("settings", "设置").build(app)?;
+    let quit = MenuItemBuilder::with_id("quit", "退出").build(app)?;
 
     let menu = MenuBuilder::new(app)
         .item(&show)
@@ -254,7 +284,7 @@ fn create_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                 open_models_window(app.clone());
             }
             "settings" => {
-                open_settings_window(app.clone());
+                open_settings_window(app.clone(), None);
             }
             "quit" => {
                 app.exit(0);

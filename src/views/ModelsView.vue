@@ -1,11 +1,14 @@
 <script setup lang="ts">
-// 模型管理窗口（后续完善）
+import { onMounted } from "vue";
+onMounted(() => {
+  document.documentElement.classList.add("dark");
+});
 </script>
 
 <template>
   <div class="window-container">
-    <h2>🧸 模型管理</h2>
-    <p>模型切换、导入和管理功能即将推出。</p>
+    <h2>模型管理</h2>
+    <el-empty description="模型切换、导入和管理功能即将推出" />
   </div>
 </template>
 
@@ -15,9 +18,7 @@
   height: 100vh;
   box-sizing: border-box;
   overflow-y: auto;
-  color: #ccc;
-  background: #1a1a2e;
+  background: var(--el-bg-color);
 }
-h2 { color: #fff; margin: 0 0 16px; font-size: 18px; }
-p { color: #888; font-size: 13px; }
+h2 { color: #fff; margin: 0 0 24px; font-size: 18px; }
 </style>

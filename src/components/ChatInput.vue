@@ -58,7 +58,7 @@ defineExpose({ focus });
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--el-bg-color-overlay, rgba(0, 0, 0, 0.6));
   backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 6px 6px 6px 16px;
@@ -70,20 +70,20 @@ defineExpose({ focus });
   flex: 1;
   background: transparent;
   border: none;
-  color: #fff;
+  color: var(--el-text-color-primary, #fff);
   font-size: 14px;
   outline: none;
   padding: 6px 0;
 }
 .chat-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--el-text-color-placeholder, rgba(255, 255, 255, 0.4));
 }
 
 .send-btn {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #4a9eff;
+  background: var(--el-color-primary, #4a9eff);
   border: none;
   color: #fff;
   font-size: 16px;
@@ -94,7 +94,7 @@ defineExpose({ focus });
   flex-shrink: 0;
 }
 .send-btn:hover {
-  background: #3a8eee;
+  background: var(--el-color-primary-light-3, #3a8eee);
 }
 
 .input-enter-active,

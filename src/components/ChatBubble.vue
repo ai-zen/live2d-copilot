@@ -34,9 +34,9 @@ const emit = defineEmits<{
   transform: translateX(-50%);
   max-width: 400px;
   min-width: 60px;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--el-bg-color-overlay, rgba(0, 0, 0, 0.75));
   backdrop-filter: blur(10px);
-  color: #fff;
+  color: var(--el-text-color-primary, #fff);
   border-radius: 14px;
   padding: 10px 14px;
   padding-right: 30px;
@@ -54,14 +54,14 @@ const emit = defineEmits<{
   right: 8px;
   background: none;
   border: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--el-text-color-placeholder, rgba(255, 255, 255, 0.5));
   font-size: 16px;
   cursor: pointer;
   padding: 0;
   line-height: 1;
 }
 .bubble-close:hover {
-  color: #fff;
+  color: var(--el-text-color-primary, #fff);
 }
 
 .dots span {
@@ -79,7 +79,7 @@ const emit = defineEmits<{
 
 .cursor {
   animation: blink 0.6s infinite;
-  color: #4a9eff;
+  color: var(--el-color-primary, #4a9eff);
 }
 
 @keyframes blink {
