@@ -118,7 +118,7 @@ onMounted(async () => {
 
         <el-form-item label="TTS 语音">
           <el-select v-model="voiceName" filterable placeholder="选择语音">
-            <el-option label="zh-CN-XiaoxiaoNeural（默认）" value="" />
+            <el-option label="zh-CN-XiaoyiNeural（默认）" value="" />
             <el-option
               v-for="v in voices"
               :key="v.ShortName"

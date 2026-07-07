@@ -22,7 +22,7 @@ export function useTTS(options: {
         options.onEnd?.();
         continue;
       }
-      const name = options.getVoiceName?.() ?? options.voiceName ?? "zh-CN-XiaoxiaoNeural";
+      const name = options.getVoiceName?.() ?? options.voiceName ?? "zh-CN-XiaoyiNeural";
       const buffer = await synthesize(text, name);
       const blobUrl = URL.createObjectURL(audioBufferToWav(buffer));
       options.onVoice?.({ text, buffer, blobUrl });

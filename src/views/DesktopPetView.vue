@@ -21,7 +21,7 @@ const settings = ref<AppSettings>({
   llm_api_key: "",
   llm_provider: "deepseek",
   llm_model: "",
-  tts_voice: "zh-CN-XiaoxiaoNeural",
+  tts_voice: "zh-CN-XiaoyiNeural",
 });
 
 listen("settings-updated", (event) => {
@@ -53,7 +53,7 @@ const speaker = useSpeaker({
 });
 
 const tts = useTTS({
-  getVoiceName: () => settings.value.tts_voice || "zh-CN-XiaoxiaoNeural",
+  getVoiceName: () => settings.value.tts_voice || "zh-CN-XiaoyiNeural",
   onVoice(clip) {
     speaker.inputQueue.push(clip);
   },

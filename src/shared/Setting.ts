@@ -9,5 +9,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   llm_api_key: "",
   llm_provider: "deepseek",
   llm_model: "",
-  tts_voice: "zh-CN-XiaoxiaoNeural",
+  tts_voice: "zh-CN-XiaoyiNeural",
 };

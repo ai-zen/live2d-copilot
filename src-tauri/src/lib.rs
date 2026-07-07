@@ -33,7 +33,7 @@ struct AppSettings {
 }
 
 fn default_provider() -> String { "deepseek".into() }
-fn default_tts_voice() -> String { "zh-CN-XiaoxiaoNeural".into() }
+fn default_tts_voice() -> String { "zh-CN-XiaoyiNeural".into() }
 
 impl Default for AppSettings {
     fn default() -> Self {
@@ -41,7 +41,7 @@ impl Default for AppSettings {
             llm_api_key: String::new(),
             llm_provider: "deepseek".into(),
             llm_model: String::new(),
-            tts_voice: "zh-CN-XiaoxiaoNeural".into(),
+            tts_voice: "zh-CN-XiaoyiNeural".into(),
         }
     }
 }
