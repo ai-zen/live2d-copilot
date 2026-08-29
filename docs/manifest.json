@@ -1,0 +1,29 @@
+{
+  "name": "live2d-copilot",
+  "description": {
+    "zh": "AI 桌面宠物（Live2D），支持对话交互，拟发布 Steam",
+    "en": "AI desktop pet (Live2D) supporting conversational interaction, planned for release on Steam"
+  },
+  "version": "0.1.0",
+  "docsRoot": "docs",
+  "locales": ["zh", "en"],
+  "defaultLocale": "zh",
+  "entry": {
+    "zh": "zh/index.md",
+    "en": "en/index.md"
+  },
+  "sections": {
+    "zh": [
+      { "title": "产品介绍", "path": "zh/index.md" },
+      { "title": "快速开始", "path": "zh/getting-started.md" },
+      { "title": "功能与架构", "path": "zh/features.md" },
+      { "title": "开发进度", "path": "zh/progress.md" }
+    ],
+    "en": [
+      { "title": "Product Overview", "path": "en/index.md" },
+      { "title": "Quick Start", "path": "en/getting-started.md" },
+      { "title": "Features & Architecture", "path": "en/features.md" },
+      { "title": "Development Progress", "path": "en/progress.md" }
+    ]
+  }
+}
